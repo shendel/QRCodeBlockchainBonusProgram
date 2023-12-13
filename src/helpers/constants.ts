@@ -1,6 +1,11 @@
 export const accountUnlockedStorageKey = 'ff-deploy-account-unlocked'
 
 export const CURRENCIES = {
+  ENERGY: {
+    name: 'Energy',
+    symbol: 'Energy',
+    decimals: 18
+  }
   BNB: {
     name: 'Binance Coin',
     symbol: 'BNB',
@@ -41,6 +46,7 @@ export const CURRENCIES = {
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const MULTICALL_CONTRACTS = {
+  800500: '0xdA1FB74466030C13064cF263A26a25b158bE2aB3', // v3 Energe multicall
   1: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
   4: '0x42Ad527de7d4e9d9d011aC45B31D8551f8Fe9821',
   5: '0xf0cc52809a6c63dab849e368b0620db17cb41cf8', // v2 '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',
@@ -57,6 +63,19 @@ export const MULTICALL_CONTRACTS = {
 }
 
 export const AVAILABLE_NETWORKS_INFO = [
+  {
+    slub: 'energy',
+    chainName: 'EnergyChain',
+    chainId: '0xC36F4',
+    networkVersion: 800500,
+    rpcUrls: ['http://rpc.proxima:8545/'], // ['https://rpc2.alvey.io/rpc'],
+    blockExplorerUrls: ['http://explorer.proxima/'],
+    isTestnet: false,
+    nativeCurrency: CURRENCIES.ALV,
+    multicall: '0xdA1FB74466030C13064cF263A26a25b158bE2aB3',
+    storage: '0x1CE32Ba73D63D7026972A7E54127538618C57316',
+    exStorage: '0xEAF3e608CAd810A7166AF623e465853ce364Fb9c'
+  },
   {
     slub: 'alv_mainnet',
     chainName: 'AlveyChain',
