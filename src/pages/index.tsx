@@ -44,6 +44,7 @@ import fetchQRFactoryInfo from '@/qrcode_helpers/fetchQRFactoryInfo'
 import { WORK_CHAIN_ID, QRCODE_FACTORY } from '@/config'
 
 function MyApp(pageProps) {
+console.log(process.env)
   const [ isFactoryFetching, setIsFactoryFetching ] = useState(true)
   const [ isFactoryFetched, setIsFactoryFetched ] = useState(false)
   const [ factoryStatus, setFactoryStatus ] = useState(false)

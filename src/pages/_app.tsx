@@ -1,7 +1,6 @@
 import type { AppProps } from "next/app"
 import { useEffect, useState } from "react"
 
-
 function MyApp({ Component, pageProps }: AppProps) {
   const [isServer, setIsServer] = useState(true)
 
