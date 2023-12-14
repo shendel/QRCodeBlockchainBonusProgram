@@ -22,10 +22,12 @@ export const getWagmiConfig = (chainIds, autoConnect) => {
           chains,
           shimDisconnect: false,
         }),
+        /*
         walletConnectWallet({
           projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "a23677c4af3139b4eccb52981f76ad94",
           chains,
         }),
+        */
       ],
     }
   ]);

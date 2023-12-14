@@ -2,14 +2,14 @@
 import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
 
-export default function Home(props) {
+export default function ManagerPanel(props) {
   const {
     gotoPage,
   } = props
   
   return (
     <>
-      <h1>Home</h1>
+      <h2>Manager panel</h2>
     </>
   )
 }

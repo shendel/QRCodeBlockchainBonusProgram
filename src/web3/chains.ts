@@ -2,9 +2,19 @@
 import { configureChains } from 'wagmi';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 
-const FARM_CHAIN = 'goerli'
-
 const NETWORKS = {
+  energy: {
+    chainId: 800500,
+    name: 'EnergyChain',
+    nativeCurrency: {
+      name: "Energy",
+      symbol: "ENERGY",
+      decimals: 18,
+    },
+    rpc: 'http://rpc.proxima:8545/',
+    explorer: 'http://explorer.proxima/',
+    multicall: '0xdA1FB74466030C13064cF263A26a25b158bE2aB3',
+  },
   goerli: {
     chainId: 5,
     name: "Goerli",

@@ -5,11 +5,23 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 
 import HashRouterViews from '@/components/HashRouterViews'
-import Accounts from '@/views/Accounts'
-import AccountInfo from '@/views/AccountInfo'
-import AccountTxs from '@/views/AccountTxs'
+
 import Home from '@/views/Home'
 import Page404 from '@/pages/404'
+
+// Admin views
+import AdminPanel from '@/views/AdminPanel/'
+import AdminPanelManagersList from '@/views/AdminPanel/Managers/List'
+import AdminPanelManagersAdd from '@/views/AdminPanel/Managers/Add'
+import AdminPanelManagersInfo from '@/views/AdminPanel/Managers/Info'
+import AdminPanelManagersDelete from '@/views/AdminPanel/Managers/Delete'
+
+// Manager views
+import ManagerPanel from '@/views/ManagerPanel/'
+// Minter views
+import MinterPanel from '@/views/MinterPanel/'
+// Claimer views
+import ClaimerPanel from '@/views/ClaimerPanel/'
 
 import Web3Connector from '@/web3/Web3Connector'
 
@@ -19,7 +31,7 @@ import { ConnectWallet } from '@/web3/components/ConnectWallet'
 function MyApp(pageProps) {
   return (
     <>
-      <Web3Connector chainIds={[5,97]} autoConnect={true}>
+      <Web3Connector chainIds={[800500,97]} autoConnect={true}>
         <ConnectWalletButton
           connectView={(isConnecting, openConnectModal) => {
             return (
@@ -38,12 +50,27 @@ function MyApp(pageProps) {
           }}
         />
         <h3>Index page</h3>
+        <nav>
+          <a href="#/admin">[Admin panel]</a>
+          <a href="#/manager">[Manager panel]</a>
+          <a href="#/minter">[Minter panel]</a>
+          <a href="#/claimer">[Claimer panel]</a>
+        </nav>
         <HashRouterViews
           views={{
             '/': Home,
-            '/accounts': Accounts,
-            '/account/:account': AccountInfo,
-            '/account/:account/txs': AccountTxs
+            
+            '/admin/': AdminPanel,
+            '/admin/managers/': AdminPanelManagersList,
+            '/admin/managers/add': AdminPanelManagersAdd,
+            '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,
+            '/admin/managers/delete/:managerAddress': AdminPanelManagersDelete,
+            
+            '/manager/': ManagerPanel,
+            
+            '/minter/': MinterPanel,
+            
+            '/claimer/': ClaimerPanel,
           }}
           on404={Page404}
         />

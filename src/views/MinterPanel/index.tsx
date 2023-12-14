@@ -2,14 +2,17 @@
 import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
 
-export default function Home(props) {
+export default function Minter(props) {
   const {
     gotoPage,
   } = props
   
   return (
     <>
-      <h1>Home</h1>
+      <h2>Minter panel</h2>
+      <nav>
+        <a href="#/minter/mint">[Mint QRCode]</a>
+      </nav>
     </>
   )
 }
