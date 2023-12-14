@@ -1,4 +1,5 @@
 import PromiseChunksCall from "./PromiseChunksCall"
+import BigNumber from "bignumber.js"
 
 const processValue = (val) => {
   if (val && val._isBigNumber) val = val.toString()
@@ -37,12 +38,15 @@ export const callMulticall = (options) => {
     const mcCalls = Object.keys(calls).map((targetKey) => {
       const {
         func,
-        args
+        args,
+        encoder: ownEncoder,
+        target: ownTarget,
       } = calls[targetKey]
       mcCallToValue.push(targetKey)
+      const usedEncoder = ownEncoder || encoder
       return {
-        target,
-        callData: encoder.encodeFunctionData(func, args)
+        target: (ownTarget || target),
+        callData: usedEncoder.encodeFunctionData(func, args)
       }
     })
     PromiseChunksCall({
@@ -55,16 +59,21 @@ export const callMulticall = (options) => {
     }).then((answers) => {
       answers.forEach((retData, index) => {
         if (retData.success) {
-          let val = encoder.decodeFunctionResult(
+          const ownEncoder = calls[mcCallToValue[index]].encoder
+          
+          let val = (ownEncoder || encoder).decodeFunctionResult(
             calls[mcCallToValue[index]].func,
             retData.returnData
-          )[0]
-
+          )
+          val = (val.length == 1) ? val[0] : val
           val = processValue(val)
 
+          if (calls[mcCallToValue[index]].asArray) {
+            val = Object.keys(val).map((key) => { return val[key] })
+          }
           ret[mcCallToValue[index]] = val
         } else {
-          ret[mcCallToValue[index]] = false
+          ret[mcCallToValue[index]] = calls[mcCallToValue[index]].default || false
         }
       })
       resolve(ret)

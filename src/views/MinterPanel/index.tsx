@@ -1,10 +1,12 @@
 
 import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
+import { useAccount } from 'wagmi'
 
 export default function Minter(props) {
   const {
     gotoPage,
+    factoryStatus,
   } = props
   
   return (

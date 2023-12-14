@@ -1,9 +1,9 @@
-import { BigNumber, ethers } from "ethers"
+import BigNumber from "bignumber.js"
 
-export const fromWei = (amount, decimals) => {
-  return ethers.utils.formatUnits(amount, decimals)
+export const toWei = (amount, decimals = 18) => {
+  return new BigNumber(amount).multipliedBy(10 ** decimals).toFixed()
 }
 
-export const toWei = (amount, decimals) => {
-  return ethers.utils.parseUnits(`${amount}`, decimals)
+export const fromWei = (amount, decimals = 18) => {
+  return new BigNumber(amount).div(new BigNumber(10).pow(decimals)).toFixed()
 }

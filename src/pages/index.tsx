@@ -11,24 +11,58 @@ import Page404 from '@/pages/404'
 
 // Admin views
 import AdminPanel from '@/views/AdminPanel/'
+
 import AdminPanelManagersList from '@/views/AdminPanel/Managers/List'
 import AdminPanelManagersAdd from '@/views/AdminPanel/Managers/Add'
 import AdminPanelManagersInfo from '@/views/AdminPanel/Managers/Info'
 import AdminPanelManagersDelete from '@/views/AdminPanel/Managers/Delete'
 
+import AdminPanelMintersList from '@/views/AdminPanel/Minters/List'
+import AdminPanelMinersAdd from '@/views/AdminPanel/Minters/Add'
+import AdminPanelMinterDelete from '@/views/AdminPanel/Minters/Delete'
+
+
 // Manager views
 import ManagerPanel from '@/views/ManagerPanel/'
 // Minter views
 import MinterPanel from '@/views/MinterPanel/'
+import MinterMint from '@/views/MinterPanel/Mint'
 // Claimer views
 import ClaimerPanel from '@/views/ClaimerPanel/'
 
-import Web3Connector from '@/web3/Web3Connector'
 
+import QrCodeView from '@/views/QrCodeView'
+import QrCodeClaim from '@/views/QrCodeClaim'
+
+
+
+import Web3Connector from '@/web3/Web3Connector'
 import { ConnectWalletButton } from '@/web3/ConnectWalletButton'
 import { ConnectWallet } from '@/web3/components/ConnectWallet'
 
+import fetchQRFactoryInfo from '@/qrcode_helpers/fetchQRFactoryInfo'
+import { WORK_CHAIN_ID, QRCODE_FACTORY } from '@/config'
+
 function MyApp(pageProps) {
+  const [ isFactoryFetching, setIsFactoryFetching ] = useState(true)
+  const [ isFactoryFetched, setIsFactoryFetched ] = useState(false)
+  const [ factoryStatus, setFactoryStatus ] = useState(false)
+  
+  useEffect(() => {
+    console.log('>> useEffect')
+    fetchQRFactoryInfo({
+      chainId: WORK_CHAIN_ID,
+      address: QRCODE_FACTORY,
+    }).then((answ) => {
+      setFactoryStatus(answ)
+      setIsFactoryFetched(true)
+      setIsFactoryFetching(false)
+    }).catch((err) => {
+      setIsFactoryFetched(false)
+      setIsFactoryFetching(false)
+    })
+  }, [ QRCODE_FACTORY ])
+  
   return (
     <>
       <Web3Connector chainIds={[800500,97]} autoConnect={true}>
@@ -50,30 +84,51 @@ function MyApp(pageProps) {
           }}
         />
         <h3>Index page</h3>
-        <nav>
-          <a href="#/admin">[Admin panel]</a>
-          <a href="#/manager">[Manager panel]</a>
-          <a href="#/minter">[Minter panel]</a>
-          <a href="#/claimer">[Claimer panel]</a>
-        </nav>
-        <HashRouterViews
-          views={{
-            '/': Home,
-            
-            '/admin/': AdminPanel,
-            '/admin/managers/': AdminPanelManagersList,
-            '/admin/managers/add': AdminPanelManagersAdd,
-            '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,
-            '/admin/managers/delete/:managerAddress': AdminPanelManagersDelete,
-            
-            '/manager/': ManagerPanel,
-            
-            '/minter/': MinterPanel,
-            
-            '/claimer/': ClaimerPanel,
-          }}
-          on404={Page404}
-        />
+        {isFactoryFetching && (
+          <div>Fetching QRCodeFactory ({QRCODE_FACTORY}) status</div>
+        )}
+        {!isFactoryFetching && !isFactoryFetched && (
+          <div>Fail fetch QRCodeFactory ({QRCODE_FACTORY}) status</div>
+        )}
+        {isFactoryFetched && (
+          <>
+            <nav>
+              <a href="#/admin">[Admin panel]</a>
+              <a href="#/manager">[Manager panel]</a>
+              <a href="#/minter">[Minter panel]</a>
+              <a href="#/claimer">[Claimer panel]</a>
+            </nav>
+            <HashRouterViews
+              views={{
+                '/': Home,
+
+                '/admin/': AdminPanel,
+                '/admin/managers/': AdminPanelManagersList,
+                '/admin/managers/add': AdminPanelManagersAdd,
+                '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,
+                '/admin/managers/delete/:managerAddress': AdminPanelManagersDelete,
+
+                '/admin/minters/': AdminPanelMintersList,
+                '/admin/minters/add': AdminPanelMinersAdd,
+                '/admin/minters/delete/:minterAddress': AdminPanelMinterDelete,
+
+                '/manager/': ManagerPanel,
+
+                '/minter/': MinterPanel,
+                '/minter/mint': MinterMint,
+
+                '/claimer/': ClaimerPanel,
+                
+                '/qrcodeview/:qrCodeAddress': QrCodeView,
+                '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
+              }}
+              props={{
+                factoryStatus
+              }}
+              on404={Page404}
+            />
+          </>
+        )}
       </Web3Connector>
     </>
   )
