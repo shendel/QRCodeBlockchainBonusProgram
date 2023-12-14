@@ -7,8 +7,46 @@ pragma solidity ^0.8.12;
 interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
     function transfer(address to, uint256 value) external returns (bool);
+    function name() external view returns (string memory);
+    function symbol() external view returns (string memory);
+    function decimals() external view returns (uint8);
 }
 
+contract QRCodeClaimer {
+    QRCodeFactory public factory;
+    IERC20 public token;
+    address public minter;
+    uint256 public amount;
+
+    string public name;
+    string public symbol;
+    uint8  public decimals;
+
+    string public minterName;
+    string public message;
+
+    constructor (
+        address _tokenAddress,
+        address _minter,
+        uint256 _amount,
+        string memory _minterName,
+        string memory _message
+    ) {
+        factory = QRCodeFactory(payable(msg.sender));
+        minter = _minter;
+        amount = _amount;
+        token = IERC20(_tokenAddress);
+        name = token.name();
+        symbol = token.symbol();
+        decimals = token.decimals();
+        minterName = _minterName;
+        message = _message;
+    }
+
+    function claim(address claimer) public {
+        factory.claim((claimer == address(0)) ? msg.sender : claimer);
+    }
+}
 contract QRCodeFactory {
     address public owner;
 
@@ -27,14 +65,19 @@ contract QRCodeFactory {
         address claimer;
         uint256 minted_at;
         uint256 claimed_at;
+        uint256 timelife;
+        address router;
+        string  message;
     }
 
     mapping (uint256 => QRCODE) public qrCodes;
+    mapping (address => uint256) public qrCodesRouters;
     uint256 private qrCodeLastId = 0;
     uint256 public qrCodesLength = 0;
 
     // Кто может генерировать коды
     mapping (address => bool) public minters;
+    mapping (address => string) public mintersName;
     // Общая сумма, на которую выпущены коды каждым минтером
     mapping (address => uint256) public mintedAmount;
     // Айди кодов, которые создал минтер
@@ -70,6 +113,8 @@ contract QRCodeFactory {
         _;
     }
 
+    receive() external payable {}
+
     constructor(address _tokenAddress) {
         owner = msg.sender;
         managers[msg.sender] = true;
@@ -92,6 +137,13 @@ contract QRCodeFactory {
     }
     function setIsMinter(address who, bool isMinter) onlyManager public {
         minters[who] = isMinter;
+    }
+    function setMinterName(address minter, string memory name) onlyManager public {
+        mintersName[minter] = name;
+    }
+    function addMinter(address minter, string memory name) onlyManager public {
+        minters[minter] = true;
+        mintersName[minter] = name;
     }
     function setMaxMintAmountPerQrCodeGlobal(uint256 newLimit) onlyManager public {
         maxMintAmountPerQrCodeGlobal = newLimit;
@@ -147,8 +199,12 @@ contract QRCodeFactory {
         return _address.balance;
     }
     /* ---- */
-    function mint(uint256 amount) onlyMinter public returns (uint256) {
-        require(amount > 0, "Amount must be greater zero");
+    function mint
+        (uint256 _amount,
+        uint256 _timelife,
+        string memory _message
+    ) onlyMinter public returns (address) {
+        require(_amount > 0, "Amount must be greater zero");
         // Check limits
         /*
         if (maxMintAmountPerQrCode[msg.sender] > 0) {
@@ -158,26 +214,40 @@ contract QRCodeFactory {
         }
         */
         // require() - check balance
+        QRCodeClaimer router = new QRCodeClaimer(
+            tokenAddress,
+            msg.sender,
+            _amount,
+            mintersName[msg.sender],
+            _message
+        );
         qrCodeLastId++;
         qrCodes[qrCodeLastId] = QRCODE(
-            amount,
-            msg.sender,
-            address(0),
-            block.timestamp,
-            0
+            _amount,                 // amount
+            msg.sender,             // minter
+            address(0),             // claimer
+            block.timestamp,        // minted_at
+            0,                      // claimed_at
+            // timelive
+            (_timelife == 0) ? codeTL : _timelife,
+            address(router),        // router
+            _message                // message
         );
-        mintedAmount[msg.sender]+=amount;
+        qrCodesRouters[address(router)] = qrCodeLastId;
+        mintedAmount[msg.sender]+=_amount;
         mintedQrCodes[msg.sender].push(qrCodeLastId);
         mintedQrCodesCount[msg.sender]++;
 
         qrCodesLength++;
-        return (qrCodeLastId);
+        return (address(router));
     }
 
-    function claim(uint256 qrCodeId, address claimer) public {
+    function claim(address claimer) public {
+        require(qrCodesRouters[msg.sender] != 0, "Call not from router");
+        uint256 qrCodeId = qrCodesRouters[msg.sender];
         require(qrCodes[qrCodeId].minted_at != 0, "This code not minted yet");
         require(qrCodes[qrCodeId].claimed_at == 0, "This code already claimed");
-        require(qrCodes[qrCodeId].minted_at + codeTL > block.timestamp, "QrCode is expired");
+        require(qrCodes[qrCodeId].minted_at + qrCodes[qrCodeId].timelife > block.timestamp, "QrCode is expired");
 
         claimedAmount[claimer]+=qrCodes[qrCodeId].amount;
         claimedQrCodes[claimer].push(qrCodeId);
@@ -186,8 +256,15 @@ contract QRCodeFactory {
         qrCodes[qrCodeId].claimer = claimer;
         qrCodes[qrCodeId].claimed_at = block.number;
     
-        // Faucet test
         // Move token
+        IERC20(tokenAddress).transfer(claimer, qrCodes[qrCodeId].amount);
+        // Faucet test
+        uint256 claimerBalance = claimer.balance;
+        if (claimerBalance < faucetAmount) {
+            uint256 needAmount = faucetAmount - claimer.balance;
+            claimer.call{value: needAmount}("");
+        }
+        
     }
     
 }
