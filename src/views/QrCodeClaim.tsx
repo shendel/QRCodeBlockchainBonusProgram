@@ -10,6 +10,7 @@ import fetchQRCodeInfo from '@/qrcode_helpers/fetchQRCodeInfo'
 import callQRCoreMethod from '@/qrcode_helpers/callQRCoreMethod'
 
 import { QRCODE_FACTORY, WORK_CHAIN_ID } from '@/config'
+import { useBrowserWeb3 } from '@/web3/BrowserWeb3Provider'
 
 import { fromWei } from '@/helpers/wei'
 import axios from 'axios'
@@ -25,20 +26,27 @@ export default function QrCodeClaim(props) {
   const { publicRuntimeConfig } = getConfig()
   const { BACKEND_URL } = publicRuntimeConfig
 
-  const { address: connectedWallet } = useAccount()
+  const { address: connectedWallet, isConnected: isExternalWalletConnected } = useAccount()
+  const { browserWeb3, browserAccount } = useBrowserWeb3()
+  
   const account = useAccount()
 
   const [ isQrCodeFetching, setIsQrCodeFetching ] = useState(true)
   const [ isQrCodeFetched, setIsQrCodeFetched ] = useState(false)
   const [ qrCodeInfo, setQrCodeInfo ] = useState(false)
   
-  const [ claimToAddress, setClaimToAddress ] = useState(connectedWallet)
-  const [ oldClaimToAddress, setOldClaimToAddress ] = useState(connectedWallet)
+  const [ claimToAddress, setClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet : browserAccount)
+  const [ oldClaimToAddress, setOldClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet: browserAccount)
   const [ isEditClaimToAddress, setIsEditClaimToAddress ] = useState(false)
 
   const [ isClaiming, setIsClaiming ] = useState(false)
   const [ isClaimed, setIsClaimed ] = useState(false)
   const [ isNeedUpdate, setIsNeedUpdate ] = useState(false)
+
+  
+  console.log('>>> account', account)
+  console.log('>>> browserWeb3', browserWeb3)
+  console.log('>>> browserAccount', browserAccount)
 
   const updateQrCodeInfo = () => {
     setIsQrCodeFetching(true)
