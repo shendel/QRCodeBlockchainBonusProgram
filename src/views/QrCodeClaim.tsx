@@ -1,3 +1,4 @@
+import getConfig from 'next/config'
 
 import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
@@ -11,6 +12,7 @@ import callQRCoreMethod from '@/qrcode_helpers/callQRCoreMethod'
 import { QRCODE_FACTORY, WORK_CHAIN_ID } from '@/config'
 
 import { fromWei } from '@/helpers/wei'
+import axios from 'axios'
 
 export default function QrCodeClaim(props) {
   const {
@@ -20,7 +22,9 @@ export default function QrCodeClaim(props) {
       qrCodeAddress
     }
   } = props
-  
+  const { publicRuntimeConfig } = getConfig()
+  const { BACKEND_URL } = publicRuntimeConfig
+
   const { address: connectedWallet } = useAccount()
   const account = useAccount()
 
@@ -68,7 +72,21 @@ export default function QrCodeClaim(props) {
   }, [ isNeedUpdate ])
   
   const doClaimCode = () => {
-    doClaimFromActiveAccout()
+    doClaimByBackend()
+    //doClaimFromActiveAccout()
+  }
+  
+  const doClaimByBackend = () => {
+    axios.get(`${BACKEND_URL}claim/${qrCodeAddress}/${claimToAddress}`)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+      .finally(function () {
+        // always executed
+      })
   }
   
   const doClaimFromActiveAccout = () => {

@@ -3,6 +3,7 @@ require("dotenv").config()
 const server_port = process.env.SERVER_PORT
 const server_ip = process.env.SERVER_IP
 
+const cors = require("cors")
 const express = require("express")
 const app = express()
 
@@ -11,7 +12,7 @@ const { doClaim } = require("./doClaim")
 
 const activeWeb3 = initWeb3()
 
-
+app.use(cors())
 app.use('/claim/:address/:claimer', async(req, res) => {
   const { address, claimer } = req.params
   // check addresses

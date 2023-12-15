@@ -30,7 +30,7 @@ export default function QrCodeView(props) {
   const [ isQrCodeFetched, setIsQrCodeFetched ] = useState(false)
   const [ qrCodeInfo, setQrCodeInfo ] = useState(false)
   
-  const [ qrCodeLink, setQrCodeLink ] = useState(`http://localhost:3000/qrcodeclaim/${qrCodeAddress}`)
+  const [ qrCodeLink, setQrCodeLink ] = useState(`http://localhost:3000/#/qrcodeclaim/${qrCodeAddress}`)
 
 
   useEffect(() => {
@@ -85,7 +85,11 @@ export default function QrCodeView(props) {
               />
           </div>
           <div>
-            <strong>{qrCodeLink}</strong>
+            <strong>
+              <a href={qrCodeLink} target="_blank">
+                {qrCodeLink}
+              </a>
+            </strong>
           </div>
         </>
       )}
