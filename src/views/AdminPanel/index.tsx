@@ -24,13 +24,21 @@ export default function AdminPanel(props) {
           <div>
             <strong>Energy:</strong>
             <span>{fromWei(factoryStatus.faucetBalance)}</span>
-            <button onClick={() => { gotoPage('/admin/addenergy') }}>Add</button>
+            <button onClick={() => { gotoPage('/admin/addenergy/factory') }}>Add</button>
           </div>
           <div>
             <strong>Tokens:</strong>
             <span>{fromWei(factoryStatus.tokenBalance, factoryStatus.tokenDecimals)}</span>
             <em>{factoryStatus.tokenSymbol}</em>
             <button onClick={() => { gotoPage('/admin/addtokens') }}>Add</button>
+          </div>
+        </div>
+        <div>
+          <h3>Backend energy</h3>
+          <div>
+            <strong>Claimer:</strong>
+            <span>{fromWei(0)}</span>
+            <button onClick={() => { gotoPage('/admin/addenergy/claimer') }}>Add</button>
           </div>
         </div>
         <div>

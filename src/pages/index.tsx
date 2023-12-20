@@ -124,7 +124,7 @@ function MyApp(pageProps) {
 
                   '/admin/': AdminPanel,
                   
-                  '/admin/addenergy': AdminPanelAddEnergy,
+                  '/admin/addenergy/:target': AdminPanelAddEnergy,
                   '/admin/addtokens': AdminPanelAddTokens,
                   
                   '/admin/managers/': AdminPanelManagersList,

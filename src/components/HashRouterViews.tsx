@@ -88,8 +88,12 @@ export default function HashRouterViews(props) {
     setActiveView(detectView(hash))
   }, [ hash ])
 
+  const render404 = () => {
+    return React.createElement(on404, {...props, ...ownProps, gotoPage })
+  }
+
   if (activeView) {
-    return React.createElement(views[activeView.path], {...props, ...ownProps, gotoPage, params: activeView.params})
+    return React.createElement(views[activeView.path], {...props, ...ownProps, gotoPage, params: activeView.params, render404 })
   } else {
     if (on404) {
       return React.createElement(on404, {...props, ...ownProps, gotoPage })
