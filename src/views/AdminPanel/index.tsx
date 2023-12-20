@@ -30,7 +30,7 @@ export default function AdminPanel(props) {
             <strong>Tokens:</strong>
             <span>{fromWei(factoryStatus.tokenBalance, factoryStatus.tokenDecimals)}</span>
             <em>{factoryStatus.tokenSymbol}</em>
-            <button>Add</button>
+            <button onClick={() => { gotoPage('/admin/addtokens') }}>Add</button>
           </div>
         </div>
         <div>

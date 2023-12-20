@@ -15,7 +15,8 @@ import sendEther from '@/web3/sendEther'
 export default function AdminPanelAddEnergy(props) {
   const {
     gotoPage,
-    factoryStatus
+    factoryStatus,
+    UpdateFactoryStatus
   } = props
   const { address: connectedWallet } = useAccount()
   const account = useAccount()
@@ -46,7 +47,6 @@ export default function AdminPanelAddEnergy(props) {
   const [ newErengyAmountError, setNewEnergyAmountError ] = useState(``)
   const [ isEnergySending, setIsEnergySending ] = useState(false)
 
-
   useEffect(() => {
     setNewEnergyAmountError(``)
   }, [ newEnergyAmount ])
@@ -70,6 +70,7 @@ export default function AdminPanelAddEnergy(props) {
       console.log('>> answer', answer)
       setIsEnergyAdded(true)
       setIsEnergySending(false)
+      UpdateFactoryStatus()
     }).catch((err) => {
       setIsEnergySending(false)
       console.log('>> err', err)

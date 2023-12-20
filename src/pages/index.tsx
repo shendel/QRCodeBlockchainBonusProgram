@@ -14,6 +14,8 @@ import Page404 from '@/pages/404'
 import AdminPanel from '@/views/AdminPanel/'
 
 import AdminPanelAddEnergy from '@/views/AdminPanel/AddEnergy'
+import AdminPanelAddTokens from '@/views/AdminPanel/AddTokens'
+
 import AdminPanelManagersList from '@/views/AdminPanel/Managers/List'
 import AdminPanelManagersAdd from '@/views/AdminPanel/Managers/Add'
 import AdminPanelManagersInfo from '@/views/AdminPanel/Managers/Info'
@@ -51,9 +53,9 @@ function MyApp(pageProps) {
   const [ isFactoryFetching, setIsFactoryFetching ] = useState(true)
   const [ isFactoryFetched, setIsFactoryFetched ] = useState(false)
   const [ factoryStatus, setFactoryStatus ] = useState(false)
+  const [ needUpdateFactoryStatus, setNeedUpdateFactoryStatus ] = useState(false)
   
-  useEffect(() => {
-    console.log('>> useEffect')
+  const _fetchFactoryStatus = () => {
     fetchQRFactoryInfo({
       chainId: WORK_CHAIN_ID,
       address: QRCODE_FACTORY,
@@ -65,8 +67,21 @@ function MyApp(pageProps) {
       setIsFactoryFetched(false)
       setIsFactoryFetching(false)
     })
+  }
+  useEffect(() => {
+    console.log('>> useEffect')
+    _fetchFactoryStatus()
   }, [ QRCODE_FACTORY ])
+  useEffect(() => {
+    if(QRCODE_FACTORY && needUpdateFactoryStatus) {
+      setNeedUpdateFactoryStatus(false)
+      _fetchFactoryStatus()
+    }
+  }, [ QRCODE_FACTORY, needUpdateFactoryStatus ])
   
+  const UpdateFactoryStatus = () => {
+    setNeedUpdateFactoryStatus(true)
+  }
   return (
     <>
       <BrowserWeb3Provider chainId={WORK_CHAIN_ID}>
@@ -108,7 +123,9 @@ function MyApp(pageProps) {
                   '/': Home,
 
                   '/admin/': AdminPanel,
+                  
                   '/admin/addenergy': AdminPanelAddEnergy,
+                  '/admin/addtokens': AdminPanelAddTokens,
                   
                   '/admin/managers/': AdminPanelManagersList,
                   '/admin/managers/add': AdminPanelManagersAdd,
@@ -130,7 +147,8 @@ function MyApp(pageProps) {
                   '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
                 }}
                 props={{
-                  factoryStatus
+                  factoryStatus,
+                  UpdateFactoryStatus
                 }}
                 on404={Page404}
               />
