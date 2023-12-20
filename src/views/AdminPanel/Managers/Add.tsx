@@ -4,6 +4,8 @@ import { getAssets } from '@/helpers/getAssets'
 import { useAccount } from 'wagmi'
 
 import callQRFactoryMethod from '@/qrcode_helpers/callQRFactoryMethod'
+import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
+
 import { QRCODE_FACTORY } from '@/config'
 
 
@@ -13,7 +15,10 @@ export default function AdminPanelManagersAdd(props) {
     factoryStatus,
   } = props
   const { address: connectedWallet } = useAccount()
-  const account = useAccount()
+  const {
+    injectedAccount,
+    injectedWeb3
+  } = useInjectedWeb3()
   
 
   const [ newManagerAddress, setNewManagerAddress ] = useState(`0x`)
@@ -24,7 +29,8 @@ export default function AdminPanelManagersAdd(props) {
   const onAddNewManager = () => {
     setIsAddNewManager(true)
     callQRFactoryMethod({
-      account,
+      activeWallet: injectedAccount,
+      activeWeb3: injectedWeb3,
       contractAddress: QRCODE_FACTORY,
       method: 'setIsManager',
       args: [

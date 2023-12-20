@@ -5,6 +5,8 @@ import { getAssets } from '@/helpers/getAssets'
 import { useAccount } from 'wagmi'
 
 import callQRFactoryMethod from '@/qrcode_helpers/callQRFactoryMethod'
+import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
+
 import { QRCODE_FACTORY } from '@/config'
 
 export default function AdminPanelMinterDelete(props) {
@@ -17,7 +19,10 @@ export default function AdminPanelMinterDelete(props) {
   } = props
   
   const { address: connectedWallet } = useAccount()
-  const account = useAccount()
+  const {
+    injectedAccount,
+    injectedWeb3
+  } = useInjectedWeb3()
   
   const [ isRemovingMinter, setIsRemovingMinter ] = useState(false)
   const [ isRemovedMinter, setIsRemovedMinter ] = useState(false)
@@ -25,7 +30,8 @@ export default function AdminPanelMinterDelete(props) {
   const doRemoveMinter = () => {
     setIsRemovingMinter(true)
     callQRFactoryMethod({
-      account,
+      activeWallet: injectedAccount,
+      activeWeb3: injectedWeb3,
       contractAddress: QRCODE_FACTORY,
       method: 'setIsMinter',
       args: [

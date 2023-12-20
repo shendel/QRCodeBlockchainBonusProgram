@@ -4,6 +4,7 @@ import { getAssets } from '@/helpers/getAssets'
 import { useAccount } from 'wagmi'
 
 import callQRFactoryMethod from '@/qrcode_helpers/callQRFactoryMethod'
+import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 import { QRCODE_FACTORY } from '@/config'
 
 import { translate as t } from '@/translate'
@@ -14,7 +15,10 @@ export default function AdminPanelMinersAdd(props) {
     factoryStatus,
   } = props
   const { address: connectedWallet } = useAccount()
-  const account = useAccount()
+  const {
+    injectedAccount,
+    injectedWeb3
+  } = useInjectedWeb3()
   
 
   const [ newMinterAddress, setNewMinterAddress ] = useState(`0x`)
@@ -27,7 +31,8 @@ export default function AdminPanelMinersAdd(props) {
   const onAddNewMinter = () => {
     setIsAddNewMinter(true)
     callQRFactoryMethod({
-      account,
+      activeWallet: injectedAccount,
+      activeWeb3: injectedWeb3,
       contractAddress: QRCODE_FACTORY,
       method: 'addMinter',
       args: [
@@ -52,7 +57,7 @@ export default function AdminPanelMinersAdd(props) {
       {(factoryStatus.managers.indexOf(connectedWallet) != -1) || (connectedWallet.toLowerCase() == factoryStatus.owner.toLowerCase()) ? (
         <>
           {!isNewMinterAdded ? (
-            <div className="adminForm">
+            <div className={`adminForm ${(isAddNewMinter) ? 'isLoading' : ''}`}>
               <header>Add new minter</header>
               <div className="inputHolder">
                 <label className="required">

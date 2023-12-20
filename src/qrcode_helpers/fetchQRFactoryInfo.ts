@@ -32,7 +32,8 @@ const fetchQRFactoryInfo = (options) => {
         totalClaimed: { func: 'totalQrCodesClaimed' },
         totalClaimedAmount: { func: 'totalClaimedAmount' },
         totalMintedAmount: { func: 'totalMintedAmount' },
-        totalFaucetAmount: { func: 'totalFaucetAmount' }
+        totalFaucetAmount: { func: 'totalFaucetAmount' },
+        defaultExpireTime: { func: 'codeTL' }
       }
     }).then((answer) => {
       console.log('>> answer', answer)

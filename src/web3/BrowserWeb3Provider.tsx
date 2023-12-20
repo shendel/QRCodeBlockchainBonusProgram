@@ -20,6 +20,7 @@ const authBrowserWeb3 = (chainId, ownMnemonic = false) => {
   const account = web3.eth.accounts.privateKeyToAccount( wallet.privateKey )
   web3.eth.accounts.wallet.add( account.privateKey )
   
+  console.log('[BrowserWallet] >>>> ', wallet)
   return {
     web3,
     account: wallet.address

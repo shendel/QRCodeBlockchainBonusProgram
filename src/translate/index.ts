@@ -5,6 +5,12 @@ export const translate = (label, args = {}, code) => {
   return label
 }
 
+export const getTranslate = (scope) => {
+  const func = (label, args, code) => {
+    return translate(label, args, (code) ? `${scope}_${code}` : scope)
+  }
+  return func
+}
 
 export default {
   translate

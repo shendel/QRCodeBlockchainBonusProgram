@@ -90,6 +90,33 @@ A:hover {
   box-shadow: 0px 0px 5px 1px #1485db;
   border-radius: 5px;
   background: #fff;
+  position: relative;
+}
+.adminForm.isLoading::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: #11719e14;
+}
+.adminForm.isLoading::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -5em;
+  margin-left: -5em;
+  width: 10em;
+  height: 10em;
+  background-image: url(/assets/loader.svg);
+  background-size: 100% 100%;
+  -o-background-size: 100% 100%;
+  -webkit-background-size: 100% 100%;
+  background-size: cover;
 }
 .adminForm HEADER {
   font-size: 16pt;
@@ -118,7 +145,8 @@ A:hover {
   color: #e80000;
 }
 .adminForm .inputHolder INPUT[type="text"],
-.adminForm .inputHolder INPUT[type="number"] {
+.adminForm .inputHolder INPUT[type="number"],
+.adminForm .inputHolder SELECT {
   height: 3em;
   line-height: 3em;
   vertical-align: middle;
@@ -209,7 +237,8 @@ A:hover {
   background: #147514;
 }
 .adminForm BUTTON:disabled {
-  background: #8c8686;
+  background: #8c8686 !important;
   cursor: default;
+  color: #fff !important;
   box-shadow: none;
 }
