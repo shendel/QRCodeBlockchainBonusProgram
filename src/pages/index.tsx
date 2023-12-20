@@ -6,12 +6,14 @@ import { useEffect, useState } from "react"
 
 import HashRouterViews from '@/components/HashRouterViews'
 
+
 import Home from '@/views/Home'
 import Page404 from '@/pages/404'
 
 // Admin views
 import AdminPanel from '@/views/AdminPanel/'
 
+import AdminPanelAddEnergy from '@/views/AdminPanel/AddEnergy'
 import AdminPanelManagersList from '@/views/AdminPanel/Managers/List'
 import AdminPanelManagersAdd from '@/views/AdminPanel/Managers/Add'
 import AdminPanelManagersInfo from '@/views/AdminPanel/Managers/Info'
@@ -106,6 +108,8 @@ function MyApp(pageProps) {
                   '/': Home,
 
                   '/admin/': AdminPanel,
+                  '/admin/addenergy': AdminPanelAddEnergy,
+                  
                   '/admin/managers/': AdminPanelManagersList,
                   '/admin/managers/add': AdminPanelManagersAdd,
                   '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,

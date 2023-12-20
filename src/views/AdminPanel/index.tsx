@@ -24,7 +24,7 @@ export default function AdminPanel(props) {
           <div>
             <strong>Energy:</strong>
             <span>{fromWei(factoryStatus.faucetBalance)}</span>
-            <button>Add</button>
+            <button onClick={() => { gotoPage('/admin/addenergy') }}>Add</button>
           </div>
           <div>
             <strong>Tokens:</strong>

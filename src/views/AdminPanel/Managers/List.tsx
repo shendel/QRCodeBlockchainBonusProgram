@@ -45,39 +45,41 @@ export default function AdminPanelManagersList(props) {
         <div>Fail fetch managers</div>
       )}
       {isManagersFetched && (
-        <table>
-          <thead>
-            <tr>
-              <td>#</td>
-              <td>Address</td>
-              <td>...</td>
-              <td>Options</td>
-            </tr>
-          </thead>
-          <tbody>
-            {managers.length > 0 ? (
-              <>
-                {managers.map((managerAddress, key) => {
-                  return (
-                    <tr key={key}>
-                      <td>{key+1}</td>
-                      <td><a href={`#/admin/managers/info/${managerAddress}`}>{managerAddress}</a></td>
-                      <td>...</td>
-                      <td>
-                        <a href={`#/admin/managers/info/${managerAddress}`}>[INFO]</a>
-                        <a href={`#/admin/managers/delete/${managerAddress}`}>[DELETE]</a>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </>
-            ) : (
+        <div className="adminTable">
+          <table>
+            <thead>
               <tr>
-                <td colspan="4">No managers</td>
+                <td>#</td>
+                <td>Address</td>
+                <td>...</td>
+                <td>Options</td>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {managers.length > 0 ? (
+                <>
+                  {managers.map((managerAddress, key) => {
+                    return (
+                      <tr key={key}>
+                        <td>{key+1}</td>
+                        <td><a href={`#/admin/managers/info/${managerAddress}`}>{managerAddress}</a></td>
+                        <td>...</td>
+                        <td>
+                          <a href={`#/admin/managers/info/${managerAddress}`}>[INFO]</a>
+                          <a href={`#/admin/managers/delete/${managerAddress}`}>[DELETE]</a>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </>
+              ) : (
+                <tr>
+                  <td colspan="4">No managers</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   )

@@ -1,10 +1,22 @@
 const NETWORKS = {
   energy: {
-    chainId: 800500,
+    chainId: 1800500,
     name: 'EnergyChain',
     nativeCurrency: {
       name: "Energy",
       symbol: "ENERGY",
+      decimals: 18,
+    },
+    rpc: 'http://rpc.energy-blockchain.ru:8545/',
+    explorer: '#',
+    multicall: '0x48d7ac38530697aDB91061B6D141C8c763edE565',
+  },
+  proxima: {
+    chainId: 800500,
+    name: 'ProximaChain',
+    nativeCurrency: {
+      name: "Proxima",
+      symbol: "PROXIMA",
       decimals: 18,
     },
     rpc: 'http://rpc.proxima:8545/',

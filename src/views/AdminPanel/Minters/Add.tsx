@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi'
 import callQRFactoryMethod from '@/qrcode_helpers/callQRFactoryMethod'
 import { QRCODE_FACTORY } from '@/config'
 
+import { translate as t } from '@/translate'
 
 export default function AdminPanelMinersAdd(props) {
   const {
@@ -51,16 +52,24 @@ export default function AdminPanelMinersAdd(props) {
       {(factoryStatus.managers.indexOf(connectedWallet) != -1) || (connectedWallet.toLowerCase() == factoryStatus.owner.toLowerCase()) ? (
         <>
           {!isNewMinterAdded ? (
-            <div>
-              <div>
-                <label>Minter address:</label>
+            <div className="adminForm">
+              <header>Add new minter</header>
+              <div className="inputHolder">
+                <label className="required">
+                  {t(`Minter address`)}
+                </label>
                 <input type="text" value={newMinterAddress} onChange={(e) => { setNewMinterAddress(e.target.value) }} />
               </div>
-              <div>
+              <div className="inputHolder">
                 <label>Minter name:</label>
                 <input type="text" value={newMinterName} onChange={(e) => { setNewMinterName(e.target.value) }} />
               </div>
-              <button disabled={isAddNewMinter} onClick={onAddNewMinter}>[Add new minters]</button>
+              <div className="buttonsHolder">
+                <button disabled={isAddNewMinter} onClick={onAddNewMinter}>
+                  {(isAddNewMinter) ? t(`Addeding new minter`) : t(`Add new minters`)}
+                </button>
+                <button className="isCancel" disabled={isAddNewMinter} onClick={() => { gotoPage(`/admin/minters/`) }}>{t(`Cancel`)}</button>
+              </div>
             </div>
           ) : (
             <div>

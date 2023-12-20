@@ -111,6 +111,7 @@ contract QRCodeClaimer {
         factory.claim((claimer == address(0)) ? msg.sender : claimer);
     }
 }
+
 contract QRCodeFactory {
     event QrCodeMinted(address qrcode);
 

@@ -48,13 +48,21 @@ export default function AdminPanelManagersAdd(props) {
       {connectedWallet.toLowerCase() == factoryStatus.owner.toLowerCase() ? (
         <>
           {!isNewManagerAdded ? (
-            <div>
-              <div>
-                <label>Manager address:</label>
-                <input type="text" value={newManagerAddress} onChange={(e) => { setNewManagerAddress(e.target.value) }} />
+            <>
+              <div className="adminForm">
+                <header>Add new manager</header>
+                <div className="inputHolder">
+                  <label>Manager address:</label>
+                  <input type="text" value={newManagerAddress} onChange={(e) => { setNewManagerAddress(e.target.value) }} />
+                </div>
+                <div className="buttonsHolder">
+                  <button disabled={isAddNewManager} onClick={onAddNewManager}>
+                    {(isAddNewManager) ? `Addeding new manager` : `Add new manager`}
+                  </button>
+                  <button disabled={isAddNewManager} onClick={() => { gotoPage(`/admin/managers`) }} className="isCancel">{`Cancel`}</button>
+                </div>
               </div>
-              <button disabled={isAddNewManager} onClick={onAddNewManager}>[Add new manager]</button>
-            </div>
+            </>
           ) : (
             <div>
               <h4>New manager {newManagerAddress} added</h4>

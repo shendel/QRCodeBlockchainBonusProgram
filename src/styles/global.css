@@ -1,0 +1,215 @@
+BODY {
+  background: url('/assets/bg.png');
+  background-color: #f8fcff;
+  background-repeat: no-repeat;
+  font-family: Arial;
+  font-size: 12pt;
+}
+
+A {
+  color: #004f99;
+  text-decoration: none;
+}
+A:hover {
+  text-decoration: underline;
+}
+
+/* Admin table */
+.adminTable {
+  border-radius: 5px;
+  border: 1px solid #1485db;
+  box-shadow: 0px 0px 5px 1px #1485db;
+  margin: 10px;
+}
+.adminTable::before,
+.adminTable::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 5px;
+  background: #f9fafb;
+}
+.adminTable::before {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.adminTable::after {
+  background: #fff;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.adminTable TABLE {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+  min-width: 100%;
+}
+.adminTable TABLE THEAD {
+  background-color: #f9fafb;
+}
+.adminTable TABLE TBODY {
+  background: #fff;
+}
+.adminTable TABLE THEAD TR {
+  border-bottom: 1px solid #b8c9d9;
+}
+.adminTable TABLE THEAD TD {
+  padding: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  vertical-align: middle;
+  text-align: center;
+  font-weight: bold;
+  font-size: 12pt;
+}
+.adminTable TABLE TBODY TR {
+  border-bottom: 1px solid #b8c9d9;
+}
+.adminTable TABLE TR TD {
+  border-left: 1px solid #b8c9d9;
+  border-right: 1px solid #b8c9d9;
+}
+.adminTable TABLE TR TD:first-child {
+  border-left: 0px;
+}
+.adminTable TABLE TR TD:last-child {
+  border-right: 0px;
+}
+.adminTable TABLE TBODY TR:last-child {
+  border: none;
+}
+.adminTable TABLE TBODY TD {
+  padding: 1em;
+  font-size: 12pt;
+}
+/* Admin Form */
+.adminForm {
+  max-width: 800px;
+  margin: 0 auto;
+  border: 1px solid #1485db;
+  box-shadow: 0px 0px 5px 1px #1485db;
+  border-radius: 5px;
+  background: #fff;
+}
+.adminForm HEADER {
+  font-size: 16pt;
+  font-weight: bold;
+  padding: 1em;
+  color: #333;
+  background: #f9fafb;
+  border-bottom: 1px solid #1485db;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.adminForm .inputHolder {
+  display: block;
+  padding: 1em;
+  padding-bottom: 0;
+}
+.adminForm .inputHolder LABEL {
+  display: block;
+  font-weight: bold;
+  padding-bottom: 5px;
+  color: #26334e;
+}
+.adminForm .inputHolder LABEL.required::after {
+  content: "*";
+  padding-left: 0.25em;
+  color: #e80000;
+}
+.adminForm .inputHolder INPUT[type="text"],
+.adminForm .inputHolder INPUT[type="number"] {
+  height: 3em;
+  line-height: 3em;
+  vertical-align: middle;
+  padding-left: 1em;
+  padding-right: 1em;
+  border: 1px solid #8daccb;
+  border-radius: 5px;
+  font-size: 12pt;
+  box-shadow: inset 0px 0px 3px 0px #397793;
+  width: 100%;
+  box-sizing: border-box;
+}
+.adminForm .inputHolder INPUT[type="text"]:focus,
+.adminForm .inputHolder INPUT[type="number"]:focus {
+  border: 1px solid #0d5dae;
+}
+.adminForm .inputHolder INPUT[type="text"].hasError,
+.adminForm .inputHolder INPUT[type="number"].hasError {
+  border: 1px solid #cf0505;
+  box-shadow: inset 0px 0px 3px 0px #8d0505;
+}
+
+.adminForm .inputHolder .infoRow {
+  padding-left: 1em;
+}
+
+.adminForm .inputHolder .infoRow.hasError {
+  color: #e80000;
+}
+
+.adminForm .inputHolder .error {
+  padding-left: 0.5em;
+  padding-top: 0.5em;
+  font-size: 12pt;
+  color: #c40303;
+}
+.adminForm .buttonsHolder {
+  margin-top: 1em;
+  padding: 1em;
+  border-top: 1px solid #1485db;
+  text-align: right;
+  background: #f9fafb;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.adminForm BUTTON {
+  box-sizing: border-box;
+  height: 3em;
+  line-height: 2em;
+  vertical-align: middle;
+  padding-left: 1em;
+  padding-right: 1em;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #fff;
+  background: #0a3cac;
+  border: 1px solid #0a3cac;
+  cursor: pointer;
+  margin-left: 5px;
+}
+.adminForm BUTTON.isCancel {
+  background: #FFF;
+  color: #000;
+  border: 1px solid #5f5d5d;
+}
+.adminForm BUTTON:hover,
+.adminForm BUTTON:active {
+  box-shadow: 0px 0px 5px hsl(0deg 0% 0% / 60%);
+  background: #2359d1;
+}
+.adminForm BUTTON.isCancel:hover,
+.adminForm BUTTON.isCancel:active {
+  background: #dadada;
+}
+.adminForm BUTTON.isRed {
+  background: #ac1212;
+  border: 1px solid #ac1212;
+}
+.adminForm BUTTON.isRed:hover {
+  background: #c61e1e;
+}
+.adminForm BUTTON.isGreen {
+  background: #046204;
+  border: 1px solid #046204;
+}
+.adminForm BUTTON.isGreen:hover {
+  background: #147514;
+}
+.adminForm BUTTON:disabled {
+  background: #8c8686;
+  cursor: default;
+  box-shadow: none;
+}

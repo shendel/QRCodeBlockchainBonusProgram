@@ -1,6 +1,9 @@
 import type { AppProps } from "next/app"
 import { useEffect, useState } from "react"
 
+import '@/styles/global.css'
+
+
 function MyApp({ Component, pageProps }: AppProps) {
   const [isServer, setIsServer] = useState(true)
 
