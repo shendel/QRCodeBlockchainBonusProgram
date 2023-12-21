@@ -10,6 +10,7 @@ import HashRouterViews from '@/components/HashRouterViews'
 import Home from '@/views/Home'
 import Page404 from '@/pages/404'
 
+import Header from '@/components/qrcode/Header'
 // Admin views
 import AdminPanel from '@/views/AdminPanel/'
 
@@ -40,13 +41,7 @@ import QrCodeClaim from '@/views/QrCodeClaim'
 
 
 
-import Web3Connector from '@/web3/Web3Connector'
-import BrowserWeb3Provider from '@/web3/BrowserWeb3Provider'
-import InjectedWeb3Provider from '@/web3/InjectedWeb3Provider'
-
-
-import { ConnectWalletButton } from '@/web3/ConnectWalletButton'
-import { ConnectWallet } from '@/web3/components/ConnectWallet'
+import AppRoot from '@/components/AppRoot'
 
 import fetchQRFactoryInfo from '@/qrcode_helpers/fetchQRFactoryInfo'
 import { WORK_CHAIN_ID, QRCODE_FACTORY } from '@/config'
@@ -84,82 +79,65 @@ function MyApp(pageProps) {
   const UpdateFactoryStatus = () => {
     setNeedUpdateFactoryStatus(true)
   }
+  
   return (
     <>
-      <BrowserWeb3Provider chainId={WORK_CHAIN_ID}>
-        <Web3Connector chainIds={[WORK_CHAIN_ID]} autoConnect={true}>
-          <InjectedWeb3Provider>
-            <ConnectWalletButton
-              connectView={(isConnecting, openConnectModal) => {
-                return (
-                  <button disabled={isConnecting} onClick={openConnectModal}>Do connect</button>
-                )
-              }}
-              connectedView={(address) => {
-                return (<div>[{address}]</div>)
-              }}
-              wrongChainView={(openChainModal) => {
-                return (
-                  <button onClick={openChainModal}>
-                    Switch chain
-                  </button>
-                )
-              }}
-            />
-            <h3>Index page</h3>
-            {isFactoryFetching && (
-              <div>Fetching QRCodeFactory ({QRCODE_FACTORY}) status</div>
-            )}
-            {!isFactoryFetching && !isFactoryFetched && (
-              <div>Fail fetch QRCodeFactory ({QRCODE_FACTORY}) status</div>
-            )}
-            {isFactoryFetched && (
-              <>
-                <nav>
-                  <a href="#/admin">[Admin panel]</a>
-                  <a href="#/manager">[Manager panel]</a>
-                  <a href="#/minter">[Minter panel]</a>
-                  <a href="#/claimer">[Claimer panel]</a>
-                </nav>
-                <HashRouterViews
-                  views={{
-                    '/': Home,
+      <AppRoot chainId={WORK_CHAIN_ID}>
+        <>
+          <Header />
+          <h3>Index page</h3>
+          {isFactoryFetching && (
+            <div>Fetching QRCodeFactory ({QRCODE_FACTORY}) status</div>
+          )}
+          {!isFactoryFetching && !isFactoryFetched && (
+            <div>Fail fetch QRCodeFactory ({QRCODE_FACTORY}) status</div>
+          )}
+          {isFactoryFetched && (
+            <>
+              <nav>
+                <a href="#/admin">[Admin panel]</a>
+                <a href="#/manager">[Manager panel]</a>
+                <a href="#/minter">[Minter panel]</a>
+                <a href="#/claimer">[Claimer panel]</a>
+              </nav>
+              <HashRouterViews
+                views={{
+                  '/': Home,
 
-                    '/admin/': AdminPanel,
-                    
-                    '/admin/addenergy/:target': AdminPanelAddEnergy,
-                    '/admin/addtokens': AdminPanelAddTokens,
-                    
-                    '/admin/managers/': AdminPanelManagersList,
-                    '/admin/managers/add': AdminPanelManagersAdd,
-                    '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,
-                    '/admin/managers/delete/:managerAddress': AdminPanelManagersDelete,
+                  '/admin/': AdminPanel,
+                  
+                  '/admin/addenergy/:target': AdminPanelAddEnergy,
+                  '/admin/addtokens': AdminPanelAddTokens,
+                  
+                  '/admin/managers/': AdminPanelManagersList,
+                  '/admin/managers/add': AdminPanelManagersAdd,
+                  '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,
+                  '/admin/managers/delete/:managerAddress': AdminPanelManagersDelete,
 
-                    '/admin/minters/': AdminPanelMintersList,
-                    '/admin/minters/add': AdminPanelMinersAdd,
-                    '/admin/minters/delete/:minterAddress': AdminPanelMinterDelete,
+                  '/admin/minters/': AdminPanelMintersList,
+                  '/admin/minters/add': AdminPanelMinersAdd,
+                  '/admin/minters/delete/:minterAddress': AdminPanelMinterDelete,
 
-                    '/manager/': ManagerPanel,
+                  '/manager/': ManagerPanel,
 
-                    '/minter/': MinterPanel,
-                    '/minter/mint': MinterMint,
+                  '/minter/': MinterPanel,
+                  '/minter/mint': MinterMint,
 
-                    '/claimer/': ClaimerPanel,
-                    
-                    '/qrcodeview/:qrCodeAddress': QrCodeView,
-                    '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
-                  }}
-                  props={{
-                    factoryStatus,
-                    UpdateFactoryStatus
-                  }}
-                  on404={Page404}
-                />
-              </>
-            )}
-          </InjectedWeb3Provider>
-        </Web3Connector>
-      </BrowserWeb3Provider>
+                  '/claimer/': ClaimerPanel,
+                  
+                  '/qrcodeview/:qrCodeAddress': QrCodeView,
+                  '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
+                }}
+                props={{
+                  factoryStatus,
+                  UpdateFactoryStatus
+                }}
+                on404={Page404}
+              />
+            </>
+          )}
+        </>
+      </AppRoot>
     </>
   )
 }

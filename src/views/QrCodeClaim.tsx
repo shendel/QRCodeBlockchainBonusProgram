@@ -11,9 +11,12 @@ import callQRCoreMethod from '@/qrcode_helpers/callQRCoreMethod'
 
 import { QRCODE_FACTORY, WORK_CHAIN_ID } from '@/config'
 import { useBrowserWeb3 } from '@/web3/BrowserWeb3Provider'
+import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 
-import { fromWei } from '@/helpers/wei'
+import { fromWei, toWei } from '@/helpers/wei'
 import axios from 'axios'
+import BigNumber from "bignumber.js"
+
 
 export default function QrCodeClaim(props) {
   const {
@@ -23,11 +26,12 @@ export default function QrCodeClaim(props) {
       qrCodeAddress
     }
   } = props
+  
   const { publicRuntimeConfig } = getConfig()
   const { BACKEND_URL } = publicRuntimeConfig
 
   const { address: connectedWallet, isConnected: isExternalWalletConnected } = useAccount()
-  const { browserWeb3, browserAccount } = useBrowserWeb3()
+
   
   const account = useAccount()
 
@@ -43,10 +47,9 @@ export default function QrCodeClaim(props) {
   const [ isClaimed, setIsClaimed ] = useState(false)
   const [ isNeedUpdate, setIsNeedUpdate ] = useState(false)
 
-  
-  console.log('>>> account', account)
-  console.log('>>> browserWeb3', browserWeb3)
-  console.log('>>> browserAccount', browserAccount)
+  const injectedAccount = useInjectedWeb3()
+  const browserAccount = useBrowserWeb3()
+
 
   const updateQrCodeInfo = () => {
     setIsQrCodeFetching(true)
@@ -79,11 +82,31 @@ export default function QrCodeClaim(props) {
     }
   }, [ isNeedUpdate ])
   
-  const doClaimCode = () => {
+  const doClaimCode_ = () => {
     doClaimByBackend()
     //doClaimFromActiveAccout()
   }
-  
+
+  const doClaimCode = () => {
+    const debug_skipBrowser = false
+    const debug_skipInjected = false
+    //claimMinEnergy
+    const {
+      claimMinEnergy
+    } = factoryStatus
+    if (new BigNumber(browserAccount.balance).isGreaterThanOrEqualTo(claimMinEnergy) && !debug_skipBrowser) {
+      doClaimByWeb3(false)
+      console.log('claim by browser')
+    } else {  
+      if (new BigNumber(injectedAccount.balance).isGreaterThanOrEqualTo(claimMinEnergy) && injectedAccount.isConnected && !debug_skipInjected) {
+        console.log('claim by injected')
+        doClaimByWeb3(true)
+      } else {
+        console.log('claim by backend')
+        doClaimByBackend()
+      }
+    }
+  }
   const doClaimByBackend = () => {
     axios.get(`${BACKEND_URL}claim/${qrCodeAddress}/${claimToAddress}`)
       .then(function (response) {
@@ -97,11 +120,13 @@ export default function QrCodeClaim(props) {
       })
   }
   
-  const doClaimFromActiveAccout = () => {
+  const doClaimByWeb3 = (useInected = false) => {
     setIsClaiming(true)
     setIsClaimed(false)
+    console.log('>>> doClaimByWeb3')
     callQRCoreMethod({
-      account,
+      activeWallet: (useInected) ? injectedAccount.injectedAccount : browserAccount.browserAccount,
+      activeWeb3: (useInected) ? injectedAccount.injectedWeb3 : browserAccount.browserWeb3,
       contractAddress: qrCodeAddress,
       method: 'claim',
       args: [ claimToAddress ],

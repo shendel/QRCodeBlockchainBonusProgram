@@ -33,7 +33,8 @@ const fetchQRFactoryInfo = (options) => {
         totalClaimedAmount: { func: 'totalClaimedAmount' },
         totalMintedAmount: { func: 'totalMintedAmount' },
         totalFaucetAmount: { func: 'totalFaucetAmount' },
-        defaultExpireTime: { func: 'codeTL' }
+        defaultExpireTime: { func: 'codeTL' },
+        claimMinEnergy: { func: 'faucetAmount' },
       }
     }).then((answer) => {
       console.log('>> answer', answer)

@@ -86,7 +86,7 @@ export default function QrCodeView(props) {
           </div>
           <div>
             <strong>
-              <a href={qrCodeLink} target="_blank">
+              <a href={qrCodeLink} _target="_blank" >
                 {qrCodeLink}
               </a>
             </strong>
