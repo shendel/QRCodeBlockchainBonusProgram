@@ -8,15 +8,19 @@ import {
 
 import fetchBalance from '@/helpers/fetchBalance'
 
+import {
+  BROWSER_SEED_LS_NAME,
+  BROWSER_SEED_LS_BACKUP_READY,
+} from '@/config'
 
 const authBrowserWeb3 = (chainId, ownMnemonic = false) => {
   const rpc = GET_CHAIN_RPC(chainId)
   const web3 = new Web3(rpc)
   
-  let mnemonic = localStorage.getItem(`QRCODE_SEED`)
+  let mnemonic = localStorage.getItem(BROWSER_SEED_LS_NAME || `NEXTGEN_BROWSER_SEED`)
   if (!mnemonic) {
     mnemonic = getRandomMnemonicWords()
-    localStorage.setItem(`QRCODE_SEED`, mnemonic)
+    localStorage.setItem(BROWSER_SEED_LS_NAME || `NEXTGEN_BROWSER_SEED`, mnemonic)
   }
   
   const wallet = getEthLikeWallet({ mnemonic })
@@ -26,6 +30,7 @@ const authBrowserWeb3 = (chainId, ownMnemonic = false) => {
   console.log('[BrowserWallet] >>>> ', wallet)
   return {
     web3,
+    mnemonic,
     account: wallet.address
   }
 }
@@ -33,6 +38,8 @@ const authBrowserWeb3 = (chainId, ownMnemonic = false) => {
 const BrowserWeb3Context = createContext({
   browserWeb3: false,
   browserAccount: false,
+  browserMnemonic: ``,
+  browserBackupReady: false,
   balance: 0,
   isBalanceFetched: false,
   isBalanceFetching: true,
@@ -50,6 +57,8 @@ export default function BrowserWeb3Provider(props) {
   
   const [ browserWeb3, setBrowserWeb3 ] = useState(false)
   const [ browserAccount, setBrowserAccount ] = useState(false)
+  const [ browserMnemonic, setBrowserMnemonic ] = useState(``)
+  const [ browserBackupReady, setBrowserBackupReady ] = useState(false)
   
   const [ balance, setBalance ] = useState(0)
   const [ isBalanceFetched, setIsBalanceFetched ] = useState(false)
@@ -78,15 +87,17 @@ export default function BrowserWeb3Provider(props) {
   /* ---- */
 
   useEffect(() => {
-    const { web3, account } = authBrowserWeb3(chainId)
+    const { web3, account, mnemonic } = authBrowserWeb3(chainId)
     setBrowserWeb3(web3)
     setBrowserAccount(account)
+    setBrowserMnemonic(mnemonic)
   }, [ chainId ])
 
   return (
     <BrowserWeb3Context.Provider
       value={{
         browserWeb3,
+        browserMnemonic,
         browserAccount,
         balance,
         isBalanceFetched,

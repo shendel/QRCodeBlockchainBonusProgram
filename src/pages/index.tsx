@@ -42,6 +42,11 @@ import QrCodeView from '@/views/QrCodeView'
 import QrCodeClaim from '@/views/QrCodeClaim'
 
 
+import Account from '@/views/Account/'
+import AccountBackup from '@/views/Account/Backup'
+import AccountRestore from '@/views/Account/Restore'
+
+import Bridge from '@/views/Bridge/'
 
 import AppRoot from '@/components/AppRoot'
 
@@ -132,6 +137,12 @@ function MyApp(pageProps) {
                   
                   '/qrcodeview/:qrCodeAddress': QrCodeView,
                   '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
+                  
+                  '/account/': Account,
+                  '/account/backup/': AccountBackup,
+                  '/account/restore/': AccountRestore,
+                  
+                  '/bridge/': Bridge
                 }}
                 props={{
                   factoryStatus,
