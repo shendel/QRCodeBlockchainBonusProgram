@@ -54,7 +54,7 @@ export default function AdminPanelMinersAdd(props) {
       <nav>
         <a href="#/admin/minters/">[Back]</a>
       </nav>
-      {(factoryStatus.managers.indexOf(connectedWallet) != -1) || (connectedWallet.toLowerCase() == factoryStatus.owner.toLowerCase()) ? (
+      {true ? (
         <>
           {!isNewMinterAdded ? (
             <div className={`adminForm ${(isAddNewMinter) ? 'isLoading' : ''}`}>

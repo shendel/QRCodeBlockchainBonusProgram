@@ -66,7 +66,7 @@ export default function AdminPanel(props) {
           <h3>Managers</h3>
           <div>
             <strong>Count:</strong>
-            <span>{factoryStatus.managers.length}</span>
+            <span>{factoryStatus.managersCount}</span>
             <a href="#/admin/managers/">Manage</a>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function AdminPanel(props) {
           <h3>Minters</h3>
           <div>
             <strong>Count:</strong>
-            <span>{factoryStatus.minters.length}</span>
+            <span>{factoryStatus.mintersCount}</span>
             <a href="#/admin/minters/">Manage</a>
           </div>
         </div>
@@ -82,8 +82,8 @@ export default function AdminPanel(props) {
           <h3>Claimers</h3>
           <div>
             <strong>Count:</strong>
-            <span>{factoryStatus.claimers.length}</span>
-            <a href="#">Manage</a>
+            <span>{factoryStatus.claimersCount}</span>
+            <a href="#/admin/claimers/0">Manage</a>
           </div>
         </div>
       </div>

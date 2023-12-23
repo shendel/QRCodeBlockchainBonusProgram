@@ -74,6 +74,7 @@ contract QRCodeFactory {
         uint256[] claimedQrCodes;
         uint256 claimedQrCodesCount;
         uint256 faucetUsed;
+        bool isBanned;
     }
     // Сколько токенов обналичил адрес
     AddressSet.Storage private claimers;
@@ -89,6 +90,17 @@ contract QRCodeFactory {
     // Максимальное кол-во токенов в коде для отдельного минтера
     mapping (address => uint256) maxMintAmountPerQrCode;
     
+    // Banlist
+    struct BannedClaimer {
+        address claimer;
+        address who;
+        string why;
+        uint256 when;
+    }
+    AddressSet.Storage private bannedClaimers;
+    mapping (address => address) bannedClaimersWho;
+    mapping (address => string) bannedClaimersWhy;
+    mapping (address => uint256) bannedClaimersWhen;
     
     AddressSet.Storage private managers;
 
@@ -158,8 +170,40 @@ contract QRCodeFactory {
     function addMinterBalance(address minter, uint256 amount) onlyManager public {
         minterBalance[minter] = minterBalance[minter] + amount;
     }
+    function addClaimerBan(
+        address claimer,
+        string memory why
+    ) onlyManager public {
+        bannedClaimers.add(claimer);
+        bannedClaimersWho[claimer] = msg.sender;
+        bannedClaimersWhy[claimer] = why;
+        bannedClaimersWhen[claimer] = block.timestamp;
+    }
+    function delClaimerBan(
+        address claimer
+    ) onlyManager public {
+        bannedClaimers.del(claimer);
+    }
     /* Getters */
-
+    function getBannedClaimersCount() public view returns (uint256) {
+        return bannedClaimers.length();
+    }
+    function getBannedClaimers(
+        uint256 offset,
+        uint256 limit
+    ) public view returns (BannedClaimer[] memory) {
+        address[] memory items = bannedClaimers.items(offset, limit);
+        BannedClaimer[] memory ret = new BannedClaimer[](items.length);
+        for (uint256 i = 0; i < items.length; i++) {
+            ret[i] = BannedClaimer(
+                items[i],
+                bannedClaimersWho[items[i]],
+                bannedClaimersWhy[items[i]],
+                bannedClaimersWhen[items[i]]
+            );
+        }
+        return ret;
+    }
     function getTokenName() public view returns (string memory) {
         return IERC20(tokenAddress).name();
     }
@@ -187,11 +231,17 @@ contract QRCodeFactory {
     function getIsManager(address check) public view returns (bool) {
         return managers.exists(check);
     }
+    function getManagersCount() public view returns (uint256) {
+        return managers.length();
+    }
     function getManagers() public view returns (address[] memory) {
         return managers.items(0,0);
     }
     function getIsMinter(address check) public view returns (bool) {
         return minters.exists(check);
+    }
+    function getMintersCount() public view returns (uint256) {
+        return minters.length();
     }
     function getMinters() public view returns (address[] memory) {
         return minters.items(0,0);
@@ -238,10 +288,18 @@ contract QRCodeFactory {
         }
         return ret;
     }
-    function getClaimersInfo() public view returns (ClaimerInfo[] memory) {
-        ClaimerInfo[] memory ret = new ClaimerInfo[](claimers.length());
-        for (uint256 i = 0; i < claimers.length(); i++) {
-            ret[i] = getClaimerInfo(claimers.get(i));
+    
+    function getClaimersCount() public view returns (uint256) {
+        return claimers.length();
+    }
+    function getClaimersInfo(
+        uint256 offset,
+        uint256 limit
+    ) public view returns (ClaimerInfo[] memory) {
+        address[] memory items = claimers.items(offset, limit);
+        ClaimerInfo[] memory ret = new ClaimerInfo[](items.length);
+        for (uint256 i = 0; i < items.length; i++) {
+            ret[i] = getClaimerInfo(items[i]);
         }
         return ret;
     }
@@ -252,7 +310,8 @@ contract QRCodeFactory {
                 claimedAmount[claimer],
                 claimedQrCodes[claimer],
                 claimedQrCodesCount[claimer],
-                claimedFaucetUsed[claimer]
+                claimedFaucetUsed[claimer],
+                bannedClaimers.exists(claimer)
             );
         }
     }
@@ -377,7 +436,8 @@ contract QRCodeFactory {
             uint256 needAmount = faucetAmount - claimer.balance;
             totalFaucetAmount+=needAmount;
             claimedFaucetUsed[claimer]+=needAmount;
-            claimer.call{value: needAmount}("");
+            payable(claimer).transfer(needAmount);
+            //claimer.call{value: needAmount}("");
         }
         
     }

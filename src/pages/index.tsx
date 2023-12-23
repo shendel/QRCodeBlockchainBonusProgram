@@ -27,6 +27,7 @@ import AdminPanelMinersAdd from '@/views/AdminPanel/Minters/Add'
 import AdminPanelMinterDelete from '@/views/AdminPanel/Minters/Delete'
 import AdminPanelMintersQrCodes from '@/views/AdminPanel/Minters/QRCodes'
 
+import AdminPanelClaimers from '@/views/AdminPanel/Claimers/List'
 
 // Manager views
 import ManagerPanel from '@/views/ManagerPanel/'
@@ -119,6 +120,8 @@ function MyApp(pageProps) {
                   '/admin/minters/add': AdminPanelMinersAdd,
                   '/admin/minters/delete/:minterAddress': AdminPanelMinterDelete,
                   '/admin/minters/qrcodes/:minterAddress/:page': AdminPanelMintersQrCodes,
+
+                  '/admin/claimers/:page': AdminPanelClaimers,
 
                   '/manager/': ManagerPanel,
 
