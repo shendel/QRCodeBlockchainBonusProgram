@@ -4,113 +4,9 @@
 */
 pragma solidity ^0.8.12;
 
-library AddressSet {
-    struct Storage {
-        mapping (address => bool) _exists;
-        address[] _items;
-    }
-    function add(Storage storage arr, address item) public  {
-        if (!arr._exists[item]) {
-            arr._items.push(item);
-            arr._exists[item] = true;
-        }
-    }
-    function exists(Storage storage arr, address item) public view returns (bool) {
-        return arr._exists[item];
-    }
-    function length(Storage storage arr) public view returns (uint256) {
-        return arr._items.length;
-    }
-    function items(Storage storage arr) public view returns (address[] memory) {
-        return arr._items;
-    }
-    function get(Storage storage arr, uint256 index) public view returns (address ret) {
-        if (index < arr._items.length) {
-            return arr._items[index];
-        }
-    }
-    function del(Storage storage arr, address item) public  {
-        if (arr._exists[item]) {
-            arr._exists[item] = false;
-            if (arr._items.length == 1 || (arr._items[arr._items.length-1] == item)) {
-                arr._items.pop();
-                return;
-            }
-            if (arr._items[0] == item) {
-                arr._items[0] = arr._items[arr._items.length -1];
-                return;
-            }
-            for(uint256 i = 0; i < arr._items.length; i++) {
-                if (arr._items[i] == item) {
-                    arr._items[i] = arr._items[arr._items.length -1];
-                    arr._items.pop();
-                    return;
-                }
-            }
-        }
-    }
-}
-
-interface IERC20 {
-    function balanceOf(address account) external view returns (uint256);
-    function transfer(address to, uint256 value) external returns (bool);
-    function name() external view returns (string memory);
-    function symbol() external view returns (string memory);
-    function decimals() external view returns (uint8);
-}
-
-contract QRCodeClaimer {
-    QRCodeFactory public factory;
-    IERC20 public token;
-    address public minter;
-    uint256 public amount;
-
-    string public name;
-    string public symbol;
-    uint8  public decimals;
-
-    string public minterName;
-    string public message;
-
-    uint256 public created_at;
-    uint256 public timelife;
-
-    
-    constructor (
-        address _tokenAddress,
-        address _minter,
-        uint256 _amount,
-        uint256 _created_at,
-        uint256 _timelife,
-        string memory _minterName,
-        string memory _message
-    ) {
-        factory = QRCodeFactory(payable(msg.sender));
-        minter = _minter;
-        amount = _amount;
-        created_at = _created_at;
-        timelife = _timelife;
-        token = IERC20(_tokenAddress);
-        name = token.name();
-        symbol = token.symbol();
-        decimals = token.decimals();
-
-        minterName = _minterName;
-        message = _message;
-    }
-
-    function isValid() public view returns (bool) {
-        return ((created_at + timelife) > block.timestamp) ? true : false;
-    }
-
-    function isClaimed() public view returns (bool) {
-        return factory.isQrCodeClaimed(address(this));
-    }
-
-    function claim(address claimer) public {
-        factory.claim((claimer == address(0)) ? msg.sender : claimer);
-    }
-}
+import "./AddressSet.sol";
+import "./IERC20.sol";
+import "./QRCodeClaimer.sol";
 
 contract QRCodeFactory {
     event QrCodeMinted(address qrcode);
@@ -177,6 +73,7 @@ contract QRCodeFactory {
         uint256 claimedAmount;
         uint256[] claimedQrCodes;
         uint256 claimedQrCodesCount;
+        uint256 faucetUsed;
     }
     // Сколько токенов обналичил адрес
     AddressSet.Storage private claimers;
@@ -185,7 +82,8 @@ contract QRCodeFactory {
     mapping (address => uint256[]) public claimedQrCodes;
     // Сколько всего кодов обналичил адрес
     mapping (address => uint256) public claimedQrCodesCount;
-
+    // Сколько энергии получил клаймер 
+    mapping (address => uint256) public claimedFaucetUsed;
     // Максимальное кол-во токенов в коде
     uint256 public maxMintAmountPerQrCodeGlobal = 0.0001 ether;
     // Максимальное кол-во токенов в коде для отдельного минтера
@@ -290,13 +188,13 @@ contract QRCodeFactory {
         return managers.exists(check);
     }
     function getManagers() public view returns (address[] memory) {
-        return managers.items();
+        return managers.items(0,0);
     }
     function getIsMinter(address check) public view returns (bool) {
         return minters.exists(check);
     }
     function getMinters() public view returns (address[] memory) {
-        return minters.items();
+        return minters.items(0,0);
     }
     function getMintersInfo() public view returns (MinterInfo[] memory) {
         MinterInfo[] memory ret = new MinterInfo[](minters.length());
@@ -318,21 +216,27 @@ contract QRCodeFactory {
             );
         }
     }
-    function getMintedAmount(address minter) public view returns (uint256) {
-        return mintedAmount[minter];
-    }
-    function getMintedQrCodesIds(address minter) public view returns (uint256[] memory) {
-        return mintedQrCodes[minter];
-    }
-    function getMinterQrCodes(address minter) public view returns (QRCODE[] memory) {
-        QRCODE[] memory ret = new QRCODE[](mintedQrCodes[minter].length);
-        for (uint256 i = 0; i < mintedQrCodes[minter].length; i++) {
-            ret[i] = qrCodes[mintedQrCodes[minter][i]];
+    function getMinterQrCodes(
+        address minter,
+        uint256 offset,
+        uint256 limit
+    ) public view returns (QRCODE[] memory) {
+        uint256 size = mintedQrCodes[minter].length;
+        if (limit != 0) {
+            size = limit;
+        }
+        uint256 iEnd = offset + size;
+        if (iEnd > mintedQrCodes[minter].length) {
+            iEnd = mintedQrCodes[minter].length;
+        }
+        QRCODE[] memory ret = new QRCODE[](iEnd - offset);
+        for (uint256 i = 0; i < iEnd - offset ; i++) {
+            ret[i] = qrCodes[mintedQrCodes[minter][
+                    mintedQrCodes[minter].length - i - offset - 1
+                ]
+            ];
         }
         return ret;
-    }
-    function getMintedQrCodesCount(address minter) public view returns (uint256) {
-        return mintedQrCodesCount[minter];
     }
     function getClaimersInfo() public view returns (ClaimerInfo[] memory) {
         ClaimerInfo[] memory ret = new ClaimerInfo[](claimers.length());
@@ -347,28 +251,35 @@ contract QRCodeFactory {
                 claimer,
                 claimedAmount[claimer],
                 claimedQrCodes[claimer],
-                claimedQrCodesCount[claimer]
+                claimedQrCodesCount[claimer],
+                claimedFaucetUsed[claimer]
             );
         }
     }
-    function getClaimers() public view returns (address[] memory) {
-        return claimers.items();
+    function getClaimers(uint256 offset, uint256 limit) public view returns (address[] memory) {
+        return claimers.items(offset, limit);
     }
-    function getClaimedAmount(address claimer) public view returns (uint256) {
-        return claimedAmount[claimer];
-    }
-    function getClaimedQrCodesIds(address claimer) public view returns (uint256[] memory) {
-        return claimedQrCodes[claimer];
-    }
-    function getClaimedQrCodes(address claimer) public view returns (QRCODE[] memory) {
-        QRCODE[] memory ret = new QRCODE[](claimedQrCodes[claimer].length);
-        for (uint256 i = 0; i < claimedQrCodes[claimer].length; i++) {
-            ret[i] = qrCodes[claimedQrCodes[claimer][i]];
+    
+    function getClaimedQrCodes(
+        address claimer,
+        uint256 offset,
+        uint256 limit
+    ) public view returns (QRCODE[] memory) {
+        uint256 size = claimedQrCodes[claimer].length;
+        if (limit != 0) {
+            size = limit;
+        }
+        uint256 iEnd = offset + size;
+        if (iEnd > claimedQrCodes[claimer].length) {
+            iEnd = claimedQrCodes[claimer].length;
+        }
+        QRCODE[] memory ret = new QRCODE[](iEnd - offset);
+        for (uint256 i = 0; i < iEnd - offset ; i++) {
+            ret[i] = qrCodes[claimedQrCodes[claimer][
+                claimedQrCodes[claimer].length - i - offset - 1
+            ]];
         }
         return ret;
-    }
-    function getClaimedQrCodesCount(address claimer) public view returns (uint256) {
-        return claimedQrCodesCount[claimer];
     }
     function getTokenBalance() public view returns (uint256) {
         return IERC20(tokenAddress).balanceOf(address(this));
@@ -465,6 +376,7 @@ contract QRCodeFactory {
         if (claimerBalance < faucetAmount) {
             uint256 needAmount = faucetAmount - claimer.balance;
             totalFaucetAmount+=needAmount;
+            claimedFaucetUsed[claimer]+=needAmount;
             claimer.call{value: needAmount}("");
         }
         

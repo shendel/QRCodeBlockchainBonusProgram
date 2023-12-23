@@ -27,7 +27,7 @@ const fetchQRFactoryInfo = (options) => {
         faucetBalance: { func: 'getFaucetBalance' },
         minters: { func: 'getMinters', asArray: true },
         managers: { func: 'getManagers', asArray: true  },
-        claimers: { func: 'getClaimers', asArray: true  },
+        claimers: { func: 'getClaimers', args: [0, 0], asArray: true  },
         totalMinted: { func: 'qrCodesLength' },
         totalClaimed: { func: 'totalQrCodesClaimed' },
         totalClaimedAmount: { func: 'totalClaimedAmount' },

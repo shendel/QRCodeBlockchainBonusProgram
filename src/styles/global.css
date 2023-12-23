@@ -82,6 +82,35 @@ A:hover {
   padding: 1em;
   font-size: 12pt;
 }
+.adminTable.isLoading TABLE {
+  position: relative;
+}
+.adminTable.isLoading TABLE::before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0px;
+  top: -5px;
+  right: 0px;
+  bottom: -5px;
+  background: #11719e14;
+}
+.adminTable.isLoading TABLE::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-top: -5em;
+  margin-left: -5em;
+  width: 10em;
+  height: 10em;
+  background-image: url(/assets/loader.svg);
+  background-size: 100% 100%;
+  -o-background-size: 100% 100%;
+  -webkit-background-size: 100% 100%;
+  background-size: cover;
+}
 /* Admin Form */
 .adminForm {
   max-width: 800px;

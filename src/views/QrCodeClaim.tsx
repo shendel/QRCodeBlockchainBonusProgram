@@ -108,12 +108,19 @@ export default function QrCodeClaim(props) {
     }
   }
   const doClaimByBackend = () => {
+    setIsClaiming(true)
+    setIsClaimed(false)
     axios.get(`${BACKEND_URL}claim/${qrCodeAddress}/${claimToAddress}`)
       .then(function (response) {
-        console.log(response);
+        console.log(response)
+        setIsClaimed(true)
+        setIsClaiming(false)
       })
       .catch(function (error) {
-        console.log(error);
+        console.log(error)
+        setIsClaimed(false)
+        setIsClaiming(false)
+        setIsNeedUpdate(true)
       })
       .finally(function () {
         // always executed
@@ -140,8 +147,6 @@ export default function QrCodeClaim(props) {
       setIsNeedUpdate(true)
       console.log('> err', err)
     })
-  }
-  const doClaimViaBackend = () => {
   }
   
   const doStartEditClaimAddress = () => {

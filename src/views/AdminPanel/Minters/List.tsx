@@ -91,7 +91,7 @@ export default function AdminPanelMinersList(props) {
                             {fromWei(claimedAmount, factoryStatus.tokenDecimals)}
                           </td>
                           <td>
-                            <a href={`#/admin/minters/qrcodes/${minterAddress}`}>{mintedQrCodesCount}</a>
+                            <a href={`#/admin/minters/qrcodes/${minterAddress}/0`}>{mintedQrCodesCount}</a>
                           </td>
                           <td>
                             <a href={`#/admin/minters/info/${minterAddress}`}>[INFO]</a>
