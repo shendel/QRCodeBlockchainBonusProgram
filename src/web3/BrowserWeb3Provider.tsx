@@ -3,7 +3,9 @@ import { GET_CHAIN_RPC } from './chains'
 import Web3 from 'web3'
 import {
   getEthLikeWallet,
-  getRandomMnemonicWords
+  getRandomMnemonicWords,
+  mnemonicIsValid,
+  convertMnemonicToValid
 } from './mnemonic'
 
 import fetchBalance from '@/helpers/fetchBalance'
@@ -43,6 +45,7 @@ const BrowserWeb3Context = createContext({
   balance: 0,
   isBalanceFetched: false,
   isBalanceFetching: true,
+  switchAccount: () => {}
 })
 
 export const useBrowserWeb3 = () => {
@@ -93,6 +96,19 @@ export default function BrowserWeb3Provider(props) {
     setBrowserMnemonic(mnemonic)
   }, [ chainId ])
 
+  const switchAccount = (newMnemonic) => {
+    if (mnemonicIsValid(newMnemonic)) {
+      console.log('>>> do switch account', newMnemonic)
+      localStorage.setItem(BROWSER_SEED_LS_NAME || `NEXTGEN_BROWSER_SEED`, convertMnemonicToValid(newMnemonic))
+      const { web3, account, mnemonic } = authBrowserWeb3(chainId)
+      setBrowserWeb3(web3)
+      setBrowserAccount(account)
+      setBrowserMnemonic(mnemonic)
+      return true
+    }
+    return false
+  }
+
   return (
     <BrowserWeb3Context.Provider
       value={{
@@ -102,6 +118,7 @@ export default function BrowserWeb3Provider(props) {
         balance,
         isBalanceFetched,
         isBalanceFetching,
+        switchAccount,
       }}
     >
       {children}

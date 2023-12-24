@@ -33,22 +33,23 @@ export default function QrCodeClaim(props) {
   const { address: connectedWallet, isConnected: isExternalWalletConnected } = useAccount()
 
   
+  const injectedAccount = useInjectedWeb3()
+  const browserAccount = useBrowserWeb3()
+  
   const account = useAccount()
 
   const [ isQrCodeFetching, setIsQrCodeFetching ] = useState(true)
   const [ isQrCodeFetched, setIsQrCodeFetched ] = useState(false)
   const [ qrCodeInfo, setQrCodeInfo ] = useState(false)
   
-  const [ claimToAddress, setClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet : browserAccount)
-  const [ oldClaimToAddress, setOldClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet: browserAccount)
+  const [ claimToAddress, setClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet : browserAccount.browserAccount)
+  const [ oldClaimToAddress, setOldClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet: browserAccount.browserAccount)
   const [ isEditClaimToAddress, setIsEditClaimToAddress ] = useState(false)
 
   const [ isClaiming, setIsClaiming ] = useState(false)
   const [ isClaimed, setIsClaimed ] = useState(false)
   const [ isNeedUpdate, setIsNeedUpdate ] = useState(false)
 
-  const injectedAccount = useInjectedWeb3()
-  const browserAccount = useBrowserWeb3()
 
 
   const updateQrCodeInfo = () => {
