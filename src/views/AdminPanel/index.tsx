@@ -116,6 +116,11 @@ export default function AdminPanel(props) {
             <span>{factoryStatus.claimersCount}</span>
             <a href="#/admin/claimers/0">Manage</a>
           </div>
+          <div>
+            <strong>Banned:</strong>
+            <span>{factoryStatus.claimersBannedCount}</span>
+            <a href="#/admin/claimers/banned/0">Manage</a>
+          </div>
         </div>
       </div>
     </>

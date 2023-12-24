@@ -12,7 +12,7 @@ import { getTranslate } from '@/translate'
 import { fromWei } from '@/helpers/wei'
 
 import fetchWalletStatus from '@/qrcode_helpers/fetchWalletStatus'
-
+import { getDateTimeFromBlock } from '@/helpers/getDateTimeFromBlock'
 
 export default function AdminPanelClaimersInfo(props) {
   const t = getTranslate('CLAIMER_INFO')
@@ -25,6 +25,10 @@ export default function AdminPanelClaimersInfo(props) {
   } = props
 
   const [ claimerInfo, setClaimerInfo ] = useState(false)
+  const [ claimerBannedWho, setClaimerBannedWho ] = useState(false)
+  const [ claimerBannedWhy, setClaimerBannedWhy ] = useState(false)
+  const [ claimerBannedWhen, setClaimerBannedWhen ] = useState(false)
+  
   const [ isClaimerFetched, setIsClaimerFetched ] = useState(false)
   const [ isClaimerFetching, setIsClaimerFetching ] = useState(true)
 
@@ -40,7 +44,16 @@ export default function AdminPanelClaimersInfo(props) {
       claimer: claimerAddress,
     }).then((answer) => {
       console.log('answer', answer)
-      setClaimerInfo(answer.claimer)
+      const {
+        claimer,
+        bannedWho,
+        bannedWhen,
+        bannedWhy
+      } = answer
+      setClaimerInfo(claimer)
+      setClaimerBannedWhen(bannedWhen)
+      setClaimerBannedWho(bannedWho)
+      setClaimerBannedWhy(bannedWhy)
       setIsClaimerFetched(true)
       setIsClaimerFetching(false)
     }).catch((err) => {
@@ -99,12 +112,37 @@ export default function AdminPanelClaimersInfo(props) {
               </label>
               <label>QR-Codes claimed: {claimerInfo.claimedQrCodesCount}</label>
             </div>
+            {claimerInfo.isBanned && (
+              <>
+                <div className="redInfoBox smallBox">
+                  {t('Claimer is banned')}
+                </div>
+                <div className="inputHolder">
+                  <label>{t('When added to banlist')}</label>
+                  <div className="infoRow">{getDateTimeFromBlock(claimerBannedWhen)}</div>
+                  <label>{t('Who add to banlist')}</label>
+                  <div className="infoRow">{claimerBannedWho}</div>
+                  <label>{t('Ban reason')}</label>
+                  <div className="infoRow">{claimerBannedWhy}</div>
+                </div>
+            </>
+            )}
           </>
         )}
         <div className="buttonsHolder">
           <button className="isCancel" onClick={() => { window.history.back() }}>{t(`Go back`)}</button>
-          <button>Show claimed QR-Codes</button>
-          <button className="isRed" onClick={() => { gotoPage(`/admin/claimers/ban/${claimerAddress}`) }}>Add to banlist</button>
+          <button>
+            {t('Show claimed QR-Codes')}
+          </button>
+          {claimerInfo.isBanned ? (
+            <button className="isRed" onClick={() => { gotoPage(`/admin/claimers/unban/${claimerAddress}`) }}>
+              {t('Remove from banlist')}
+            </button>
+          ) : (
+            <button className="isRed" onClick={() => { gotoPage(`/admin/claimers/ban/${claimerAddress}`) }}>
+              {t('Add to banlist')}
+            </button>
+          )}
         </div>
       </div>
     </>

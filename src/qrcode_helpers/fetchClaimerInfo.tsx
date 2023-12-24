@@ -20,13 +20,16 @@ const fetchClaimerInfo = (options) => {
       encoder: abiI,
       calls: {
         claimer: { func: 'getClaimerInfo', args: [claimer] },
+        bannedWhy: { func: 'bannedClaimersWhy', args: [claimer] },
+        bannedWho: { func: 'bannedClaimersWho', args: [claimer] },
+        bannedWhen: { func: 'bannedClaimersWhen', args: [claimer] },
       }
     }).then((answer) => {
       console.log('>> answer', answer)
       resolve({
         chainId,
         address,
-        claimer: answer.claimer
+        ...answer,
       })
     }).catch((err) => {
       console.log('>> call mc err', err)

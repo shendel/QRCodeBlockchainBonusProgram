@@ -52,7 +52,7 @@ export default function AdminPanelMinterDelete(props) {
       <nav>
         <a href="#/admin/minters/">[Back]</a>
       </nav>
-      {(factoryStatus.managers.indexOf(connectedWallet) != -1) || (connectedWallet.toLowerCase() == factoryStatus.owner.toLowerCase()) ? (
+      {true ? (
         <>
           <div>
             {!isRemovedMinter ? (

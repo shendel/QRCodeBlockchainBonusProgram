@@ -28,7 +28,7 @@ const fetchQRFactoryInfo = (options) => {
         mintersCount: { func: 'getMintersCount' },
         managersCount: { func: 'getManagersCount' },
         claimersCount: { func: 'getClaimersCount' },
-        bannedClaimersCount: { func: 'getBannedClaimersCount' },
+        claimersBannedCount: { func: 'getBannedClaimersCount' },
         totalMinted: { func: 'qrCodesLength' },
         totalClaimed: { func: 'totalQrCodesClaimed' },
         totalClaimedAmount: { func: 'totalClaimedAmount' },

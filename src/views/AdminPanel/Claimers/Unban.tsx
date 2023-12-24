@@ -14,8 +14,8 @@ import { fromWei } from '@/helpers/wei'
 import fetchWalletStatus from '@/qrcode_helpers/fetchWalletStatus'
 
 
-export default function AdminPanelClaimersBan(props) {
-  const t = getTranslate('CLAIMER_BAN')
+export default function AdminPanelClaimersUnban(props) {
+  const t = getTranslate('CLAIMER_UNBAN')
   const {
     gotoPage,
     factoryStatus,
@@ -25,7 +25,6 @@ export default function AdminPanelClaimersBan(props) {
   } = props
 
   const STEPS = {
-    REASON: 'REASON',
     CONFIRM: 'CONFIRM',
     READY: 'READY'
   }
@@ -34,36 +33,25 @@ export default function AdminPanelClaimersBan(props) {
     injectedAccount,
     injectedWeb3
   } = useInjectedWeb3()
-  const [ step, setStep ] = useState(STEPS.REASON)
+
+  const [ step, setStep ] = useState(STEPS.CONFIRM)
   const [ isLoading, setIsLoading ] = useState(false)
-  const [ banReason, setBanReason ] = useState(``)
-  const [ banReasonError, setBanReasonError ] = useState(true)
 
   useEffect(() => {
     if (claimerAddress) {
-      setStep(STEPS.REASON)
-      setBanReason('')
+      setStep(STEPS.CONFIRM)
       setIsLoading(false)
     }
   }, [ claimerAddress ])
 
-  useEffect(() => {
-    setBanReasonError(false)
-  }, [ banReason ])
-
-  const gotoConfirm = () => {
-    if (!banReason) return setBanReasonError(true)
-    setStep(STEPS.CONFIRM)
-  }
-
-  const doBan = () => {
+  const doUnBan = () => {
     setIsLoading(true)
     callQRFactoryMethod({
       activeWallet: injectedAccount,
       activeWeb3: injectedWeb3,
       contractAddress: QRCODE_FACTORY,
-      method: 'addClaimerBan',
-      args: [ claimerAddress, banReason ],
+      method: 'delClaimerBan',
+      args: [ claimerAddress ],
     }).then((answer) => {
       setIsLoading(false)
       setStep(STEPS.READY)
@@ -75,53 +63,26 @@ export default function AdminPanelClaimersBan(props) {
   }
   return (
     <>
-      <h3>AdminPanel - Claimers - Ban</h3>
+      <h3>AdminPanel - Claimers - Remove from ban</h3>
       <nav>
         <a href="#/admin/claimers/">[Back]</a>
       </nav>
 
       <div className={`adminForm ${(isLoading) ? 'isLoading' : ''}`}>
-        <header>{t('Ban claimer')}</header>
+        <header>{t('Remove claimer from banlist')}</header>
         <div className="inputHolder">
           <label>
             {t('Address')}
           </label>
           <div className="infoRow">{claimerAddress}</div>
         </div>
-        {step == STEPS.REASON && (
-          <>
-            <div className="inputHolder">
-              <label className="required">{t('Ban reason')}</label>
-              <div>
-                <input
-                  type="text"
-                  className={(banReasonError) ? 'hasError' : ''}
-                  value={banReason}
-                  onChange={(e) => { setBanReason(e.target.value) }}
-                />
-                {banReasonError && (
-                  <div className="error">{t('Ban reason is required')}</div>
-                )}
-              </div>
-            </div>
-            <div className="buttonsHolder">
-              <button className="isRed" onClick={() => { gotoConfirm() }}>{t('Add to banlist')}</button>
-              <button className="isCancel" onClick={() => { gotoPage(`#/admin/claimers/info/${claimerAddress}`) }}>{t(`Cancel`)}</button>
-            </div>
-          </>
-        )}
         {step == STEPS.CONFIRM && (
           <>
-            <div className="inputHolder">
-              <label>{t('Reason of ban')}</label>
-              <div className="infoRow">{banReason}</div>
-            </div>
             <div className="greenInfoBox">
-              {t('Ban this claimer address?')}
+              {t('Remove this claimer address from banlist?')}
             </div>
             <div className="buttonsHolder">
-              <button className="isRed" onClick={() => { doBan() }}>{t('Yes, add this claimer to banlist')}</button>
-              <button className="isCancel" onClick={() => { setStep(STEPS.REASON) }}>{t(`Go back`)}</button>
+              <button className="isRed" onClick={() => { doUnBan() }}>{t('Yes, remove from banlist')}</button>
               <button className="isCancel" onClick={() => { gotoPage(`#/admin/claimers/info/${claimerAddress}`) }}>{t(`Cancel`)}</button>
             </div>
           </>
@@ -129,7 +90,7 @@ export default function AdminPanelClaimersBan(props) {
         {step == STEPS.READY && (
           <>
             <div className="greenInfoBox">
-              {t('Claimer {claimerAddress} added to banlist with reason "{banReason}"', { claimerAddress, banReason })}
+              {t('Claimer {claimerAddress} removed from banlist"', { claimerAddress })}
             </div>
             <div className="buttonsHolder">
               <button className="isGreen" onClick={() => { gotoPage(`#/admin/claimers/info/${claimerAddress}`) }}>{t('Ready')}</button>

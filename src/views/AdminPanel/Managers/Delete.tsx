@@ -52,7 +52,7 @@ export default function AdminPanelManagersDelete(props) {
       <nav>
         <a href="#/admin/managers/">[Back]</a>
       </nav>
-      {connectedWallet.toLowerCase() == factoryStatus.owner.toLowerCase() ? (
+      {true ? (
         <>
           <div>
             {!isRemovedManager ? (

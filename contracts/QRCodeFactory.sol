@@ -105,9 +105,9 @@ contract QRCodeFactory {
         uint256 when;
     }
     AddressSet.Storage private bannedClaimers;
-    mapping (address => address) bannedClaimersWho;
-    mapping (address => string) bannedClaimersWhy;
-    mapping (address => uint256) bannedClaimersWhen;
+    mapping (address => address) public bannedClaimersWho;
+    mapping (address => string) public bannedClaimersWhy;
+    mapping (address => uint256) public bannedClaimersWhen;
     
     AddressSet.Storage private managers;
 
