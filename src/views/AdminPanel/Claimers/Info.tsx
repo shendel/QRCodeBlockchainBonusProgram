@@ -104,7 +104,7 @@ export default function AdminPanelClaimersInfo(props) {
         <div className="buttonsHolder">
           <button className="isCancel" onClick={() => { window.history.back() }}>{t(`Go back`)}</button>
           <button>Show claimed QR-Codes</button>
-          <button className="isRed">Add to banlist</button>
+          <button className="isRed" onClick={() => { gotoPage(`/admin/claimers/ban/${claimerAddress}`) }}>Add to banlist</button>
         </div>
       </div>
     </>
