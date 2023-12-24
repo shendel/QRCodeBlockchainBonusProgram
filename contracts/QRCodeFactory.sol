@@ -33,6 +33,13 @@ contract QRCodeFactory {
         uint256 timelife;
         address router;
         string  message;
+        
+        /*
+        bool isMultiUse;                    // Много-разовый
+        uint256 oneClaimerDayLimit;         // Дневной лимит на человека
+        uint256 oneClaimerTotalLimit;       // Общий лимит на одного (ноль безлимит)
+        uint256 oneClaimerPerScanTime;      // Время между сканами на одного человека
+        */
     }
 
     mapping (uint256 => QRCODE) public qrCodes;

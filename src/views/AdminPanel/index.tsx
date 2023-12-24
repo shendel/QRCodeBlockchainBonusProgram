@@ -3,7 +3,7 @@ import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
 import fetchQRFactoryInfo from '@/qrcode_helpers/fetchQRFactoryInfo'
 import { fromWei } from '@/helpers/wei'
-
+import { shortAddress } from '@/helpers/shortAddress'
 import { WORK_CHAIN_ID, QRCODE_FACTORY } from '@/config'
 
 export default function AdminPanel(props) {
@@ -14,12 +14,43 @@ export default function AdminPanel(props) {
   
   return (
     <>
-      <div>
-        <div>
+      <style>
+      {`
+        .adminDashStatus {
+          display: flex;
+          justify-content: center;
+          align-items: stretch;
+          flex-wrap: wrap;
+          flex-direction: row;
+        }
+        .adminDashStatus .cart {
+          margin: 0.5em;
+          background: #fff;
+          border-radius: 5px;
+          box-shadow: 1px 1px 5px 0px #1d4a725e;
+        }
+        .adminDashStatus .cart DIV {
+          padding: 0.5em;
+          color: #111827;
+          font-size: 11pt;
+        }
+        .adminDashStatus .cart H3 {
+          background: #ccdfeb;
+          margin: 0;
+          padding: 0.5em;
+          font-size: 14pt;
+          color: #11273b;
+          border-top-left-radius: 0px;
+          border-top-right-radius: 0px;
+        }
+      `}
+      </style>
+      <div className="adminDashStatus">
+        <div className="cart">
           <h3>Contract status</h3>
           <div>
             <strong>Contract:</strong>
-            <a href="#">{factoryStatus.address}</a>
+            <a href="#">{shortAddress(factoryStatus.address)}</a>
           </div>
           <div>
             <strong>Energy:</strong>
@@ -33,7 +64,7 @@ export default function AdminPanel(props) {
             <button onClick={() => { gotoPage('/admin/addtokens') }}>Add</button>
           </div>
         </div>
-        <div>
+        <div className="cart">
           <h3>Backend energy</h3>
           <div>
             <strong>Claimer:</strong>
@@ -41,7 +72,7 @@ export default function AdminPanel(props) {
             <button onClick={() => { gotoPage('/admin/addenergy/claimer') }}>Add</button>
           </div>
         </div>
-        <div>
+        <div className="cart">
           <h3>QR Codes</h3>
           <div>
             <strong>Codes minted:</strong>
@@ -62,7 +93,7 @@ export default function AdminPanel(props) {
             <em>{factoryStatus.tokenSymbol}</em>
           </div>
         </div>
-        <div>
+        <div className="cart">
           <h3>Managers</h3>
           <div>
             <strong>Count:</strong>
@@ -70,7 +101,7 @@ export default function AdminPanel(props) {
             <a href="#/admin/managers/">Manage</a>
           </div>
         </div>
-        <div>
+        <div className="cart">
           <h3>Minters</h3>
           <div>
             <strong>Count:</strong>
@@ -78,7 +109,7 @@ export default function AdminPanel(props) {
             <a href="#/admin/minters/">Manage</a>
           </div>
         </div>
-        <div>
+        <div className="cart">
           <h3>Claimers</h3>
           <div>
             <strong>Count:</strong>

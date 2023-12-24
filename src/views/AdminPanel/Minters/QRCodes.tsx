@@ -104,7 +104,7 @@ export default function AdminPanelMintersQrCodes(props) {
                       </td>
                       <td>
                         {claimed_at != "0" ? (
-                          <div>{t('Claimed by {claimer}', { claimer: shortAddress(claimer) })}</div>
+                          <a href={`#/admin/claimers/info/${claimer}`}>{t('Claimed by {claimer}', { claimer: shortAddress(claimer) })}</a>
                         ) : (
                           <>
                             {(new Date((Number(minted_at) + Number(timelife)) * 1000) < new Date()) ? (

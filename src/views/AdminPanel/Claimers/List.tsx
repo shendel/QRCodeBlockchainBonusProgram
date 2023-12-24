@@ -83,7 +83,7 @@ export default function AdminPanelClaimers(props) {
                   return (
                     <tr key={key}>
                       <td>
-                        <div>{claimerAddress}</div>
+                        <a href={`#/admin/claimers/info/${claimerAddress}`}>{claimerAddress}</a>
                       </td>
                       <td>
                         <div>{fromWei(claimedAmount, factoryStatus.tokenDecimals)}</div>

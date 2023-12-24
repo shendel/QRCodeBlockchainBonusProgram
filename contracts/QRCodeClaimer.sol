@@ -20,7 +20,8 @@ contract QRCodeClaimer {
     uint256 public created_at;
     uint256 public timelife;
 
-    
+    bool notValid = false;
+
     constructor (
         address _tokenAddress,
         address _minter,
@@ -44,7 +45,12 @@ contract QRCodeClaimer {
         message = _message;
     }
 
+    function setNotValid() public {
+        require(msg.sender == address(factory), "Not allowed");
+        notValid = true;
+    }
     function isValid() public view returns (bool) {
+        if (!notValid) return false;
         return ((created_at + timelife) > block.timestamp) ? true : false;
     }
 
@@ -53,6 +59,7 @@ contract QRCodeClaimer {
     }
 
     function claim(address claimer) public {
+        require(notValid == false, "QRCode not valid");
         factory.claim((claimer == address(0)) ? msg.sender : claimer);
     }
 }
