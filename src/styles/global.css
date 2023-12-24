@@ -175,6 +175,7 @@ A:hover {
 }
 .adminForm .inputHolder INPUT[type="text"],
 .adminForm .inputHolder INPUT[type="number"],
+.adminForm .inputHolder TEXTAREA,
 .adminForm .inputHolder SELECT {
   height: 3em;
   line-height: 3em;
@@ -188,6 +189,24 @@ A:hover {
   width: 100%;
   box-sizing: border-box;
 }
+.adminForm .inputHolder TEXTAREA {
+  line-height: 1em;
+  padding: 1em;
+  min-height: 5em;
+}
+
+.adminForm .greenInfoBox {
+  font-size: 16pt;
+  font-weight: bold;
+  padding: 1em;
+  margin: 1em;
+  color: #333;
+  background: #aae3a3;
+  border: 1px solid #14db4b;
+  border-radius: 5px;
+  text-align: center;
+}
+
 .adminForm .inputHolder INPUT[type="text"]:focus,
 .adminForm .inputHolder INPUT[type="number"]:focus {
   border: 1px solid #0d5dae;

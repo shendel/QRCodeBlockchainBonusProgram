@@ -108,95 +108,104 @@ export default function AccountRestore(props) {
   return (
     <>
       <h1>Account page - restore</h1>
-      <div>
-        <header>
-          <span>Info</span>
-          <em>&gt;</em>
-          <span>New seed</span>
-          <em>&gt;</em>
-        </header>
+      <div className="adminForm">
+        <header>Restore account</header>
         {step == STEPS.INFO && (
-          <div>
-            <div>
-              <div>
-                <label>You currenct address:</label>
+          <>
+            <div className="inputHolder">
+              <label>You currenct address:</label>
+              <div className="infoRow">
                 <strong>{browserAccount}</strong>
               </div>
-              <div>
-                <label>Energy</label>
+            </div>
+            <div className="inputHolder">
+              <label>Energy</label>
+              <div className="infoRow">
                 <strong>{fromWei(currentEnergy)}</strong>
               </div>
-              <div>
-                <label>Balance</label>
+            </div>
+            <div className="inputHolder">
+              <label>Balance</label>
+              <div className="infoRow">
                 <strong>{fromWei(currentBalance, factoryStatus.tokenDecimals)} {factoryStatus.tokenSymbol}</strong>
               </div>
             </div>
-            <div>
-              <button onClick={() => { setStep(STEPS.FORM) }}>[Enter new seed]</button>
-              <button onClick={() => { }}>[CANCEL]</button>
+            <div className="buttonsHolder">
+              <button onClick={() => { gotoPage('/account/')}} className="isCancel">Cancel</button>
+              <button onClick={() => { setStep(STEPS.FORM) }}>Enter new seed</button>
             </div>
-          </div>
+          </>
         )}
         {step == STEPS.FORM && (
-          <div>
-            <div>
-              <div>
-                <label>New seed</label>
-                <input type="text" value={newMnemonic} onChange={(e) => { setNewMnemonic(e.target.value) }} />
-              </div>
+          <>
+            <div className="inputHolder">
+              <label className="required">New seed</label>
+              <textarea value={newMnemonic} onChange={(e) => { setNewMnemonic(e.target.value) }} />
             </div>
-            <div>
-              <button onClick={() => { setStep(STEPS.INFO) }}>[Back]</button>
-              <button onClick={() => { goToStepSeedInfo() }}>[Next]</button>
+            <div className="buttonsHolder">
+              <button onClick={() => { setStep(STEPS.INFO) }} className="isCancel">Back</button>
+              <button onClick={() => { goToStepSeedInfo() }}>Next</button>
             </div>
-          </div>
+          </>
         )}
         {step == STEPS.SEED_INFO && (
-          <div>
-            <div>
-              <div>
-                <label>New seed</label>
+          <>
+            <div className="inputHolder">
+              <label>New seed</label>
+              <div className="infoRow">
                 <strong>{newMnemonic}</strong>
               </div>
-              <div>
-                <label>Address:</label>
+            </div>
+            <div className="inputHolder">
+              <label>Address:</label>
+              <div className="infoRow">
                 <strong>{newAddress}</strong>
               </div>
-              <div>
-                <label>Energy</label>
+            </div>
+            <div className="inputHolder">
+              <label>Energy</label>
+              <div className="infoRow">
                 <strong>{fromWei(newEnergy)}</strong>
               </div>
-              <div>
-                <label>Balance</label>
+            </div>
+            <div className="inputHolder">
+              <label>Balance</label>
+              <div className="infoRow">
                 <strong>{fromWei(newBalance, factoryStatus.tokenDecimals)} {factoryStatus.tokenSymbol}</strong>
               </div>
             </div>
-            <div>
-              <button onClick={() => { setStep(STEPS.FORM) }}>[Back]</button>
-              <button onClick={() => { setStep(STEPS.CONFIRM) }}>[Use this seed]</button>
+            <div className="buttonsHolder">
+              <button onClick={() => { setStep(STEPS.FORM) }} className="isCancel">Back</button>
+              <button onClick={() => { setStep(STEPS.CONFIRM) }}>Use this seed</button>
             </div>
-          </div>
+          </>
         )}
         {step == STEPS.CONFIRM && (
-          <div>
-            <div>
-              <div><span>New wallet</span></div>
-              <div><strong>{newAddress}</strong></div>
-              <div>Are you realy want switch to this account?</div>
+          <>
+            <div className="inputHolder">
+              <label>New wallet</label>
+              <div className="infoRow">
+                <strong>{newAddress}</strong>
+              </div>
             </div>
-            <div>
-              <button onClick={() => { setStep(STEPS.SEED_INFO) }}>[Back]</button>
-              <button onClick={() => { doSwitchAccount() }}>[Confirm]</button>
+            <div className="greenInfoBox">
+              Are you realy want switch to this account?
             </div>
-          </div>
+            <div className="buttonsHolder">
+              <button onClick={() => { setStep(STEPS.SEED_INFO) }} className="isCancel">Back</button>
+              <button onClick={() => { doSwitchAccount() }}>Confirm</button>
+            </div>
+          </>
         )}
         {step == STEPS.READY && (
-          <div>
-            <div>Ready</div>
-            <div>
-              <button onClick={() => { gotoPage('/account') }}>[Ready]</button>
+          <>
+            <div className="greenInfoBox">
+              Account switched to {newAddress}
             </div>
-          </div>
+            <div className="buttonsHolder">
+              <button onClick={() => { gotoPage('/account') }} className="isGreen">Ok, go back to account page</button>
+            </div>
+          </>
         )}
       </div>
     </>
