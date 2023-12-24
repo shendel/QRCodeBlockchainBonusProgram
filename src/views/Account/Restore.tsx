@@ -5,8 +5,8 @@ import { getAssets } from '@/helpers/getAssets'
 
 import { useBrowserWeb3 } from '@/web3/BrowserWeb3Provider'
 
-import fetchBalance from '@/helpers/fetchBalance'
-import fetchTokenBalance from '@/helpers/fetchTokenBalance'
+import fetchWalletStatus from '@/qrcode_helpers/fetchWalletStatus'
+
 import { fromWei } from '@/helpers/wei'
 
 import { WORK_CHAIN_ID } from '@/config'
@@ -40,40 +40,16 @@ export default function AccountRestore(props) {
   const [ isCurrentBalanceFetched, setIsCurrentBalanceFetched ] = useState(false)
   const [ isCurrentBalanceError, setIsCurrentBalanceError ] = useState(false)
 
-  const fetchWalletStatus = (address) => {
-    return new Promise((resolve, reject) => {
-      fetchBalance({
-        address,
-        chainId: WORK_CHAIN_ID
-      }).then((balance) => {
-        fetchTokenBalance({
-          wallet: address,
-          chainId: WORK_CHAIN_ID,
-          tokenAddress: factoryStatus.tokenAddress,
-        }).then((answer) => {
-          resolve({
-            address,
-            energy: balance,
-            balance: answer.wei
-          })
-        }).catch((err) => {
-          console.log('>> err', err)
-          reject(err)
-        })
-      }).catch((err) => {
-        console.log('>> err', err)
-        reject(err)
-      })
-    })
-  }
 
   useEffect(() => {
     if (browserAccount && factoryStatus) {
       setIsCurrentBalanceFetching(true)
       setIsCurrentBalanceError(false)
-      fetchWalletStatus(
-        browserAccount
-      ).then(({ energy, balance }) => {
+      fetchWalletStatus({
+        address: browserAccount,
+        chainId: WORK_CHAIN_ID,
+        tokenAddress: factoryStatus.tokenAddress,
+      }).then(({ energy, balance }) => {
         setCurrentEnergy(energy)
         setCurrentBalance(balance)
         setIsCurrentBalanceFetched(true)
@@ -103,9 +79,11 @@ export default function AccountRestore(props) {
       setNewAddress(address)
       setIsNewBalanceError(false)
       setIsNewBalanceFetching(true)
-      fetchWalletStatus(
-        address
-      ).then(({ energy, balance }) => {
+      fetchWalletStatus({
+        address,
+        chainId: WORK_CHAIN_ID,
+        tokenAddress: factoryStatus.tokenAddress,
+      }).then(({ energy, balance }) => {
         setNewEnergy(energy)
         setNewBalance(balance)
         setIsNewBalanceFetched(true)
