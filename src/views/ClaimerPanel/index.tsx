@@ -10,6 +10,7 @@ export default function ClaimerPanel(props) {
   return (
     <>
       <h2>Claimer panel</h2>
+      <button onClick={() => { gotoPage('claimer/scanqrcode') }}>ScanQR</button>
     </>
   )
 }

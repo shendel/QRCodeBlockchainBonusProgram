@@ -39,6 +39,7 @@ import MinterPanel from '@/views/MinterPanel/'
 import MinterMint from '@/views/MinterPanel/Mint'
 // Claimer views
 import ClaimerPanel from '@/views/ClaimerPanel/'
+import ClaimerPanelScanQRCode from '@/views/ClaimerPanel/ScanQRCode'
 
 
 import QrCodeView from '@/views/QrCodeView'
@@ -140,6 +141,7 @@ function MyApp(pageProps) {
                   '/minter/mint': MinterMint,
 
                   '/claimer/': ClaimerPanel,
+                  '/claimer/scanqrcode/': ClaimerPanelScanQRCode,
                   
                   '/qrcodeview/:qrCodeAddress': QrCodeView,
                   '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
