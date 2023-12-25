@@ -8,10 +8,8 @@ export default function ClaimerPanelScanQRCode(props) {
   const {
     gotoPage,
   } = props
-  
-  const [ scanResult, setScanResult ] = useState(``)
-  const [ scanError, setScanError ] = useState(``)
-  
+
+
   const handleScan = (result) => {
     const parts = result.split('/').reverse()
     if (parts.length > 1) {
@@ -23,15 +21,12 @@ export default function ClaimerPanelScanQRCode(props) {
   
   return (
     <>
-      <h2>Scan</h2>
-      <h3>Scan result: {scanResult}</h3>
-      <h3>Scan error: {scanError}</h3>
       <style>
       {`
         .scan {
           display: flex;
           flex-direction: column;
-          -position: fixed;
+          position: fixed;
           top: 0;
           left: 0;
           right: 0;
@@ -45,27 +40,26 @@ export default function ClaimerPanelScanQRCode(props) {
         .close {
           text-align: right;
           position: relative;
-          font-size: 30pt;
+          padding: 0.25em;
+          font-size: 3em;
           color: #FFF;
-        }
-        .scan VIDEO {
-          outline: 5px solid red;
-          background: green;
+          cursor: pointer;
         }
       `}
       </style>
       <div className="scan">
-        <span className="close" onClick={() => { gotoPage('/claimer/') }}>
+        <a className="close" onClick={() => { gotoPage('/claimer/') }}>
           &times;
-        </span>
+        </a>
         <QrReader
-          constraints={{ facingMode: { exact: 'environment' } }}
+          constraints={{
+            facingMode: { exact: `environment` },
+          }}
           onResult={(result, error) => {
             if (!!result) {
               handleScan(result?.getText())
               return
             }
-            setScanError(error.message)
           }}
         />
       </div>
