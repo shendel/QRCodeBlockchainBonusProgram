@@ -142,10 +142,8 @@ contract SimpleERC20Bridge {
     ) public {
         require(swapsOut[swapId].swapped == false, "Swap already swapped");
         require(swapsOut[swapId].refunded == false, "Swap already refunded");
+        require(block.timestamp > swapsOut[swapId].utx + refundTime, "Refund timeout freeze");
         require(IERC20(token).balanceOf(address(this)) >= swapsOut[swapId].amount, "Balance on Bridge not enought");
-        if ((msg.sender != owner) && (msg.sender != oracle)) {
-            require(block.timestamp > swapsOut[swapId].utx + refundTime, "Refund timeout freeze");
-        }
         
         swapsOut[swapId].refunded = true;
         _swapsOutQueryDel(swapId);
@@ -190,10 +188,7 @@ contract SimpleERC20Bridge {
     }
 
     
-    function getSwapOut(uint256 swapId) public view returns (SwapOut memory) {
-        return swapsOut[swapId];
-    }
-    function getSwapsOutQuery() public view returns(uint256[] memory) {
+    function getSwapsOQuery() public view returns(uint256[] memory) {
         return swapsOutQuery;
     }
     function swapOutQueryAdd(uint256 swapId) public onlyOwner {
@@ -221,6 +216,15 @@ contract SimpleERC20Bridge {
         owner = newOwner;
     }
 
+    function getTokenName() public view returns (string memory) {
+        return IERC20(token).name();
+    }
+    function getTokenSymbol() public view returns (string memory) {
+        return IERC20(token).symbol();
+    }
+    function getTokenDecimals() public view returns (uint8) {
+        return IERC20(token).decimals();
+    }
     function getBalance() public view returns (uint256) {
         return IERC20(token).balanceOf(address(this));
     }
