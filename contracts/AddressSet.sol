@@ -44,10 +44,6 @@ library AddressSet {
                 arr._items.pop();
                 return;
             }
-            if (arr._items[0] == item) {
-                arr._items[0] = arr._items[arr._items.length -1];
-                return;
-            }
             for(uint256 i = 0; i < arr._items.length; i++) {
                 if (arr._items[i] == item) {
                     arr._items[i] = arr._items[arr._items.length -1];
