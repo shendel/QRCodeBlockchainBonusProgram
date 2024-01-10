@@ -52,13 +52,16 @@ const initWeb3 = () => {
   console.log('>>> Main contracts inited')
 
   return {
+    oracleAddress: wallet.address,
     from: {
+      chainId: FROM_CHAIN_ID,
       web3: from_web3,
       multicall: from_multicall,
       bridge: from_bridge,
       bridge_address: FROM_CONTRACT,
     },
     to: {
+      chainId: TO_CHAIN_ID,
       web3: to_web3,
       multicall: to_multicall,
       bridge: to_bridge,
