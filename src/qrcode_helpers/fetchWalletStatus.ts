@@ -15,7 +15,9 @@ const fetchWalletStatus = ({ address, tokenAddress, chainId }) => {
         resolve({
           address,
           energy: balance,
-          balance: answer.wei
+          balance: answer.wei,
+          tokenSymbol: answer.symbol,
+          tokenDecimals: answer.decimals,
         })
       }).catch((err) => {
         console.log('>> err', err)

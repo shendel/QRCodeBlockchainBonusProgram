@@ -173,6 +173,13 @@ A:hover {
   padding-left: 0.25em;
   color: #e80000;
 }
+
+.adminForm .inputHolder .inputWithButtons {
+  display: flex;
+}
+.adminForm .inputHolder .inputWithButtons BUTTON {
+  height: auto;
+}
 .adminForm .inputHolder INPUT[type="text"],
 .adminForm .inputHolder INPUT[type="number"],
 .adminForm .inputHolder TEXTAREA,
