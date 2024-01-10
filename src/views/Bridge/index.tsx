@@ -13,7 +13,7 @@ import approveToken from '@/helpers/approveToken'
 
 import callBridgeMethod from '@/qrcode_helpers/callBridgeMethod'
 import fetchBridgeSwapInfo from '@/qrcode_helpers/fetchBridgeSwapInfo'
-
+import delay from '@/helpers/delay'
 
 import { BigNumber } from 'bignumber.js'
 
@@ -100,20 +100,34 @@ export default function Bridge(props) {
     setFormStep(STEPS.CONFIRM)
   }
 
+  const BRIDGE_STEPS = {
+    PREPARE: 'PREPARE',
+    APPROVE: 'APPROVE',
+    APPROVE_TX: 'APPROVE_TX',
+    SEND_TO_BRIDGE: 'SEND_TO_BRIDGE',
+    SEND_TO_BRIDGE_TX: 'SEND_TO_BRIDGE_TX',
+    WAIT_SWAP: 'WAIT_SWAP'
+  }
+  const [ bridgeStep, setBridgeStep ] = useState(BRIDGE_STEPS.PREPARE)
+  
   const [ isSendToBridge, setIsSendToBridge ] = useState(false)
   const [ swapId, setSwapId ] = useState(0)
   
   const doBridge = async () => {
-    setIsLoading(true)
+    setFormStep(STEPS.WAIT)
     const weiAmount = toWei(bridgeAmount, tokenDecimals)
     if (new BigNumber(weiAmount).isGreaterThan(allowance)) {
+      setBridgeStep(BRIDGE_STEPS.APPROVE)
       try {
         await approveToken({
           activeWallet: browserAccount,
           activeWeb3: browserWeb3,
           tokenAddress: factoryStatus.tokenAddress,
           approveFor: BRIDGE_WORK_CONTRACT,
-          weiAmount: `0x` + new BigNumber(weiAmount).toString(16)
+          weiAmount: `0x` + new BigNumber(weiAmount).toString(16),
+          onTrx: (hash) => {
+            setBridgeStep(BRIDGE_STEPS.APPROVE_TX)
+          }
         })
       } catch (err) {
         console.log('Fail approve', err)
@@ -121,6 +135,7 @@ export default function Bridge(props) {
         return
       }
     }
+    setBridgeStep(BRIDGE_STEPS.SEND_TO_BRIDGE)
     callBridgeMethod({
       activeWallet: browserAccount,
       activeWeb3: browserWeb3,
@@ -130,12 +145,15 @@ export default function Bridge(props) {
         destinationAddress,
         `0x` + new BigNumber(toWei(bridgeAmount, tokenDecimals)).toString(16)
       ],
+      onTrx: (hash) => {
+        setBridgeStep(BRIDGE_STEPS.SEND_TO_BRIDGE_TX)
+      }
     }).then((answer) => {
       console.log('>>> bridge answer', answer)
       if (answer?.events?.onSwapOut?.returnValues?.swapId) {
         console.log('>>> swapId', answer?.events?.onSwapOut?.returnValues?.swapId)
         setSwapId(answer?.events?.onSwapOut?.returnValues?.swapId)
-        setFormStep(STEPS.WAIT)
+        setBridgeStep(BRIDGE_STEPS.WAIT_SWAP)
         setIsLoading(false)
       }
     }).catch((err) => {
@@ -144,33 +162,34 @@ export default function Bridge(props) {
     })
   }
 
+  const [ isSwapped, setIsSwapped ] = useState(false)
+  const _isLoading = isLoading || isAllowanceFetching
+  
+  const [ tick, setTick ] = useState(0)
+
   useEffect(() => {
     if (swapId) {
-      console.log('>>> waitSwap ', swapId)
+      fetchBridgeSwapInfo({
+        address: BRIDGE_WORK_CONTRACT,
+        chainId: WORK_CHAIN_ID,
+        swapId
+      }).then(async ({ info }) => {
+        const { swapped , inHash } = info
+        if (swapped) {
+          setIsSwapped(true)
+          setFormStep(STEPS.READY)
+        } else {
+          await delay(5000)
+          setTick(tick+1)
+        }
+      }).catch(async (err) => {
+        console.log('err', err)
+        await delay(5000)
+        setTick(tick+1)
+      })
     }
-  }, [ swapId ])
-  
-  const loopSwapStatus = () => {
-    fetchBridgeSwapInfo({
-      address: BRIDGE_WORK_CONTRACT,
-      chainId: WORK_CHAIN_ID,
-      swapId
-    }).then(({ info }) => {
-      const { swapped , inHash } = info
-      console.log('>>. swap status', info)
-      if (swapped) {
-        setFormStep(STEPS.READY)
-      }
-    }).catch((err) => {
-      console.log('err', err)
-    })
-  }
-  const doFetchSwapStatus = () => {
-    console.log('>>> update swap status')
-    loopSwapStatus()
-  }
-  
-  const _isLoading = isLoading || isAllowanceFetching
+  }, [ swapId, tick ])
+
   return (
     <>
       <div className={`adminForm ${(_isLoading) ? 'isLoading' : ''}`}>
@@ -240,10 +259,13 @@ export default function Bridge(props) {
         {formStep == STEPS.WAIT && (
           <>
             <div className="greenInfoBox">
-              {t('Sended to bridge. Swap #{swapId}', { swapId })}
+              {t('Swap in progress. Plase wait')}
+            </div>
+            <div className="greenInfoBox smallBox">
+              {BRIDGE_STEPS[bridgeStep]}
             </div>
             <div className="buttonsHolder">
-              <button onClick={doFetchSwapStatus}>Update status</button>
+              <button disabled={true}>Swapping...</button>
             </div>
           </>
         )}
