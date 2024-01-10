@@ -25,7 +25,8 @@ export default function AdminPanelAddTokens(props) {
     },
     render404,
     factoryStatus,
-    UpdateFactoryStatus
+    UpdateFactoryStatus,
+    UpdateBackendStatus,
   } = props
   
   const TARGET_ADDRESS = {
@@ -130,6 +131,7 @@ export default function AdminPanelAddTokens(props) {
       setIsTokensAdded(true)
       setIsTokensSending(false)
       UpdateFactoryStatus()
+      UpdateBackendStatus()
     }).catch((err) => {
       setIsTokensSending(false)
       console.log('>err', err)

@@ -25,7 +25,8 @@ export default function AdminPanelAddEnergy(props) {
     },
     render404,
     factoryStatus,
-    UpdateFactoryStatus
+    UpdateFactoryStatus,
+    UpdateBackendStatus,
   } = props
   
   const TARGET_ADDRESS = {
@@ -131,6 +132,7 @@ export default function AdminPanelAddEnergy(props) {
       setIsEnergyAdded(true)
       setIsEnergySending(false)
       UpdateFactoryStatus()
+      UpdateBackendStatus()
     }).catch((err) => {
       setIsEnergySending(false)
       console.log('>> err', err)

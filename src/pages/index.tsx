@@ -55,14 +55,113 @@ import Bridge from '@/views/Bridge/'
 import AppRoot from '@/components/AppRoot'
 
 import fetchQRFactoryInfo from '@/qrcode_helpers/fetchQRFactoryInfo'
-import { WORK_CHAIN_ID, QRCODE_FACTORY } from '@/config'
+import fetchBridgeInfo from '@/qrcode_helpers/fetchBridgeInfo'
+import fetchBalance from '@/helpers/fetchBalance'
+
+import {
+  WORK_CHAIN_ID,
+  MAINNET_CHAIN_ID,
+
+  QRCODE_FACTORY,
+
+  BACKEND_CLAIMER,
+
+  BRIDGE_ORACLE,
+  BRIDGE_WORK_CONTRACT,
+  BRIDGE_MAINNET_CONTRACT
+} from '@/config'
 
 function MyApp(pageProps) {
   const [ isFactoryFetching, setIsFactoryFetching ] = useState(true)
   const [ isFactoryFetched, setIsFactoryFetched ] = useState(false)
   const [ factoryStatus, setFactoryStatus ] = useState(false)
   const [ needUpdateFactoryStatus, setNeedUpdateFactoryStatus ] = useState(false)
-  
+
+  const [ backendStatus, setBackendStatus ] = useState({
+    claimer_balance: 0,
+    bridge_qrcode_balance: 0,
+    bridge_qrcode_tokenBalance: 0,
+    bridge_qrcode_tokenDecimals: 0,
+    bridge_qrcode_tokenSymbol: '',
+    bridge_mainnet_balance: 0,
+    bridge_mainnet_tokenBalance: 0,
+    bridge_mainnet_tokenDecimals: 0,
+    bridge_mainnet_tokenSymbol: ''
+  })
+  const [ needUpdateBackendStatus, setNeedUpdateBackendStatus ] = useState(false)
+
+  const _fetchBackendStatus = () => {
+    const updateBackendStatus = (args) => {
+      setBackendStatus((prev) => {
+        return { ...prev, ...args }
+      })
+    }
+    // Fetch energy balances
+    fetchBalance({
+      address: BACKEND_CLAIMER,
+      chainId: WORK_CHAIN_ID,
+    }).then((balance) => {
+      updateBackendStatus({claimer_balance: balance})
+    })
+    fetchBalance({
+      address: BRIDGE_ORACLE,
+      chainId: WORK_CHAIN_ID,
+    }).then((balance) => {
+      updateBackendStatus({bridge_qrcode_balance: balance})
+    })
+    fetchBalance({
+      address: BRIDGE_ORACLE,
+      chainId: MAINNET_CHAIN_ID,
+    }).then((balance) => {
+      updateBackendStatus({bridge_mainnet_balance: balance})
+    })
+    // Fetch mainnet bridge info
+    fetchBridgeInfo({
+      address: BRIDGE_MAINNET_CONTRACT,
+      chainId: MAINNET_CHAIN_ID,
+    }).then((bridgeMainnet) => {
+      updateBackendStatus({
+        bridge_mainnet_tokenBalance: bridgeMainnet.tokenBalance,
+        bridge_mainnet_tokenDecimals: bridgeMainnet.tokenDecimals,
+        bridge_mainnet_tokenSymbol: bridgeMainnet.tokenSymbol
+      })
+      // Fetch workchain bridge info
+      fetchBridgeInfo({
+        address: BRIDGE_WORK_CONTRACT,
+        chainId: WORK_CHAIN_ID,
+      }).then((bridgeWorkchain) => {
+        updateBackendStatus({
+          bridge_qrcode_tokenBalance: bridgeWorkchain.tokenBalance,
+          bridge_qrcode_tokenDecimals: bridgeWorkchain.tokenDecimals,
+          bridge_qrcode_tokenSymbol: bridgeWorkchain.tokenSymbol,
+        })
+      }).catch((err) => {
+        console.log('>> error fetch workchain bridge info', err)
+      })
+    }).catch((err) => {
+      console.log('>> error fetch mainnet bridge info', err)
+    })
+  }
+
+  useEffect(() => {
+    console.log('>> useEffect - fetch bridge status')
+    _fetchBackendStatus()
+  }, [
+    BRIDGE_MAINNET_CONTRACT,
+    BRIDGE_WORK_CONTRACT,
+  ])
+
+  useEffect(() => {
+    if (needUpdateBackendStatus) {
+      setNeedUpdateBackendStatus(false)
+      _fetchBackendStatus()
+    }
+  }, [ needUpdateBackendStatus ])
+
+  const UpdateBackendStatus = () => {
+    setNeedUpdateBackendStatus(true)
+  }
+
   const _fetchFactoryStatus = () => {
     fetchQRFactoryInfo({
       chainId: WORK_CHAIN_ID,
@@ -80,6 +179,7 @@ function MyApp(pageProps) {
     console.log('>> useEffect')
     _fetchFactoryStatus()
   }, [ QRCODE_FACTORY ])
+
   useEffect(() => {
     if(QRCODE_FACTORY && needUpdateFactoryStatus) {
       setNeedUpdateFactoryStatus(false)
@@ -87,10 +187,11 @@ function MyApp(pageProps) {
     }
   }, [ QRCODE_FACTORY, needUpdateFactoryStatus ])
   
+  
   const UpdateFactoryStatus = () => {
     setNeedUpdateFactoryStatus(true)
   }
-  
+
   return (
     <>
       <AppRoot chainId={WORK_CHAIN_ID}>
@@ -154,7 +255,9 @@ function MyApp(pageProps) {
                 }}
                 props={{
                   factoryStatus,
-                  UpdateFactoryStatus
+                  backendStatus,
+                  UpdateFactoryStatus,
+                  UpdateBackendStatus,
                 }}
                 on404={Page404}
               />
