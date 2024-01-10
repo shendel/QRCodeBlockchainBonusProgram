@@ -1,12 +1,17 @@
 
 import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
-import { useAccount } from 'wagmi'
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi'
 
 import { translate as t } from '@/translate'
 
 import fetchBalance from '@/helpers/fetchBalance'
-import { WORK_CHAIN_ID, BACKEND_CLAIMER } from '@/config'
+import {
+  WORK_CHAIN_ID,
+  BACKEND_CLAIMER,
+  MAINNET_CHAIN_ID,
+  BRIDGE_ORACLE,
+} from '@/config'
 import { toWei, fromWei } from '@/helpers/wei'
 import BigNumber from "bignumber.js"
 import sendEther from '@/web3/sendEther'
@@ -26,10 +31,20 @@ export default function AdminPanelAddEnergy(props) {
   const TARGET_ADDRESS = {
     factory: factoryStatus.address,
     claimer: BACKEND_CLAIMER,
+    bridge_qrcode: BRIDGE_ORACLE,
+    bridge_mainnet: BRIDGE_ORACLE,
+  }
+  const TARGET_CHAIN = {
+    factory: WORK_CHAIN_ID,
+    claimer: WORK_CHAIN_ID,
+    bridge_qrcode: WORK_CHAIN_ID,
+    bridge_mainnet: MAINNET_CHAIN_ID
   }
   const TARGET_NAME = {
     factory: `QRFactory`,
-    claimer: `BackEnd Claimer`
+    claimer: `BackEnd Claimer`,
+    bridge_qrcode: `Bridge QRCode-chain`,
+    bridge_mainnet: `Bridge Mainnet-chain`,
   }
   
   if (!TARGET_ADDRESS[target]) {
@@ -38,18 +53,21 @@ export default function AdminPanelAddEnergy(props) {
 
   const { address: connectedWallet } = useAccount()
   const account = useAccount()
-  
+  const { chain } = useNetwork()
+  const { switchNetwork } = useSwitchNetwork()
+
   const [ isEnergyAdded, setIsEnergyAdded ] = useState(false)
   const [ connectedWalletBalance, setConnectedWalletBalance ] = useState(0)
   const [ isBalanceFetching, setIsBalanceFetching ] = useState(true)
   const [ isBalanceFetchingError, setIsBalanceFetchingError ] = useState(false)
+
 
   useEffect(() => {
     setIsBalanceFetching(true)
     setIsBalanceFetchingError(false)
     fetchBalance({
       address: connectedWallet,
-      chainId: WORK_CHAIN_ID,
+      chainId: TARGET_CHAIN[target],
     }).then((balance) => {
       setConnectedWalletBalance(balance)
       setIsBalanceFetching(false)
@@ -76,7 +94,7 @@ export default function AdminPanelAddEnergy(props) {
       setIsEnergyFetchingError(false)
       fetchBalance({
         address: TARGET_ADDRESS[target],
-        chainId: WORK_CHAIN_ID,
+        chainId: TARGET_CHAIN[target],
       }).then((balance) => {
         console.log('>>> ', target, balance)
         setCurrentEnergy(balance)
@@ -169,15 +187,23 @@ export default function AdminPanelAddEnergy(props) {
                 )}
               </div>
               <div className="buttonsHolder">
-                <button
-                  onClick={doAddEnergy}
-                  disabled={!readyForSubmit || isEnergySending}
-                >
-                  {(isEnergySending)
-                    ? t('Adding energy')
-                    : t('Add energy')
-                  }
-                </button>
+                {TARGET_CHAIN[target] != chain.id ? (
+                  <button
+                    onClick={() => { switchNetwork(TARGET_CHAIN[target]) }}
+                  >
+                    {t('Switch network')}
+                  </button>
+                ) : (
+                  <button
+                    onClick={doAddEnergy}
+                    disabled={!readyForSubmit || isEnergySending}
+                  >
+                    {(isEnergySending)
+                      ? t('Adding energy')
+                      : t('Add energy')
+                    }
+                  </button>
+                )}
                 <button disabled={isEnergySending} onClick={() => { gotoPage('/admin/') }} className="isCancel">{t('Cancel')}</button>
               </div>
             </div>

@@ -61,15 +61,37 @@ export default function AdminPanel(props) {
             <strong>Tokens:</strong>
             <span>{fromWei(factoryStatus.tokenBalance, factoryStatus.tokenDecimals)}</span>
             <em>{factoryStatus.tokenSymbol}</em>
-            <button onClick={() => { gotoPage('/admin/addtokens') }}>Add</button>
+            <button onClick={() => { gotoPage('/admin/addtokens/factory') }}>Add</button>
           </div>
         </div>
         <div className="cart">
-          <h3>Backend energy</h3>
+          <h3>Backend</h3>
           <div>
             <strong>Claimer:</strong>
             <span>{fromWei(0)}</span>
             <button onClick={() => { gotoPage('/admin/addenergy/claimer') }}>Add</button>
+          </div>
+          <h3>Bridge energy</h3>
+          <div>
+            <strong>QRCode chain:</strong>
+            <span>{fromWei(0)}</span>
+            <button onClick={() => { gotoPage('/admin/addenergy/bridge_qrcode') }}>Add</button>
+          </div>
+          <div>
+            <strong>Mainnet chain:</strong>
+            <span>{fromWei(0)}</span>
+            <button onClick={() => { gotoPage('/admin/addenergy/bridge_mainnet') }}>Add</button>
+          </div>
+          <h3>Bridge token</h3>
+          <div>
+            <strong>QRCode chain:</strong>
+            <span>{fromWei(0)}</span>
+            <button>Withdraw</button>
+          </div>
+          <div>
+            <strong>Mainnet chain:</strong>
+            <span>{fromWei(0)}</span>
+            <button onClick={() => { gotoPage('/admin/addtokens/bridge_mainnet') }}>Add</button>
           </div>
         </div>
         <div className="cart">
