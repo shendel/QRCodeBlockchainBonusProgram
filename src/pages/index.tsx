@@ -32,6 +32,7 @@ import AdminPanelClaimersInfo from '@/views/AdminPanel/Claimers/Info'
 import AdminPanelClaimersBan from '@/views/AdminPanel/Claimers/Ban'
 import AdminPanelClaimersUnban from '@/views/AdminPanel/Claimers/Unban'
 
+import AdminPanelBridgeWithdrawTokens from '@/views/AdminPanel/BridgeWithdrawTokens'
 // Manager views
 import ManagerPanel from '@/views/ManagerPanel/'
 // Minter views
@@ -235,6 +236,8 @@ function MyApp(pageProps) {
                   '/admin/claimers/info/:claimerAddress': AdminPanelClaimersInfo,
                   '/admin/claimers/ban/:claimerAddress': AdminPanelClaimersBan,
                   '/admin/claimers/unban/:claimerAddress': AdminPanelClaimersUnban,
+
+                  '/admin/bridge/withdraw/:target': AdminPanelBridgeWithdrawTokens,
 
                   '/manager/': ManagerPanel,
 

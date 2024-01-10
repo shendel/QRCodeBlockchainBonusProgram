@@ -98,13 +98,14 @@ export default function AdminPanel(props) {
             <strong>QRCode chain:</strong>
             <span>{fromWei(bridge_qrcode_tokenBalance, bridge_qrcode_tokenDecimals)}</span>
             <em>{bridge_qrcode_tokenSymbol}</em>
-            <button>Withdraw</button>
+            <button onClick={() => { gotoPage('/admin/bridge/withdraw/qrcode') }}>Withdraw</button>
           </div>
           <div>
             <strong>Mainnet chain:</strong>
             <span>{fromWei(bridge_mainnet_tokenBalance, bridge_mainnet_tokenDecimals)}</span>
             <em>{bridge_mainnet_tokenSymbol}</em>
             <button onClick={() => { gotoPage('/admin/addtokens/bridge_mainnet') }}>Add</button>
+            <button onClick={() => { gotoPage('/admin/bridge/withdraw/mainnet') }}>Withdraw</button>
           </div>
         </div>
         <div className="cart">
