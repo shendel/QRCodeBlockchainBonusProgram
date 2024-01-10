@@ -9,7 +9,7 @@ import fetchTokenBalance from '@/helpers/fetchTokenBalance'
 import {
   WORK_CHAIN_ID,
   MAINNET_CHAIN_ID,
-  BRIDGE_WORK_CONTRACT,
+  BRIDGE_MAINNET_CONTRACT,
   MAINNET_TOKEN,
 } from '@/config'
 import { toWei, fromWei } from '@/helpers/wei'
@@ -30,7 +30,7 @@ export default function AdminPanelAddTokens(props) {
   
   const TARGET_ADDRESS = {
     factory: factoryStatus.address,
-    bridge_mainnet: BRIDGE_WORK_CONTRACT,
+    bridge_mainnet: BRIDGE_MAINNET_CONTRACT,
   }
   const TARGET_CHAIN = {
     factory: WORK_CHAIN_ID,
@@ -57,6 +57,29 @@ export default function AdminPanelAddTokens(props) {
   const [ connectedWalletBalance, setConnectedWalletBalance ] = useState(0)
   const [ isBalanceFetching, setIsBalanceFetching ] = useState(true)
   const [ isBalanceFetchingError, setIsBalanceFetchingError ] = useState(false)
+
+  const [ contractBalance, setContractBalance ] = useState({})
+  const [ isContractBalanceFetching, setIsContractBalanceFetching ] = useState(true)
+  const [ isContractBalanceFetchingError, setIsContractBalanceFetchingError ] = useState(false)
+  
+  useEffect(() => {
+    setIsContractBalanceFetching(true)
+    setIsContractBalanceFetchingError(false)
+    fetchTokenBalance({
+      wallet: TARGET_ADDRESS[target],
+      tokenAddress: TARGET_TOKEN[target],
+      chainId: TARGET_CHAIN[target],
+    }).then((balance) => {
+      console.log('>> balance on contract', target, balance)
+      setContractBalance(balance)
+      setIsContractBalanceFetching(false)
+      setIsContractBalanceFetchingError(false)
+    }).catch((err) => {
+      setIsContractBalanceFetching(false)
+      setIsContractBalanceFetchingError(true)
+      console.log('>> err', err)
+    })
+  }, [ target ])
 
   useEffect(() => {
     if (connectedWallet && factoryStatus && factoryStatus.tokenAddress) {
@@ -88,7 +111,7 @@ export default function AdminPanelAddTokens(props) {
   }, [ newTokensAmount ])
   
   const doAddTokens = () => {
-    const amountInWei = toWei(newTokensAmount, factoryStatus.tokenDecimals)
+    const amountInWei = toWei(newTokensAmount, contractBalance.decimals)
     
     if (new BigNumber(amountInWei).isLessThanOrEqualTo(0)) {
       return setNewTokensAmountError(t('Amount must be greater than zero'))
@@ -123,32 +146,47 @@ export default function AdminPanelAddTokens(props) {
       <div>
         {!isTokensAdded ? (
           <>
-            <div className="adminForm">
+            <div className={`adminForm ${(isBalanceFetching || isContractBalanceFetching) ? 'isLoading' : ''}`}>
               <header>{t('Add tokens to {name} contract', { name: TARGET_NAME[target] })}</header>
               <div className="inputHolder">
                 <label>{t('Tokens on {name} contract', { name: TARGET_NAME[target] })}</label>
                 <div className="infoRow">
-                  {fromWei(factoryStatus.tokenBalance, factoryStatus.tokenDecimals)}
-                  {` `}
-                  <strong>{factoryStatus.tokenSymbol}</strong>
+                  {isContractBalanceFetchingError ? (
+                    <>
+                      {t('Fail fetch contract balance')}
+                    </>
+                  ) : (
+                    <>
+                      {isContractBalanceFetching
+                        ? t('Fetching balance')
+                        : (
+                          <>
+                            {fromWei(contractBalance.wei, contractBalance.decimals)}
+                            {` `}
+                            <strong>{contractBalance.symbol}</strong>
+                          </>
+                        )
+                      }
+                    </>
+                  )}
                 </div>
               </div>
               <div className="inputHolder">
                 <label>{t('Your aviabled tokens')}</label>
                 <div className={`infoRow ${(isBalanceFetchingError) ? 'hasError' : ''}`}>
-                  {isBalanceFetchingError ? (
+                  {(isBalanceFetchingError || isContractBalanceFetchingError) ? (
                     <>
                       {t('Fail fetch active account balance')}
                     </>
                   ) : (
                     <>
-                      {isBalanceFetching
+                      {(isBalanceFetching || isContractBalanceFetching)
                         ? t('Fetching balance')
                         : (
                           <>
-                            {fromWei(connectedWalletBalance, factoryStatus.tokenDecimals)}
+                            {fromWei(connectedWalletBalance, contractBalance.decimals)}
                             {` `}
-                            <strong>{factoryStatus.tokenSymbol}</strong>
+                            <strong>{contractBalance.symbol}</strong>
                           </>
                         )
                       }
@@ -191,11 +229,11 @@ export default function AdminPanelAddTokens(props) {
           </>
         ) : (
           <div className="adminForm">
-            <header>{t('Add tokens to Factory contract')}</header>
+            <header>{t('Add tokens to {name} contract', { name: TARGET_NAME[target] })}</header>
             <div className="inputHolder">
               <strong>{newTokensAmount}</strong>
               {` `}
-              <strong>{factoryStatus.tokenSymbol}</strong>
+              <strong>{contractBalance.symbol}</strong>
               {` `}
               {t('tokens successfull added to contract')}
             </div>
