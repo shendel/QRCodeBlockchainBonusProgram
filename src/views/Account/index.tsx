@@ -27,6 +27,8 @@ export default function Account(props) {
 
   const [ mainnetEnergy, setMainnetEnergy ] = useState(0)
   const [ mainnetBalance, setMainnetBalance ] = useState(0)
+  const [ mainnetTokenSymbol, setMainnetTokenSymbol ] = useState(``)
+  const [ mainnetTokenDecimals, setMainnetTokenDecimals ] = useState(0)
   const [ isMainnetBalanceFetching, setIsMainnetBalanceFetching ] = useState(true)
 
   useEffect(() => {
@@ -43,7 +45,19 @@ export default function Account(props) {
       }).catch((err) => {
         console.log(err)
       })
-
+      setIsMainnetBalanceFetching(true)
+      fetchWalletStatus({
+        address: browserAccount,
+        chainId: MAINNET_CHAIN_ID,
+        tokenAddress: MAINNET_TOKEN
+      }).then(({ energy, balance, tokenDecimals, tokenSymbol }) => {
+        setMainnetEnergy(energy)
+        setMainnetBalance(balance)
+        setMainnetTokenDecimals(tokenDecimals)
+        setMainnetTokenSymbol(tokenSymbol)
+      }).catch((err) => {
+        console.log(err)
+      })
     }
   }, [ browserAccount ])
   return (
@@ -61,10 +75,15 @@ export default function Account(props) {
           <strong>{fromWei(energy)}</strong>
         </div>
         <div>
-          <label>Your balance:</label>
+          <label>Bonus amount:</label>
           <strong>{fromWei(balance, factoryStatus.tokenDecimals)}</strong>
           <em>{factoryStatus.tokenSymbol}</em>
-          <a href="#/bridge">[Convert tokens]</a>
+          <button onClick={() => { gotoPage('/bridge') }}>[Convert bonus to tokens]</button>
+        </div>
+        <div>
+          <label>Token balance:</label>
+          <strong>{fromWei(mainnetBalance, mainnetTokenDecimals)}</strong>
+          <em>{mainnetTokenSymbol}</em>
         </div>
       </div>
     </>

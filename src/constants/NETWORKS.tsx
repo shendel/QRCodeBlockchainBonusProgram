@@ -7,7 +7,7 @@ const NETWORKS = {
       symbol: "ENERGY",
       decimals: 18,
     },
-    rpc: 'http://rpc.energy-blockchain.ru:8545/',
+    rpc: 'https://rpc.energy-blockchain.ru/',
     explorer: '#',
     multicall: '0x48d7ac38530697aDB91061B6D141C8c763edE565',
   },

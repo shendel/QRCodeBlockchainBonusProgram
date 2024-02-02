@@ -9,7 +9,11 @@ import fetchWalletStatus from '@/qrcode_helpers/fetchWalletStatus'
 
 import { fromWei } from '@/helpers/wei'
 
-import { WORK_CHAIN_ID } from '@/config'
+import {
+  WORK_CHAIN_ID,
+  MAINNET_CHAIN_ID,
+  MAINNET_TOKEN
+} from '@/config'
 import { mnemonicIsValid, getEthLikeWallet } from '@/web3/mnemonic'
 
 export default function AccountRestore(props) {
@@ -36,6 +40,11 @@ export default function AccountRestore(props) {
 
   const [ currentEnergy, setCurrentEnergy ] = useState(0)
   const [ currentBalance, setCurrentBalance ] = useState(0)
+  const [ currentMainnetEnergy, setCurrentMainnetEnergy ] = useState(0)
+  const [ currentMainnetBalance, setCurrentMainnetBalance ] = useState(0)
+  const [ currentMainnetTokenDecimals, setCurrentMainnetTokenDecimals ] = useState(0)
+  const [ currentMainnetTokenSymbol, setCurrentMainnetTokenSymbol ] = useState(``)
+  
   const [ isCurrentBalanceFetching, setIsCurrentBalanceFetching ] = useState(true)
   const [ isCurrentBalanceFetched, setIsCurrentBalanceFetched ] = useState(false)
   const [ isCurrentBalanceError, setIsCurrentBalanceError ] = useState(false)
