@@ -9,3 +9,6 @@ backend/.env
 .env
 package.json
 devinfo.txt
+
+contracts/**/artifacts/
+

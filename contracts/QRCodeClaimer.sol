@@ -60,6 +60,10 @@ contract QRCodeClaimer {
 
     function claim(address claimer) public {
         require(notValid == false, "QRCode not valid");
-        factory.claim((claimer == address(0)) ? msg.sender : claimer);
+        require(factory.isBannedClaimer(msg.sender) == true, "Banned");
+        if (claimer == address(0)) {
+            require(factory.isBannedClaimer(claimer) == true, "Banned");
+        }
+        factory.claim((claimer == address(0)) ? msg.sender : claimer, msg.sender);
     }
 }

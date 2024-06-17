@@ -7,6 +7,8 @@ pragma solidity ^0.8.12;
 import "./AddressSet.sol";
 import "./IERC20.sol";
 import "./QRCodeClaimer.sol";
+import "./BanList/IBannedClaimers.sol";
+import "./Minters/IQRCodeMinters.sol";
 
 contract QRCodeFactory {
     event QrCodeMinted(address qrcode);
@@ -28,6 +30,7 @@ contract QRCodeFactory {
         uint256 amount;
         address minter;
         address claimer;
+        address claimer_call;
         uint256 minted_at;
         uint256 claimed_at;
         uint256 timelife;
@@ -52,6 +55,11 @@ contract QRCodeFactory {
     uint256 public totalClaimedAmount = 0;
     uint256 public totalFaucetAmount = 0;
 
+    IQRCodeMinters public minters;
+    function setMinters(address newMinters) onlyOwner public {
+        minters = IQRCodeMinters(newMinters);
+    }
+/*
     struct MinterInfo {
         address minterAddress;
         string name;
@@ -61,6 +69,8 @@ contract QRCodeFactory {
         uint256 mintedQrCodesCount;
         uint256 balance;
     }
+    */
+    /*
     // Кто может генерировать коды
     AddressSet.Storage private minters;
     mapping (address => string) public mintersName;
@@ -74,7 +84,7 @@ contract QRCodeFactory {
     mapping (address => uint256) public claimedByMinter;
     // Токенов на балансе минтера
     mapping (address => uint256) minterBalance;
-
+*/
     struct ClaimerInfo {
         address claimerAddress;
         uint256 claimedAmount;
@@ -95,20 +105,15 @@ contract QRCodeFactory {
     // Максимальное кол-во токенов в коде
     uint256 public maxMintAmountPerQrCodeGlobal = 0.0001 ether;
     // Максимальное кол-во токенов в коде для отдельного минтера
-    mapping (address => uint256) maxMintAmountPerQrCode;
+    //mapping (address => uint256) maxMintAmountPerQrCode;
     
+
     // Banlist
-    struct BannedClaimer {
-        address claimer;
-        address who;
-        string why;
-        uint256 when;
+    IBannedClaimers public banlist;
+    function setBanList(address newBanList) onlyOwner public {
+        banlist = IBannedClaimers(newBanList);
     }
-    AddressSet.Storage private bannedClaimers;
-    mapping (address => address) public bannedClaimersWho;
-    mapping (address => string) public bannedClaimersWhy;
-    mapping (address => uint256) public bannedClaimersWhen;
-    
+
     AddressSet.Storage private managers;
 
 
@@ -121,7 +126,7 @@ contract QRCodeFactory {
         _;
     }
     modifier onlyMinter() {
-        require(minters.exists(msg.sender) == true, "Only for minters");
+        require(minters.getIsMinter(msg.sender) == true, "Only for minters");
         _;
     }
 
@@ -130,7 +135,7 @@ contract QRCodeFactory {
     constructor(address _tokenAddress) {
         owner = msg.sender;
         managers.add(msg.sender);
-        minters.add(msg.sender);
+        //minters.add(msg.sender);
         tokenAddress = _tokenAddress;
     }
     /* Setters */
@@ -152,65 +157,52 @@ contract QRCodeFactory {
         }
     }
     function setIsMinter(address who, bool isMinter) onlyManager public {
-        if (isMinter) {
-            minters.add(who);
-        } else {
-            minters.del(who);
-        }
+        minters.setIsMinter(who, isMinter);
     }
     function setMinterName(address minter, string memory name) onlyManager public {
-        mintersName[minter] = name;
+        minters.setMinterName(minter, name);
     }
     function addMinter(address minter, string memory name) onlyManager public {
-        minters.add(minter);
-        mintersName[minter] = name;
+        minters.addMinter(minter, name);
     }
     function setMaxMintAmountPerQrCodeGlobal(uint256 newLimit) onlyManager public {
         maxMintAmountPerQrCodeGlobal = newLimit;
     }
     function setMaxMintAmountPerQrCode(address minter, uint256 newLimit) onlyManager public {
-        maxMintAmountPerQrCode[minter] = newLimit;
+        minters.setMaxMintAmountPerQrCode(minter, newLimit);
     }
     function setMinterBalance(address minter, uint256 newBalance) onlyManager public {
-        minterBalance[minter] = newBalance;
+        minters.setMinterBalance(minter, newBalance);
     }
     function addMinterBalance(address minter, uint256 amount) onlyManager public {
-        minterBalance[minter] = minterBalance[minter] + amount;
+        minters.addMinterBalance(minter, amount);
     }
+
     function addClaimerBan(
         address claimer,
         string memory why
     ) onlyManager public {
-        bannedClaimers.add(claimer);
-        bannedClaimersWho[claimer] = msg.sender;
-        bannedClaimersWhy[claimer] = why;
-        bannedClaimersWhen[claimer] = block.timestamp;
+        banlist.addClaimerBan(claimer, why);
     }
     function delClaimerBan(
         address claimer
-    ) onlyManager public {
-        bannedClaimers.del(claimer);
+    ) public {
+        banlist.delClaimerBan(claimer);
     }
     /* Getters */
+    function isBannedClaimer(address who) public view returns (bool) {
+        return banlist.isBannedClaimer(who);
+    }
     function getBannedClaimersCount() public view returns (uint256) {
-        return bannedClaimers.length();
+        return banlist.getBannedClaimersCount();
     }
     function getBannedClaimers(
         uint256 offset,
         uint256 limit
-    ) public view returns (BannedClaimer[] memory) {
-        address[] memory items = bannedClaimers.items(offset, limit);
-        BannedClaimer[] memory ret = new BannedClaimer[](items.length);
-        for (uint256 i = 0; i < items.length; i++) {
-            ret[i] = BannedClaimer(
-                items[i],
-                bannedClaimersWho[items[i]],
-                bannedClaimersWhy[items[i]],
-                bannedClaimersWhen[items[i]]
-            );
-        }
-        return ret;
+    ) public view returns (IBannedClaimers.BannedClaimer[] memory) {
+        return banlist.getBannedClaimers(offset, limit);
     }
+    /* ---- */
     function getTokenName() public view returns (string memory) {
         return IERC20(tokenAddress).name();
     }
@@ -245,53 +237,30 @@ contract QRCodeFactory {
         return managers.items(0,0);
     }
     function getIsMinter(address check) public view returns (bool) {
-        return minters.exists(check);
+        return minters.getIsMinter(check);
     }
     function getMintersCount() public view returns (uint256) {
-        return minters.length();
+        return minters.getMintersCount();
     }
     function getMinters() public view returns (address[] memory) {
-        return minters.items(0,0);
+        return minters.getMinters();
     }
-    function getMintersInfo() public view returns (MinterInfo[] memory) {
-        MinterInfo[] memory ret = new MinterInfo[](minters.length());
-        for (uint256 i = 0; i < minters.length(); i++) {
-            ret[i] = getMinterInfo(minters.get(i));
-        }
-        return ret;
+    function getMintersInfo() public view returns (IQRCodeMinters.MinterInfo[] memory) {
+        return minters.getMintersInfo();
     }
-    function getMinterInfo(address minter) public view returns (MinterInfo memory ret) {
-        if (minters.exists(minter)) {
-            return MinterInfo(
-                minter,
-                mintersName[minter],
-                mintedAmount[minter],
-                claimedByMinter[minter],
-                mintedQrCodes[minter],
-                mintedQrCodesCount[minter],
-                minterBalance[minter]
-            );
-        }
+    function getMinterInfo(address minter) public view returns (IQRCodeMinters.MinterInfo memory ret) {
+        return minters.getMinterInfo(minter);
     }
+
     function getMinterQrCodes(
         address minter,
         uint256 offset,
         uint256 limit
     ) public view returns (QRCODE[] memory) {
-        uint256 size = mintedQrCodes[minter].length;
-        if (limit != 0) {
-            size = limit;
-        }
-        uint256 iEnd = offset + size;
-        if (iEnd > mintedQrCodes[minter].length) {
-            iEnd = mintedQrCodes[minter].length;
-        }
-        QRCODE[] memory ret = new QRCODE[](iEnd - offset);
-        for (uint256 i = 0; i < iEnd - offset ; i++) {
-            ret[i] = qrCodes[mintedQrCodes[minter][
-                    mintedQrCodes[minter].length - i - offset - 1
-                ]
-            ];
+        uint256[] memory minterQrCodes = minters.getMinterQrCodesId(minter, offset, limit);
+        QRCODE[] memory ret = new QRCODE[](minterQrCodes.length);
+        for (uint256 i = 0; i < minterQrCodes.length; i++) {
+            ret[i] = qrCodes[minterQrCodes[i]];
         }
         return ret;
     }
@@ -318,7 +287,7 @@ contract QRCodeFactory {
                 claimedQrCodes[claimer],
                 claimedQrCodesCount[claimer],
                 claimedFaucetUsed[claimer],
-                bannedClaimers.exists(claimer)
+                banlist.isBannedClaimer(claimer)
             );
         }
     }
@@ -388,7 +357,7 @@ contract QRCodeFactory {
             _amount,
             block.timestamp,
             qrTL,
-            mintersName[msg.sender],
+            minters.getMinterName(msg.sender),
             _message
         );
 
@@ -398,6 +367,7 @@ contract QRCodeFactory {
             _amount,                 // amount
             msg.sender,             // minter
             address(0),             // claimer
+            address(0),             // claimer_call
             block.timestamp,        // minted_at
             0,                      // claimed_at
             qrTL,
@@ -406,10 +376,9 @@ contract QRCodeFactory {
         );
 
         qrCodesRouters[address(router)] = qrCodeLastId;
-        mintedAmount[msg.sender]+=_amount;
         totalMintedAmount+=_amount;
-        mintedQrCodes[msg.sender].push(qrCodeLastId);
-        mintedQrCodesCount[msg.sender]++;
+
+        minters.addQrCode(msg.sender, _amount, qrCodeLastId);
 
         qrCodesLength++;
 
@@ -417,7 +386,7 @@ contract QRCodeFactory {
         return (address(router));
     }
 
-    function claim(address claimer) public {
+    function claim(address claimer, address claimer_call) public {
         require(qrCodesRouters[msg.sender] != 0, "Call not from router");
         uint256 qrCodeId = qrCodesRouters[msg.sender];
         require(qrCodes[qrCodeId].minted_at != 0, "This code not minted yet");
@@ -428,10 +397,11 @@ contract QRCodeFactory {
         claimedQrCodes[claimer].push(qrCodeId);
         claimedQrCodesCount[claimer]++;
         totalQrCodesClaimed++;
-        claimedByMinter[qrCodes[qrCodeId].minter]+=qrCodes[qrCodeId].amount;
+        minters.onClaim(qrCodes[qrCodeId].minter, qrCodes[qrCodeId].amount);
         totalClaimedAmount+=qrCodes[qrCodeId].amount;
 
         qrCodes[qrCodeId].claimer = claimer;
+        qrCodes[qrCodeId].claimer_call = claimer_call;
         qrCodes[qrCodeId].claimed_at = block.number;
     
         claimers.add(claimer);

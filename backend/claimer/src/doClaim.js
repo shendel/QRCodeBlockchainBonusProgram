@@ -1,4 +1,4 @@
-const QRCodeClaimerContractData = require("../../src/abi/QRCodeClaimer.json")
+const QRCodeClaimerContractData = require("./abi/QRCodeClaimer.json")
 const { BigNumber } = require('bignumber.js')
 
 const calcSendArgWithFee = async (account, contract, method, args, weiAmount) => {

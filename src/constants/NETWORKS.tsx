@@ -1,6 +1,6 @@
 const NETWORKS = {
   energy: {
-    chainId: 1800500,
+    chainId: 2800500,
     name: 'EnergyChain',
     nativeCurrency: {
       name: "Energy",
@@ -11,17 +11,29 @@ const NETWORKS = {
     explorer: '#',
     multicall: '0x48d7ac38530697aDB91061B6D141C8c763edE565',
   },
-  proxima: {
-    chainId: 800500,
-    name: 'ProximaChain',
+  energy_localhost: {
+    chainId: 1800500,
+    name: 'EnergyChain-Localhost',
     nativeCurrency: {
-      name: "Proxima",
-      symbol: "PROXIMA",
+      name: "Energy",
+      symbol: "ENERGY",
       decimals: 18,
     },
     rpc: 'http://rpc.proxima:8545/',
     explorer: 'http://explorer.proxima/',
-    multicall: '0xdA1FB74466030C13064cF263A26a25b158bE2aB3',
+    multicall: '0x83048f0Bf34FEeD8CEd419455a4320A735a92e9d',
+  },
+  sepolia: {
+    chainId: 11155111,
+    name: "Goerli",
+    nativeCurrency: {
+      name: "Sepolia Ether",
+      symbol: "ETH",
+      decimals: 18
+    },
+    rpc: "https://eth-sepolia.g.alchemy.com/v2/eV40AoRwFdzusyW_9htirAoRXSMssQ0E",
+    explorer: "https://sepolia.etherscan.io/",
+    multicall: '0xfdd7067530db45CFF766Fe2C26e3590C3B320C4c',
   },
   goerli: {
     chainId: 5,
