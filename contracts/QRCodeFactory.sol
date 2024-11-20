@@ -6,7 +6,9 @@ pragma solidity ^0.8.12;
 
 import "./AddressSet.sol";
 import "./IERC20.sol";
-import "./QRCodeClaimer.sol";
+import "./QRCodeClaimer/IQRCodeClaimer.sol";
+import "./QRCodeClaimer/IDeployerQRCodeClaimer.sol";
+import "./QRCodeClaimer/QRCodeClaimer.sol";
 import "./BanList/IBannedClaimers.sol";
 import "./Minters/IQRCodeMinters.sol";
 
@@ -335,6 +337,7 @@ contract QRCodeFactory {
         return false;
     }
     /* ---- */
+    
     function mint
         (uint256 _amount,
         uint256 _timelife,
@@ -351,7 +354,19 @@ contract QRCodeFactory {
         */
         // require() - check balance
         uint256 qrTL = (_timelife == 0) ? codeTL : _timelife;
+        /*
         QRCodeClaimer router = new QRCodeClaimer(
+            address(this),
+            tokenAddress,
+            msg.sender,
+            _amount,
+            block.timestamp,
+            qrTL,
+            minters.getMinterName(msg.sender),
+            _message
+        );
+        */
+        address router = deployerQRCodeClaimer.deploy(
             tokenAddress,
             msg.sender,
             _amount,
@@ -419,4 +434,9 @@ contract QRCodeFactory {
         
     }
     
+    // ------ Manage system settings
+    IDeployerQRCodeClaimer public deployerQRCodeClaimer;
+    function setDeployerQRCodeClaimer(address addr) onlyOwner public {
+        deployerQRCodeClaimer = IDeployerQRCodeClaimer(addr);
+    }
 }

@@ -179,7 +179,7 @@ export default function QrCodeClaim(props) {
             <em>{qrCodeInfo.message}</em>
           </div>
           <div>
-            <span>{fromWei(qrCodeInfo.amount, qrCodeInfo.decimal)}</span>
+            <span>{fromWei(qrCodeInfo.amount, qrCodeInfo.decimals)}</span>
             <strong>
               {qrCodeInfo.symbol}
             </strong>

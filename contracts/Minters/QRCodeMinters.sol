@@ -17,11 +17,11 @@ contract QRCodeMinters {
         _;
     }
     modifier onlyManager() {
-        require(factory.getIsManager(msg.sender) == true, "Only for managers");
+        require(factory.getIsManager(tx.origin) == true, "Only for managers");
         _;
     }
     modifier onlyFactory() {
-        require(address(factory) == msg.sender == true, "Only for factory");
+        require(address(factory) == msg.sender, "Only for factory");
         _;
     }
     constructor() {

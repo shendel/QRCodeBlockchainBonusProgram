@@ -10,7 +10,7 @@ import "../IQRCodeFactory.sol";
 contract BannedClaimers {
     using AddressSet for AddressSet.Storage;
     IQRCodeFactory public factory;
-    address owner;
+    address public owner;
     // Banlist
     struct BannedClaimer {
         address claimer;

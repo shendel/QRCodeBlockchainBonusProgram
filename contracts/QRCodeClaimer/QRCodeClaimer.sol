@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./IERC20.sol";
-import "./IQRCodeFactory.sol";
+import "../IERC20.sol";
+import "../IQRCodeFactory.sol";
+import "./IQRCodeClaimer.sol";
 
-contract QRCodeClaimer {
+contract QRCodeClaimer is IQRCodeClaimer {
     IQRCodeFactory public factory;
     IERC20 public token;
     address public minter;
@@ -23,6 +24,7 @@ contract QRCodeClaimer {
     bool notValid = false;
 
     constructor (
+        address _factory,
         address _tokenAddress,
         address _minter,
         uint256 _amount,
@@ -31,7 +33,7 @@ contract QRCodeClaimer {
         string memory _minterName,
         string memory _message
     ) {
-        factory = IQRCodeFactory(payable(msg.sender));
+        factory = IQRCodeFactory(payable(_factory));
         minter = _minter;
         amount = _amount;
         created_at = _created_at;
@@ -51,7 +53,7 @@ contract QRCodeClaimer {
     }
     function isValid() public view returns (bool) {
         if (!notValid) return false;
-        return ((created_at + timelife) > block.timestamp) ? true : false;
+        return ((created_at + timelife) < block.timestamp) ? true : false;
     }
 
     function isClaimed() public view returns (bool) {
@@ -60,10 +62,58 @@ contract QRCodeClaimer {
 
     function claim(address claimer) public {
         require(notValid == false, "QRCode not valid");
+        // Dev - not check timelife
+        // require(isValid() == false, "QRCode not valid"); 
         require(factory.isBannedClaimer(msg.sender) == true, "Banned");
+
         if (claimer == address(0)) {
             require(factory.isBannedClaimer(claimer) == true, "Banned");
         }
         factory.claim((claimer == address(0)) ? msg.sender : claimer, msg.sender);
+    }
+}
+
+
+contract DeployerQRCodeClaimer {
+    IQRCodeFactory public factory;
+    address public owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only for owner");
+        _;
+    }
+    modifier onlyCallFromFactory() {
+        require(address(factory) == msg.sender, "Only for factory");
+        _;
+    }
+    
+    constructor () {
+        owner = msg.sender;
+    }
+    function setOwner(address newOwner) onlyOwner public {
+        owner = newOwner;
+    }
+
+    function deploy(
+        address _tokenAddress,
+        address _minter,
+        uint256 _amount,
+        uint256 _created_at,
+        uint256 _timelife,
+        string memory _minterName,
+        string memory _message
+    ) onlyCallFromFactory public returns (address) {
+        return address(
+            new QRCodeClaimer(
+                address(factory),
+                _tokenAddress,
+                _minter,
+                _amount,
+                _created_at,
+                _timelife,
+                _minterName,
+                _message
+            )
+        );
     }
 }

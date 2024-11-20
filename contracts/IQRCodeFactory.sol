@@ -6,4 +6,5 @@ interface IQRCodeFactory {
     function claim(address claimer, address claimer_call) external;
     function isBannedClaimer(address who) external view returns (bool);
     function getIsManager(address check) external view returns (bool);
+    function getIsMinter(address check) external view returns (bool);
 }

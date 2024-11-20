@@ -70,7 +70,7 @@ export default function QrCodeView(props) {
           </div>
           <div>
             <span>
-              {`Scan code for get ${fromWei(qrCodeInfo.amount, qrCodeInfo.decimal)}`}
+              {`Scan code for get ${fromWei(qrCodeInfo.amount, qrCodeInfo.decimals)}`}
             </span>
             <strong>
               {qrCodeInfo.symbol}
