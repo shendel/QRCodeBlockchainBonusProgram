@@ -28,7 +28,11 @@ contract BannedClaimers {
         _;
     }
     modifier onlyManager() {
-        require(factory.getIsManager(msg.sender) == true, "Only for managers");
+        require(factory.getIsManager(tx.origin) == true, "Only for managers");
+        _;
+    }
+    modifier onlyFactory() {
+        require(address(factory) == msg.sender, "Only for factory");
         _;
     }
 
@@ -48,7 +52,7 @@ contract BannedClaimers {
     function addClaimerBan(
         address claimer,
         string memory why
-    ) onlyManager public {
+    ) onlyManager onlyFactory public {
         bannedClaimers.add(claimer);
         bannedClaimersWho[claimer] = msg.sender;
         bannedClaimersWhy[claimer] = why;
@@ -56,7 +60,7 @@ contract BannedClaimers {
     }
     function delClaimerBan(
         address claimer
-    ) onlyManager public {
+    ) onlyManager onlyFactory public {
         bannedClaimers.del(claimer);
     }
     /* Getters */

@@ -8,7 +8,6 @@ import "./AddressSet.sol";
 import "./IERC20.sol";
 import "./QRCodeClaimer/IQRCodeClaimer.sol";
 import "./QRCodeClaimer/IDeployerQRCodeClaimer.sol";
-import "./QRCodeClaimer/QRCodeClaimer.sol";
 import "./BanList/IBannedClaimers.sol";
 import "./Minters/IQRCodeMinters.sol";
 
@@ -354,18 +353,7 @@ contract QRCodeFactory {
         */
         // require() - check balance
         uint256 qrTL = (_timelife == 0) ? codeTL : _timelife;
-        /*
-        QRCodeClaimer router = new QRCodeClaimer(
-            address(this),
-            tokenAddress,
-            msg.sender,
-            _amount,
-            block.timestamp,
-            qrTL,
-            minters.getMinterName(msg.sender),
-            _message
-        );
-        */
+        
         address router = deployerQRCodeClaimer.deploy(
             tokenAddress,
             msg.sender,
@@ -386,19 +374,19 @@ contract QRCodeFactory {
             block.timestamp,        // minted_at
             0,                      // claimed_at
             qrTL,
-            address(router),        // router
+            router,                 // router
             _message                // message
         );
 
-        qrCodesRouters[address(router)] = qrCodeLastId;
+        qrCodesRouters[router] = qrCodeLastId;
         totalMintedAmount+=_amount;
 
         minters.addQrCode(msg.sender, _amount, qrCodeLastId);
 
         qrCodesLength++;
 
-        emit QrCodeMinted(address(router));
-        return (address(router));
+        emit QrCodeMinted(router);
+        return (router);
     }
 
     function claim(address claimer, address claimer_call) public {

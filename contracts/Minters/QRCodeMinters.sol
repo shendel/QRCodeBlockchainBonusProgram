@@ -11,6 +11,17 @@ import "./IQRCodeMinters.sol";
 contract QRCodeMinters {
     using AddressSet for AddressSet.Storage;
     IQRCodeFactory public factory;
+
+    struct MinterInfo {
+        address minterAddress;
+        string name;
+        uint256 mintedAmount;
+        uint256 claimedAmount;
+        uint256[] mintedQrCodes;
+        uint256 mintedQrCodesCount;
+        uint256 balance;
+    }
+    
     address owner;
     modifier onlyOwner() {
         require(msg.sender == owner, "Only for owner");
@@ -37,6 +48,7 @@ contract QRCodeMinters {
         factory = IQRCodeFactory(newFactory);
     }
     /* ---------------------------- */
+    /*
     struct MinterInfo {
         address minterAddress;
         string name;
@@ -46,6 +58,7 @@ contract QRCodeMinters {
         uint256 mintedQrCodesCount;
         uint256 balance;
     }
+    */
     // Кто может генерировать коды
     AddressSet.Storage private minters;
     mapping (address => string) public mintersName;
@@ -62,31 +75,31 @@ contract QRCodeMinters {
     // Максимальное кол-во токенов в коде для отдельного минтера
     mapping (address => uint256) maxMintAmountPerQrCode;
     
-    function isMinter(address who) public view returns (bool) {
+    function getIsMinter(address who) public view returns (bool) {
         return minters.exists(who);
     }
 
-    function setIsMinter(address who, bool _isMinter) onlyManager public {
+    function setIsMinter(address who, bool _isMinter) onlyManager onlyFactory public {
         if (_isMinter) {
             minters.add(who);
         } else {
             minters.del(who);
         }
     }
-    function setMinterName(address minter, string memory name) onlyManager public {
+    function setMinterName(address minter, string memory name) onlyManager onlyFactory public {
         mintersName[minter] = name;
     }
     function addMinter(address minter, string memory name) onlyManager public {
         minters.add(minter);
         mintersName[minter] = name;
     }
-    function setMaxMintAmountPerQrCode(address minter, uint256 newLimit) onlyManager public {
+    function setMaxMintAmountPerQrCode(address minter, uint256 newLimit) onlyManager onlyFactory public {
         maxMintAmountPerQrCode[minter] = newLimit;
     }
-    function setMinterBalance(address minter, uint256 newBalance) onlyManager public {
+    function setMinterBalance(address minter, uint256 newBalance) onlyManager onlyFactory public {
         minterBalance[minter] = newBalance;
     }
-    function addMinterBalance(address minter, uint256 amount) onlyManager public {
+    function addMinterBalance(address minter, uint256 amount) onlyManager onlyFactory public {
         minterBalance[minter] = minterBalance[minter] + amount;
     }
 
@@ -154,4 +167,5 @@ contract QRCodeMinters {
         }
         return ret;
     }
+
 }
