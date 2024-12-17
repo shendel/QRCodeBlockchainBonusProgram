@@ -1,0 +1,93 @@
+.claimerPanel {
+  background: #feeee7;
+  
+  HEADER {
+    background: #ff702a;
+    padding: 0.5em;
+    color: #FFF;
+    text-align: center;
+    font-size: 14pt;
+    font-weight: bold;
+    
+  }
+  .accountPanel {
+    background: #020202;
+    padding: 0.5em;
+    SPAN {
+      display: block;
+      text-align: center;
+      color: #FFF;
+      font-weight: bold;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      A {
+        display: block;
+        width: 40%;
+        text-align: center;
+        cursor: pointer;
+        margin: 0.5em;
+        background: #007bff;
+        font-size: 14px;
+        padding: 8px 10px;
+        text-decoration: none;
+        border-radius: .25rem;
+        color: #FFF;
+        font-weight: bold;
+      }
+    }
+  }
+  .scanHolder {
+    background: #ff702a;
+  }
+  .scanButton {
+    display: flex;
+    text-align: center;
+    cursor: pointer;
+    margin: 0;
+    background: #007bff;
+    font-size: 20px;
+    padding: 1em;
+    text-decoration: none;
+    border-radius: 1rem 1rem 0 0;
+    color: #FFF;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    SVG {
+      display: block;
+    }
+    SPAN {
+      display: block;
+    }
+  }
+  .tokensPanel {
+    background: #ff702a;
+    padding: 1em;
+    border-radius: 0em 0em 1em 1em;
+    
+    .balancePanels {
+      display: flex;
+      >DIV {
+        width: 50%;
+        text-align: center;
+        font-weight: bold;
+        color: #FFF;
+      }
+    }
+    .button {
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      margin: 0.5em;
+      background: #007bff;
+      font-size: 14px;
+      padding: 8px 10px;
+      text-decoration: none;
+      border-radius: .25rem;
+      color: #FFF;
+      font-weight: bold;
+    }
+  }
+}

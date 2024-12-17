@@ -232,7 +232,7 @@ export default function Bridge(props) {
               </div>
             </div>
             <div className="buttonsHolder">
-              <button onClick={() => { gotoPage('/account/') }} className="isCancel">{t('Cancel')}</button>
+              <button onClick={() => { gotoPage('/claimer//') }} className="isCancel">{t('Cancel')}</button>
               <button
                 onClick={gotoConfirm}
               >
@@ -275,7 +275,7 @@ export default function Bridge(props) {
               {t('Tokens succefully bridged to mainnet')}
             </div>
             <div className="buttonsHolder">
-              <button onClick={() => { gotoPage('/account/') }} className="isGreen">{t('Ok')}</button>
+              <button onClick={() => { gotoPage('/claimer//') }} className="isGreen">{t('Ok')}</button>
             </div>
           </>
         )}

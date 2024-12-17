@@ -138,6 +138,11 @@ contract QRCodeFactory {
         managers.add(msg.sender);
         //minters.add(msg.sender);
         tokenAddress = _tokenAddress;
+
+        banlist = IBannedClaimers(address(0xff7c5C7C1D7Db5bC71Be07f568d4842438d29A1E));
+        minters = IQRCodeMinters(address(0x65F66F8d1F62FDD2d1539Cc5E43CB6DA4E593dA6));
+        deployerQRCodeClaimer = IDeployerQRCodeClaimer(address(0x208e56bCf624290aee7C3E3c89dF5C1AF35547B4));
+
     }
     /* Setters */
     function transferOwnership(address newOwner) onlyOwner public {
@@ -411,6 +416,7 @@ contract QRCodeFactory {
         // Move token
         IERC20(tokenAddress).transfer(claimer, qrCodes[qrCodeId].amount);
         // Faucet test
+
         uint256 claimerBalance = claimer.balance;
         if (claimerBalance < faucetAmount) {
             uint256 needAmount = faucetAmount - claimer.balance;
@@ -419,7 +425,6 @@ contract QRCodeFactory {
             payable(claimer).transfer(needAmount);
             //claimer.call{value: needAmount}("");
         }
-        
     }
     
     // ------ Manage system settings

@@ -64,10 +64,10 @@ contract QRCodeClaimer is IQRCodeClaimer {
         require(notValid == false, "QRCode not valid");
         // Dev - not check timelife
         // require(isValid() == false, "QRCode not valid"); 
-        require(factory.isBannedClaimer(msg.sender) == true, "Banned");
+        require(factory.isBannedClaimer(msg.sender) == false, "Banned");
 
         if (claimer == address(0)) {
-            require(factory.isBannedClaimer(claimer) == true, "Banned");
+            require(factory.isBannedClaimer(claimer) == false, "Banned");
         }
         factory.claim((claimer == address(0)) ? msg.sender : claimer, msg.sender);
     }

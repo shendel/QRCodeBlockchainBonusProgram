@@ -1,9 +1,11 @@
+export const PROJECT_TITLE = 'coffee.community'
+
 export const WORK_CHAIN_ID = 1800500
 export const MAINNET_CHAIN_ID = 11155111
 
 export const MAINNET_TOKEN = '0x30ebD802ac0056aF633a41B653f31C4e650fd789'
 
-export const QRCODE_FACTORY = '0x03891b675D70E00F61c13f2e7CBf1C7eC2FF9d15'
+export const QRCODE_FACTORY = '0xe650d75bC2920881eaDDDB037B6947d1b116A59E'
 export const BACKEND_CLAIMER = '0x190bF432561bC2D6b8A29B5b32B7A9EFE7cDBC04'
 
 
@@ -28,6 +30,7 @@ export const MINT_PRESET_EXPIRE = {
   600: '10 minutes',
   900: '15 minutes',
   1800: '30 minutes',
-  3600: '1 hour'
+  3600: '1 hour',
+  86400: 'dev (1day)'
 }
 

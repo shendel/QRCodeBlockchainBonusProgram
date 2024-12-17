@@ -1,0 +1,17 @@
+.header {
+  background: #ff702a;
+  padding: 0.5em;
+  color: #FFF;
+  text-align: center;
+  font-size: 14pt;
+  font-weight: bold;
+  position: relative;
+  
+  A {
+    position: absolute;
+    left: 0.25em;
+    top: 50%;
+    margin-top: -16px;
+    display: block;
+  }
+}

@@ -16,7 +16,12 @@ import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 import { fromWei, toWei } from '@/helpers/wei'
 import axios from 'axios'
 import BigNumber from "bignumber.js"
+import styles from "./index.module.scss"
 
+import { PROJECT_TITLE } from '@/config'
+import HeaderRow from '@/components/qrcode/HeaderRow'
+
+import Avatar from '@/components/qrcode/Avatar'
 
 export default function QrCodeClaim(props) {
   const {
@@ -42,7 +47,7 @@ export default function QrCodeClaim(props) {
   const [ isQrCodeFetched, setIsQrCodeFetched ] = useState(false)
   const [ qrCodeInfo, setQrCodeInfo ] = useState(false)
   
-  const [ claimToAddress, setClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet : browserAccount.browserAccount)
+  const [ claimToAddress, setClaimToAddress ] = useState(browserAccount.browserAccount) //useState((isExternalWalletConnected) ? connectedWallet : browserAccount.browserAccount)
   const [ oldClaimToAddress, setOldClaimToAddress ] = useState((isExternalWalletConnected) ? connectedWallet: browserAccount.browserAccount)
   const [ isEditClaimToAddress, setIsEditClaimToAddress ] = useState(false)
 
@@ -161,79 +166,96 @@ export default function QrCodeClaim(props) {
   const doSaveClaimAddress = () => {
     setIsEditClaimToAddress(false)
   }
+  console.log('>> isClaiming', isClaiming)
   return (
-    <>
-      {isQrCodeFetching && (
-        <div>Loading...</div>
+    <div className={styles.claimPanel}>
+      <HeaderRow 
+        title={PROJECT_TITLE}
+        backUrl={`/`}
+        gotoPage={gotoPage}
+      />
+      {isQrCodeFetching  && (
+        <div className={`${styles.spinner} ${styles.blue}`}></div>
       )}
       {!isQrCodeFetching && !isQrCodeFetched && (
-        <div>Fail fetch QRCode info</div>
+        <div className={styles.error}>Fail fetch QRCode info</div>
       )}
       {isQrCodeFetched && qrCodeInfo && (
         <>
-          <div>QRCODE: { qrCodeAddress}</div>
-          <div>
-            <strong>{qrCodeInfo.minterName}</strong>
-          </div>
-          <div>
-            <em>{qrCodeInfo.message}</em>
-          </div>
-          <div>
-            <span>{fromWei(qrCodeInfo.amount, qrCodeInfo.decimals)}</span>
-            <strong>
-              {qrCodeInfo.symbol}
-            </strong>
-          </div>
-          {isClaimed || isClaiming ? (
-            <>
-              {isClaimed && (
-                <div>Successfull claimed</div>
-              )}
-              {isClaiming && (
-                <div>
-                  Claiming
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              {qrCodeInfo.isClaimed ? (
-                <div>QRCode is already claimed</div>
-              ) : (
-                <>
-                  {qrCodeInfo.isValid ? (
-                    <div>
-                      <div>Process claim</div>
+          <Avatar address={qrCodeInfo.minter} title={`Bonus points sender`} name={qrCodeInfo.minterName} />
+          {qrCodeInfo.message && (
+            <div className={styles.messageBlock}>
+              <span>Message from sender</span>
+              <strong>{qrCodeInfo.message}</strong>
+            </div>
+          )}
+          <div className={`${styles.claimBlock} ${(qrCodeInfo.message) ? styles.withMessage : ``}`}>
+            <span className={styles.title}>Points amount</span>
+            <div className={styles.pointsAmount}>
+              <span>{fromWei(qrCodeInfo.amount, qrCodeInfo.decimals)}</span>
+              <strong>
+                {qrCodeInfo.symbol}
+              </strong>
+            </div>
+            {isClaimed || isClaiming ? (
+              <>
+                {isClaimed && (
+                  <>
+                    <div className={styles.claimedOk}>Claimed!</div>
+                    <a className={styles.claimButton} onClick={() => { gotoPage('/') }}>Go to account</a>
+                  </>
+                )}
+                {isClaiming && (
+                  <>
+                    <div className={styles.spinnerHolder}>
+                      <div className={`${styles.spinner} ${styles.blue}`}></div>
+                    </div>
+                    <a className={`${styles.claimButton} ${styles.disabled}`}>Claiming...</a>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                {qrCodeInfo.isClaimed ? (
+                  <div>QRCode is already claimed</div>
+                ) : (
+                  <>
+                    {qrCodeInfo.isValid ? (
                       <div>
-                        {isEditClaimToAddress ? (
-                          <div>
-                            <h5>Edit address for claim</h5>
-                            <input type="text" value={claimToAddress} onChange={(e) => { setClaimToAddress(e.target.value) }} />
-                            <button onClick={doSaveClaimAddress}>Save</button>
-                            <button onClick={doCancelEditClaimAddress}>Cancel</button>
-                          </div>
-                        ) : (
-                          <>
-                            <span>
-                              claim to: <strong>{claimToAddress}</strong>
-                            </span>
-                            <button onClick={doStartEditClaimAddress}>Change address</button>
-                          </>
+                        {/*
+                        <div>Process claim</div>
+                        <div>
+                          {isEditClaimToAddress ? (
+                            <div>
+                              <h5>Edit address for claim</h5>
+                              <input type="text" value={claimToAddress} onChange={(e) => { setClaimToAddress(e.target.value) }} />
+                              <button onClick={doSaveClaimAddress}>Save</button>
+                              <button onClick={doCancelEditClaimAddress}>Cancel</button>
+                            </div>
+                          ) : (
+                            <>
+                              <span>
+                                claim to: <strong>{claimToAddress}</strong>
+                              </span>
+                              <button onClick={doStartEditClaimAddress}>Change address</button>
+                            </>
+                          )}
+                        </div>
+                        */}
+                        {!isEditClaimToAddress && (
+                          <a className={styles.claimButton} onClick={doClaimCode}>Claim bonus points</a>
                         )}
                       </div>
-                      {!isEditClaimToAddress && (
-                        <button onClick={doClaimCode}>Claim</button>
-                      )}
-                    </div>
-                  ) : (
-                    <div>QRCode expired</div>
-                  )}
-                </>
-              )}
-            </>
-          )}
+                    ) : (
+                      <div>QRCode expired</div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </div>
         </>
       )}
-    </>
+    </div>
   )
 }

@@ -1,5 +1,7 @@
 import type { AppProps } from "next/app"
 import Head from 'next/head'
+import getConfig from 'next/config'
+
 
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
@@ -44,7 +46,7 @@ import ClaimerPanelScanQRCode from '@/views/ClaimerPanel/ScanQRCode'
 
 
 import QrCodeView from '@/views/QrCodeView'
-import QrCodeClaim from '@/views/QrCodeClaim'
+import QrCodeClaim from '@/views/QrCodeClaim/'
 
 
 import Account from '@/views/Account/'
@@ -73,6 +75,12 @@ import {
 } from '@/config'
 
 function MyApp(pageProps) {
+  const { publicRuntimeConfig } = getConfig()
+  const {
+    CLAIMER: isClaimerBuild,
+    MINTER: isMinterBuild,
+  } = publicRuntimeConfig
+
   const [ isFactoryFetching, setIsFactoryFetching ] = useState(true)
   const [ isFactoryFetched, setIsFactoryFetched ] = useState(false)
   const [ factoryStatus, setFactoryStatus ] = useState(false)
@@ -193,69 +201,95 @@ function MyApp(pageProps) {
     setNeedUpdateFactoryStatus(true)
   }
 
+  let viewsPaths = {
+    '/': Home,
+
+    '/admin/': AdminPanel,
+    
+    '/admin/addenergy/:target': AdminPanelAddEnergy,
+    '/admin/addtokens/:target': AdminPanelAddTokens,
+    
+    '/admin/managers/': AdminPanelManagersList,
+    '/admin/managers/add': AdminPanelManagersAdd,
+    '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,
+    '/admin/managers/delete/:managerAddress': AdminPanelManagersDelete,
+
+    '/admin/minters/': AdminPanelMintersList,
+    '/admin/minters/add': AdminPanelMinersAdd,
+    '/admin/minters/delete/:minterAddress': AdminPanelMinterDelete,
+    '/admin/minters/qrcodes/:minterAddress/:page': AdminPanelMintersQrCodes,
+
+    '/admin/claimers/:page': AdminPanelClaimers,
+    '/admin/claimers/info/:claimerAddress': AdminPanelClaimersInfo,
+    '/admin/claimers/ban/:claimerAddress': AdminPanelClaimersBan,
+    '/admin/claimers/unban/:claimerAddress': AdminPanelClaimersUnban,
+
+    '/admin/bridge/withdraw/:target': AdminPanelBridgeWithdrawTokens,
+
+    '/manager/': ManagerPanel,
+
+    '/minter/': MinterPanel,
+    '/minter/mint': MinterMint,
+
+    '/claimer/': ClaimerPanel,
+    '/claimer/scanqrcode/': ClaimerPanelScanQRCode,
+    
+    '/qrcodeview/:qrCodeAddress': QrCodeView,
+    '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
+    
+    '/account/': Account,
+    '/account/backup/': AccountBackup,
+    '/account/restore/': AccountRestore,
+    
+    '/bridge/': Bridge
+  }
+  
+  if (isClaimerBuild) {
+    viewsPaths = {
+      '/': ClaimerPanel,
+
+      '/claimer/': ClaimerPanel,
+      '/claimer/scanqrcode/': ClaimerPanelScanQRCode,
+      
+      '/qrcodeview/:qrCodeAddress': QrCodeView,
+      '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
+      
+      '/account/': Account,
+      '/account/backup/': AccountBackup,
+      '/account/restore/': AccountRestore,
+      
+      '/bridge/': Bridge
+    }
+  }
+  
   return (
     <>
       <AppRoot chainId={WORK_CHAIN_ID}>
         <>
-          <Header />
-          <h3>Index page</h3>
-          {isFactoryFetching && (
-            <div>Fetching QRCodeFactory ({QRCODE_FACTORY}) status</div>
-          )}
-          {!isFactoryFetching && !isFactoryFetched && (
-            <div>Fail fetch QRCodeFactory ({QRCODE_FACTORY}) status</div>
+          {!isClaimerBuild && (
+            <>
+              <Header />
+              <h3>Index page</h3>
+              {isFactoryFetching && (
+                <div>Fetching QRCodeFactory ({QRCODE_FACTORY}) status</div>
+              )}
+              {!isFactoryFetching && !isFactoryFetched && (
+                <div>Fail fetch QRCodeFactory ({QRCODE_FACTORY}) status</div>
+              )}
+            </>
           )}
           {isFactoryFetched && (
             <>
-              <nav>
-                <a href="#/admin">[Admin panel]</a>
-                <a href="#/manager">[Manager panel]</a>
-                <a href="#/minter">[Minter panel]</a>
-                <a href="#/claimer">[Claimer panel]</a>
-              </nav>
+              {!isClaimerBuild && (
+                <nav>
+                  <a href="#/admin">[Admin panel]</a>
+                  <a href="#/manager">[Manager panel]</a>
+                  <a href="#/minter">[Minter panel]</a>
+                  <a href="#/claimer">[Claimer panel]</a>
+                </nav>
+              )}
               <HashRouterViews
-                views={{
-                  '/': Home,
-
-                  '/admin/': AdminPanel,
-                  
-                  '/admin/addenergy/:target': AdminPanelAddEnergy,
-                  '/admin/addtokens/:target': AdminPanelAddTokens,
-                  
-                  '/admin/managers/': AdminPanelManagersList,
-                  '/admin/managers/add': AdminPanelManagersAdd,
-                  '/admin/managers/info/:managerAddress': AdminPanelManagersInfo,
-                  '/admin/managers/delete/:managerAddress': AdminPanelManagersDelete,
-
-                  '/admin/minters/': AdminPanelMintersList,
-                  '/admin/minters/add': AdminPanelMinersAdd,
-                  '/admin/minters/delete/:minterAddress': AdminPanelMinterDelete,
-                  '/admin/minters/qrcodes/:minterAddress/:page': AdminPanelMintersQrCodes,
-
-                  '/admin/claimers/:page': AdminPanelClaimers,
-                  '/admin/claimers/info/:claimerAddress': AdminPanelClaimersInfo,
-                  '/admin/claimers/ban/:claimerAddress': AdminPanelClaimersBan,
-                  '/admin/claimers/unban/:claimerAddress': AdminPanelClaimersUnban,
-
-                  '/admin/bridge/withdraw/:target': AdminPanelBridgeWithdrawTokens,
-
-                  '/manager/': ManagerPanel,
-
-                  '/minter/': MinterPanel,
-                  '/minter/mint': MinterMint,
-
-                  '/claimer/': ClaimerPanel,
-                  '/claimer/scanqrcode/': ClaimerPanelScanQRCode,
-                  
-                  '/qrcodeview/:qrCodeAddress': QrCodeView,
-                  '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
-                  
-                  '/account/': Account,
-                  '/account/backup/': AccountBackup,
-                  '/account/restore/': AccountRestore,
-                  
-                  '/bridge/': Bridge
-                }}
+                views={viewsPaths}
                 props={{
                   factoryStatus,
                   backendStatus,

@@ -2,6 +2,7 @@
 contracts/artifacts/
 
 build/
+build-claimer/
 node_modules/
 out/
 package-lock.json

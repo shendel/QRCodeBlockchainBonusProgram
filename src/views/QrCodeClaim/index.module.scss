@@ -1,0 +1,130 @@
+.claimPanel {
+  HEADER {
+    background: #ff702a;
+    padding: 0.5em;
+    color: #FFF;
+    text-align: center;
+    font-size: 14pt;
+    font-weight: bold;
+  }
+  
+  .error {
+    display: block;
+    padding: 2em;
+    font-weight: bold;
+    text-align: center;
+    color: red;
+  }
+  .spinnerHolder {
+    position: fixed;
+    z-index: 99999;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background-color: #45454569;
+  }
+  .spinner {
+    position: fixed;
+    z-index: 99999;
+    top: 50%;
+    left: 50%;
+    margin-left: -54px;
+    margin-top: -54px;
+    width: 88px;
+    height: 88px;
+    border: 17.6px #ff702a double;
+    border-left-style: solid;
+    border-radius: 50%;
+    animation: spinner-aib1d7 0.75s infinite linear;
+    &.blue {
+      border-color: #007bff;
+    }
+  }
+
+  @keyframes spinner-aib1d7 {
+     to {
+        transform: rotate(360deg);
+     }
+  }
+  
+  .messageBlock {
+    background: #ff702a;
+    color: #FFF;
+    padding: 1em;
+    border-radius: 1em;
+    margin-top: -1em;
+    padding-bottom: 2em;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    SPAN {
+      display: block;
+      text-align: center;
+      font-size: 12pt;
+    }
+    STRONG {
+      display: block;
+      text-align: center;
+      font-size: 14pt;
+    }
+  }
+  
+  .claimBlock {
+    background: #ff702a;
+    color: #FFF;
+    padding: 1em;
+    border-radius: 1em;
+    margin-top: -1em;
+    padding-bottom: 2em;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    
+    &.withMessage {
+      margin-top: -1em;
+      border-top: 2px solid #FFF;
+    }
+    .title {
+      display: block;
+      color: #FFF;
+      text-align: center;
+    }
+    .pointsAmount {
+      display: block;
+      text-align: center;
+      color: #FFF;
+      font-size:72pt;
+      SPAN,
+      STRONG {
+        display: block;
+        font-weight: bold;
+      }
+      STRONG {
+        padding-left: 5px;
+        font-size:24pt;
+      }
+    }
+  }
+  .claimButton {
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    margin: 0.5em;
+    background: #007bff;
+    font-size: 14px;
+    padding: 8px 10px;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    color: #FFF;
+    font-weight: bold;
+    &.disabled {
+      background: #989b9d;
+      color: #292929;
+    }
+  }
+  .claimedOk {
+    text-align: center;
+    font-weight: bold;
+    color: #034103;
+    font-size: 24pt;
+  }
+}

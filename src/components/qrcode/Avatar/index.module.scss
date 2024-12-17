@@ -1,7 +1,23 @@
 .avatarHolder {
-  outline: 1px solid red;
-  
+  background: #020202;
+  padding: 0.5em;
+  padding-bottom: 1.5em;
+  IMG {
+    display: block;
+    margin: 0 auto;
+  }
   STRONG {
-    color: red;
+    display: block;
+    text-align: center;
+    color: #FFF;
+  }
+  SPAN {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    color: #FFF;
+  }
+  .name {
+    color: #007bff;
   }
 }

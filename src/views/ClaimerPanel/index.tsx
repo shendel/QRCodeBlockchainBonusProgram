@@ -2,7 +2,7 @@
 import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
 
-
+import styles from './index.module.scss'
 import { useBrowserWeb3 } from '@/web3/BrowserWeb3Provider'
 import fetchWalletStatus from '@/qrcode_helpers/fetchWalletStatus'
 
@@ -14,6 +14,8 @@ import {
   MAINNET_TOKEN,
 } from '@/config'
 import { fromWei } from '@/helpers/wei'
+
+import ScanIcon from './ScanIcon'
 
 export default function ClaimerPanel(props) {
   const {
@@ -64,27 +66,41 @@ export default function ClaimerPanel(props) {
   }, [ browserAccount ])
   
   return (
-    <>
-      <h2>Claimer panel</h2>
-      <div>
+    <div className={styles.claimerPanel}>
+      <header>coffee.comunity</header>
+      <div className={styles.scanHolder}>
+        <a className={styles.scanButton} onClick={() => { gotoPage('claimer/scanqrcode') }}>
+          <ScanIcon />
+          <span>ScanQR</span>
+        </a>
+      </div>
+      <div className={styles.accountPanel}>
+        <span>You account</span>
         <Avatar />
-      </div>
-      <div>
-        Your bonus points
-        <div>
-          <strong>{fromWei(balance, factoryStatus.tokenDecimals)}</strong>
-          <em>{factoryStatus.tokenSymbol}</em>
-        </div>
-        <button onClick={() => { gotoPage('/bridge') }}>[Convert points to tokens]</button>
-      </div>
-      <div>
-        Your tokens
-        <div>
-          <strong>{fromWei(mainnetBalance, mainnetTokenDecimals)}</strong>
-          <em>{mainnetTokenSymbol}</em>
+        <div className={styles.buttons}>
+          <a onClick={() => { gotoPage('account/backup') }}>Backup</a>
+          <a onClick={() => { gotoPage('account/restore') }}>Restore</a>
         </div>
       </div>
-      <button onClick={() => { gotoPage('claimer/scanqrcode') }}>ScanQR</button>
-    </>
+      <div className={styles.tokensPanel}>
+        <div className={styles.balancePanels}>
+          <div>
+            <span>Your tokens</span>
+            <div>
+              <strong>{fromWei(mainnetBalance, mainnetTokenDecimals)}</strong>
+              <em>{mainnetTokenSymbol}</em>
+            </div>
+          </div>
+          <div>
+            <span>Bonus points</span>
+            <div>
+              <strong>{fromWei(balance, factoryStatus.tokenDecimals)}</strong>
+              <em>{factoryStatus.tokenSymbol}</em>
+            </div>
+          </div>
+        </div>
+        <a className={styles.button} onClick={() => { gotoPage('/bridge') }}>Convert points to tokens</a>
+      </div>
+    </div>
   )
 }
