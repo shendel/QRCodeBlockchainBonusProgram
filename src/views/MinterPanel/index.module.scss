@@ -1,0 +1,63 @@
+.minterPanel {
+  background: yellow;
+  
+  .mintButtonHolder {
+    background: #ff702a;
+    
+    .mintButton {
+      display: flex;
+      text-align: center;
+      cursor: pointer;
+      margin: 0;
+      background: #007bff;
+      font-size: 20px;
+      padding: 1em;
+      text-decoration: none;
+      border-radius: 1rem 1rem 0 0;
+      color: #FFF;
+      font-weight: bold;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  
+  .avaButtonsHolder {
+    display: flex;
+    justify-content: center;
+    A {
+      display: block;
+      width: 40%;
+      text-align: center;
+      cursor: pointer;
+      margin: 0.5em;
+      background: #007bff;
+      font-size: 14px;
+      padding: 8px 10px;
+      text-decoration: none;
+      border-radius: 0.25rem;
+      color: #FFF;
+      font-weight: bold;
+    }
+  }
+  .summaryInfo {
+    >DIV {
+      padding: 1em;
+      padding-top: 0.25em;
+      padding-bottom: 0.25em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      >DIV {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+      >DIV>A {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        outline: 1px solid red;
+      }
+    }
+  }
+}

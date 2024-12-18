@@ -23,6 +23,18 @@ const NETWORKS = {
     explorer: 'http://explorer.proxima/',
     multicall: '0x83048f0Bf34FEeD8CEd419455a4320A735a92e9d',
   },
+  premium_coffee: {
+    chainId: 1800510,
+    name: 'PremiumCoffee Blockchain',
+    nativeCurrency: {
+      name: "Energy",
+      symbol: "ENERGY",
+      decimals: 18,
+    },
+    rpc: 'https://rpc.energy-blockchain.ru',
+    explorer: '#',
+    multicall: '0x7A29Ad35190342D2A5125b29Cf5063B299d9aAFf',
+  },
   sepolia: {
     chainId: 11155111,
     name: "Goerli",

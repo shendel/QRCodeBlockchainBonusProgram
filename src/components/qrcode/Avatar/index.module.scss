@@ -20,4 +20,17 @@
   .name {
     color: #007bff;
   }
+  .gridView {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    >DIV {
+      width: 100%;
+      STRONG,
+      SPAN {
+        text-align: right;
+      }
+    }
+  }
 }

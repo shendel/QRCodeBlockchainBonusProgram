@@ -100,6 +100,7 @@ export default function QrCodeClaim(props) {
     const {
       claimMinEnergy
     } = factoryStatus
+    console.log('>>> claimMinEnergy', claimMinEnergy, browserAccount.balance)
     if (new BigNumber(browserAccount.balance).isGreaterThanOrEqualTo(claimMinEnergy) && !debug_skipBrowser) {
       doClaimByWeb3(false)
       console.log('claim by browser')
@@ -217,7 +218,10 @@ export default function QrCodeClaim(props) {
             ) : (
               <>
                 {qrCodeInfo.isClaimed ? (
-                  <div>QRCode is already claimed</div>
+                  <>
+                    <div className={styles.qrcodeExpired}>QRCode is already claimed</div>
+                    <a className={styles.claimButton} onClick={() => { gotoPage('/') }}>Close</a>
+                  </>
                 ) : (
                   <>
                     {qrCodeInfo.isValid ? (
@@ -247,7 +251,10 @@ export default function QrCodeClaim(props) {
                         )}
                       </div>
                     ) : (
-                      <div>QRCode expired</div>
+                      <>
+                        <div className={styles.qrcodeExpired}>QRCode expired</div>
+                        <a className={styles.claimButton} onClick={() => { gotoPage('/') }}>Close</a>
+                      </>
                     )}
                   </>
                 )}
