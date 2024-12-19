@@ -40,13 +40,23 @@
     }
   }
   .summaryInfo {
+    background: #ff702a;
+    border-radius: 1em 1em 0 0;
+    margin-top: -1em;
     >DIV {
       padding: 1em;
-      padding-top: 0.25em;
-      padding-bottom: 0.25em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      color: #FFF;
+      font-weight: bold;
+      font-size: 12pt;
+      border-bottom: 1px solid #FFF;
+      &:first-child {
+        padding-top: 1em;
+      }
       >DIV {
         display: flex;
         justify-content: flex-end;
@@ -56,7 +66,17 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        outline: 1px solid red;
+        cursor: pointer;
+        color: #FFF;
+        EM {
+          font-style: normal;
+          text-decoration: underline;
+        }
+        SVG {
+          width: 1.5em;
+          height: 1.5em;
+          margin-left: 0.5em;
+        }
       }
     }
   }

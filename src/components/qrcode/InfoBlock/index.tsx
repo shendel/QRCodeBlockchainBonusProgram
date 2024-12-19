@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import styles from './index.module.scss'
-//import InfoIcon from './InfoIcon'
+import InfoIcon from './InfoIcon'
 
 export default function InfoBlock(props) {
   const {
@@ -13,7 +13,7 @@ export default function InfoBlock(props) {
   return (
     <div className={styles.infoBlock}>
       <a onClick={() => { setIsOpened(true) }}>
-        [?]
+        <InfoIcon />
       </a>
       {isOpened && (
         <div className={styles.popupHolder}>

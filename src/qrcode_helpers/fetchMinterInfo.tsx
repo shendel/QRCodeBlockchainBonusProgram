@@ -19,7 +19,7 @@ const fetchMinterInfo = (options) => {
       target: address,
       encoder: abiI,
       calls: {
-        info: { func: 'getMinterInfo', args: [minter] },
+        info: { func: 'getMinterInfo', args: [minter, true] },
       }
     }).then((answer) => {
       console.log('>> answer', answer)

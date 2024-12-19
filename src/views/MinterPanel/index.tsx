@@ -10,8 +10,11 @@ import { getTranslate } from '@/translate'
 import fetchBalance from '@/helpers/fetchBalance'
 import styles from './index.module.scss'
 import HeaderRow from '@/components/qrcode/HeaderRow/'
+import LoaderFullScreen from '@/components/qrcode/LoaderFullScreen'
 import Avatar from '@/components/qrcode/Avatar'
 import InfoBlock from '@/components/qrcode/InfoBlock'
+import ShowIcon from './assets/ShowIcon'
+
 
 import {
   PROJECT_TITLE,
@@ -59,7 +62,7 @@ export default function Minter(props) {
   return (
     <div className={styles.minterPanel}>
       <HeaderRow title={PROJECT_TITLE} />
-      
+      {isMinterInfoFetching && (<LoaderFullScreen />)}
       {isMinterInfoFetched && (
         <>
           <div className={styles.mintButtonHolder}>
@@ -88,53 +91,53 @@ export default function Minter(props) {
             <div>
               <span>Your energy</span>
               <div>
-                {`0`}
+                {fromWei(minterInfo.energy)}
                 <InfoBlock />
               </div>
             </div>
             <div>
               <span>Balance of {factoryStatus.tokenName}</span>
               <div>
-                {`0`}
+                {fromWei(minterInfo.balance, factoryStatus.tokenDecimals)}
                 <InfoBlock />
               </div>
             </div>
-            <div>
+            <div onClick={() => { gotoPage('/minter/codes/claimed/0') }}>
               <span>Claimed {factoryStatus.tokenName}</span>
               <div>
                 <a>
-                  <em>0</em>
-                  <span>[show]</span>
+                  <em>{fromWei(minterInfo.claimedAmount, factoryStatus.tokenDecimals)}</em>
+                  <ShowIcon />
                 </a>
                 <InfoBlock />
               </div>
             </div>
-            <div>
+            <div onClick={() => { gotoPage('/minter/codes/all/0') }}>
               <span>Minted {factoryStatus.tokenName}</span>
               <div>
                 <a>
-                  <em>0</em>
-                  <span>[show]</span>
+                  <em>{fromWei(minterInfo.mintedAmount, factoryStatus.tokenDecimals)}</em>
+                  <ShowIcon />
                 </a>
                 <InfoBlock />
               </div>
             </div>
-            <div>
+            <div onClick={() => { gotoPage('/minter/codes/claimed/0') }}>
               <span>Claimed QRCodes</span>
               <div>
                 <a>
-                  <em>0</em>
-                  <span>[show]</span>
+                  <em>{minterInfo.claimedQrCodesCount}</em>
+                  <ShowIcon />
                 </a>
                 <InfoBlock />
               </div>
             </div>
-            <div>
+            <div onClick={() => { gotoPage('/minter/codes/all/0') }}>
               <span>Minted QRCodes</span>
               <div>
                 <a>
-                  <em>0</em>
-                  <span>[show]</span>
+                  <em>{minterInfo.mintedQrCodesCount}</em>
+                  <ShowIcon />
                 </a>
                 <InfoBlock />
               </div>

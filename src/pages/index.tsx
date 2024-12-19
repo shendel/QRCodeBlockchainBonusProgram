@@ -40,6 +40,7 @@ import ManagerPanel from '@/views/ManagerPanel/'
 // Minter views
 import MinterPanel from '@/views/MinterPanel/'
 import MinterMint from '@/views/MinterPanel/Mint'
+import MinterMintedCodes from '@/views/MinterPanel/MintedCodes'
 // Claimer views
 import ClaimerPanel from '@/views/ClaimerPanel/'
 import ClaimerPanelScanQRCode from '@/views/ClaimerPanel/ScanQRCode'
@@ -230,6 +231,7 @@ function MyApp(pageProps) {
 
     '/minter/': MinterPanel,
     '/minter/mint': MinterMint,
+    '/minter/codes/:type/:page': MinterMintedCodes,
 
     '/claimer/': ClaimerPanel,
     '/claimer/scanqrcode/': ClaimerPanelScanQRCode,

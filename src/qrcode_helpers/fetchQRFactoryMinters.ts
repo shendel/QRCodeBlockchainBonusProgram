@@ -7,6 +7,7 @@ const fetchQRFactoryMinters = (options) => {
   const {
     address,
     chainId,
+    skipQrCodesids = true,
   } = {
     ...options
   }
@@ -18,7 +19,7 @@ const fetchQRFactoryMinters = (options) => {
       target: address,
       encoder: abiI,
       calls: {
-        minters: { func: 'getMintersInfo', asArray: true}
+        minters: { func: 'getMintersInfo', args: [ skipQrCodesids ], asArray: true}
       }
     }).then((answer) => {
       console.log('>> answer', answer)

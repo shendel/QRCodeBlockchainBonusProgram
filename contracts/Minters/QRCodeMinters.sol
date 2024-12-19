@@ -14,11 +14,14 @@ contract QRCodeMinters {
 
     struct MinterInfo {
         address minterAddress;
+        uint256 energy;
         string name;
         uint256 mintedAmount;
         uint256 claimedAmount;
         uint256[] mintedQrCodes;
+        uint256[] claimedQRCodes;
         uint256 mintedQrCodesCount;
+        uint256 claimedQrCodesCount;
         uint256 balance;
     }
     
@@ -47,18 +50,7 @@ contract QRCodeMinters {
     function setFactory(address newFactory) onlyOwner public {
         factory = IQRCodeFactory(newFactory);
     }
-    /* ---------------------------- */
-    /*
-    struct MinterInfo {
-        address minterAddress;
-        string name;
-        uint256 mintedAmount;
-        uint256 claimedAmount;
-        uint256[] mintedQrCodes;
-        uint256 mintedQrCodesCount;
-        uint256 balance;
-    }
-    */
+
     // Кто может генерировать коды
     AddressSet.Storage private minters;
     mapping (address => string) public mintersName;
@@ -66,8 +58,12 @@ contract QRCodeMinters {
     mapping (address => uint256) public mintedAmount;
     // Айди кодов, которые создал минтер
     mapping (address => uint256[]) public mintedQrCodes;
+    // Айжи кодов, которые обналичили
+    mapping (address => uint256[]) public claimedQrCodes;
     // Сколько всего кодов создал минтер
     mapping (address => uint256) public mintedQrCodesCount;
+    // Сколько всего кодоб обналичено
+    mapping (address => uint256) public claimedQrCodesCount;
     // Сумма обналиченных кодов, которые выпустил минтер
     mapping (address => uint256) public claimedByMinter;
     // Токенов на балансе минтера
@@ -113,8 +109,10 @@ contract QRCodeMinters {
         mintedQrCodesCount[minter]++;
     }
 
-    function onClaim(address minter, uint256 amount) onlyFactory public {
+    function onClaim(address minter, uint256 codeId, uint256 amount) onlyFactory public {
         claimedByMinter[minter] += amount;
+        claimedQrCodesCount[minter]++;
+        claimedQrCodes[minter].push(codeId);
     }
 
     function getMintersCount() public view returns (uint256) {
@@ -124,26 +122,51 @@ contract QRCodeMinters {
         return minters.items(0,0);
     }
 
-    function getMintersInfo() public view returns (MinterInfo[] memory) {
+    function getMintersInfo(bool skipCodesIds) public view returns (MinterInfo[] memory) {
         MinterInfo[] memory ret = new MinterInfo[](minters.length());
         for (uint256 i = 0; i < minters.length(); i++) {
-            ret[i] = getMinterInfo(minters.get(i));
+            ret[i] = getMinterInfo(minters.get(i), skipCodesIds);
         }
         return ret;
     }
     
-    function getMinterInfo(address minter) public view returns (MinterInfo memory ret) {
+    function getMinterInfo(address minter, bool skipCodesIds) public view returns (MinterInfo memory ret) {
         if (minters.exists(minter)) {
             return MinterInfo(
-                minter,
-                mintersName[minter],
-                mintedAmount[minter],
-                claimedByMinter[minter],
-                mintedQrCodes[minter],
-                mintedQrCodesCount[minter],
-                minterBalance[minter]
+                minter,                                                     // address minterAddress;
+                address(minter).balance,                                    // uint256 energy;
+                mintersName[minter],                                        // string name;
+                mintedAmount[minter],                                       // uint256 mintedAmount;
+                claimedByMinter[minter],                                    // uint256 claimedAmount;
+                (skipCodesIds) ? new uint256[](0) : mintedQrCodes[minter],  // uint256[] mintedQrCodes;
+                (skipCodesIds) ? new uint256[](0) : claimedQrCodes[minter], // uint256[] claimedQRCodes;
+                mintedQrCodesCount[minter],                                 // uint256 mintedQrCodesCount;
+                claimedQrCodesCount[minter],                                // uint256 claimedQrCodesCount;
+                minterBalance[minter]                                       // uint256 balance;
             );
         }
+    }
+
+    function getMinterClaimedQrCodesIds(
+        address minter,
+        uint256 offset,
+        uint256 limit
+    ) public view returns (uint256[] memory) {
+        uint256 size = claimedQrCodes[minter].length;
+        if (limit != 0) {
+            size = limit;
+        }
+        uint256 iEnd = offset + size;
+        if (iEnd > claimedQrCodes[minter].length) {
+            iEnd = claimedQrCodes[minter].length;
+        }
+        uint256[] memory ret = new uint256[](iEnd - offset);
+        for (uint256 i = 0; i < iEnd - offset ; i++) {
+            ret[i] = claimedQrCodes[minter][
+                claimedQrCodes[minter].length - i - offset - 1
+            ];
+        }
+        return ret;
     }
 
     function getMinterQrCodesIds(

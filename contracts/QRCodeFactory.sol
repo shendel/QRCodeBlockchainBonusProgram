@@ -245,24 +245,35 @@ contract QRCodeFactory {
     function getMinters() public view returns (address[] memory) {
         return minters.getMinters();
     }
-    function getMintersInfo() public view returns (IQRCodeMinters.MinterInfo[] memory) {
-        return minters.getMintersInfo();
+    function getMintersInfo(bool skipCodesIds) public view returns (IQRCodeMinters.MinterInfo[] memory) {
+        return minters.getMintersInfo(skipCodesIds);
     }
-    function getMinterInfo(address minter) public view returns (IQRCodeMinters.MinterInfo memory ret) {
-        return minters.getMinterInfo(minter);
+    function getMinterInfo(address minter, bool skipCodesIds) public view returns (IQRCodeMinters.MinterInfo memory ret) {
+        return minters.getMinterInfo(minter, skipCodesIds);
     }
 
+    function getQrCodesByIds(uint256[] memory ids) public view returns(QRCODE[] memory) {
+        QRCODE[] memory ret = new QRCODE[](ids.length);
+        for (uint256 i = 0; i < ids.length; i++) {
+            ret[i] = qrCodes[ids[i]];
+        }
+        return ret;
+    }
     function getMinterQrCodes(
         address minter,
         uint256 offset,
         uint256 limit
     ) public view returns (QRCODE[] memory) {
-        uint256[] memory minterQrCodes = minters.getMinterQrCodesId(minter, offset, limit);
-        QRCODE[] memory ret = new QRCODE[](minterQrCodes.length);
-        for (uint256 i = 0; i < minterQrCodes.length; i++) {
-            ret[i] = qrCodes[minterQrCodes[i]];
-        }
-        return ret;
+        uint256[] memory minterQrCodes = minters.getMinterQrCodesIds(minter, offset, limit);
+        return getQrCodesByIds(minterQrCodes);
+    }
+    function getMinterClimedQrCodes(
+        address minter,
+        uint256 offset,
+        uint256 limit
+    ) public view returns (QRCODE[] memory) {
+        uint256[] memory minterQrCodes = minters.getMinterClaimedQrCodesIds(minter, offset, limit);
+        return getQrCodesByIds(minterQrCodes);
     }
     
     function getClaimersCount() public view returns (uint256) {
@@ -399,12 +410,12 @@ contract QRCodeFactory {
         claimedQrCodes[claimer].push(qrCodeId);
         claimedQrCodesCount[claimer]++;
         totalQrCodesClaimed++;
-        minters.onClaim(qrCodes[qrCodeId].minter, qrCodes[qrCodeId].amount);
+        minters.onClaim(qrCodes[qrCodeId].minter, qrCodeId, qrCodes[qrCodeId].amount);
         totalClaimedAmount+=qrCodes[qrCodeId].amount;
 
         qrCodes[qrCodeId].claimer = claimer;
         qrCodes[qrCodeId].claimer_call = claimer_call;
-        qrCodes[qrCodeId].claimed_at = block.number;
+        qrCodes[qrCodeId].claimed_at = block.timestamp;
     
         claimers.add(claimer);
         // Move token

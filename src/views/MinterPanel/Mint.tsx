@@ -24,6 +24,8 @@ import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 import fetchBalance from '@/helpers/fetchBalance'
 const t = getTranslate('MINT_PAGE')
 
+import styles from './Mint.module.scss'
+
 export default function MinterMint(props) {
   const {
     gotoPage,
@@ -112,7 +114,7 @@ export default function MinterMint(props) {
 
   console.log(factoryStatus)
   return (
-    <>
+    <div className={styles.mintQrCodePanel}>
       <h2>Minter panel</h2>
       <nav>
         <a href="#/minter/">[Back]</a>
@@ -197,6 +199,6 @@ export default function MinterMint(props) {
       ) : (
         <div>Access dinied</div>
       )}
-    </>
+    </div>
   )
 }

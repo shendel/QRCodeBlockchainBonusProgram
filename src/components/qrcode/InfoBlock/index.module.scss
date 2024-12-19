@@ -1,7 +1,11 @@
 .infoBlock {
   display: inline-block;
-  width: 32px;
-  height: 32px;
+  >A>SVG {
+    cursor: pointer;
+    width: 1.5em;
+    height: 1.5em;
+    margin-left: 0.5em;
+  }
   .popupHolder {
     display: block;
     position: fixed;
@@ -39,6 +43,7 @@
       padding: 1em;
       font-size: 14pt;
       background: #feeee7;
+      color: #000;
     }
     .popupWindowButtons {
       padding: 1em;

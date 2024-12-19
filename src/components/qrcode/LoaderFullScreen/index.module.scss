@@ -1,0 +1,29 @@
+.loaderFullScreenHolder {
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background-color: #45454569;
+  .loaderFullScreen {
+    position: fixed;
+    z-index: 99999;
+    top: 50%;
+    left: 50%;
+    margin-left: -54px;
+    margin-top: -54px;
+    width: 88px;
+    height: 88px;
+    border: 17.6px #007bff double;
+    border-left-style: solid;
+    border-radius: 50%;
+    animation: loaderFullScreen-aib1d7 0.75s infinite linear;
+  }
+
+  @keyframes loaderFullScreen-aib1d7 {
+     to {
+        transform: rotate(360deg);
+     }
+  }
+}

@@ -7,11 +7,14 @@ interface IQRCodeMinters {
     /* ---------------------------- */
     struct MinterInfo {
         address minterAddress;
+        uint256 energy;
         string name;
         uint256 mintedAmount;
         uint256 claimedAmount;
         uint256[] mintedQrCodes;
+        uint256[] claimedQRCodes;
         uint256 mintedQrCodesCount;
+        uint256 claimedQrCodesCount;
         uint256 balance;
     }
     
@@ -26,11 +29,12 @@ interface IQRCodeMinters {
     function getMinterName(address minter) external view returns (string memory);
     function getMintersCount() external view returns (uint256);
     function getMinters() external view returns (address[] memory);
-    function getMintersInfo() external view returns (MinterInfo[] memory);
-    function getMinterInfo(address minter) external view returns (MinterInfo memory ret);
-    function getMinterQrCodesId(address minter, uint256 offset, uint256 limit) external view returns (uint256[] memory);
+    function getMintersInfo(bool skipCodesIds) external view returns (MinterInfo[] memory);
+    function getMinterInfo(address minter, bool skipCodesIds) external view returns (MinterInfo memory ret);
+    function getMinterQrCodesIds(address minter, uint256 offset, uint256 limit) external view returns (uint256[] memory);
+    function getMinterClaimedQrCodesIds(address minter, uint256 offset, uint256 limit) external view returns (uint256[] memory);
     
     function addQrCode(address minter, uint256 amount, uint256 qrCodeId) external;
 
-    function onClaim(address minter, uint256 amount) external;
+    function onClaim(address minter, uint256 codeId, uint256 amount) external;
 }

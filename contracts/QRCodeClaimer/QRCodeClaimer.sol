@@ -47,6 +47,23 @@ contract QRCodeClaimer is IQRCodeClaimer {
         message = _message;
     }
 
+    function getSummaryInfo() public view returns (SummaryInfo memory) {
+        return SummaryInfo(
+            address(token),
+            decimals,
+            symbol,
+            name,
+            minter,
+            amount,
+            minterName,
+            message,
+            created_at,
+            timelife,
+            isValid(),
+            isClaimed()
+        );
+    }
+
     function setNotValid() public {
         require(msg.sender == address(factory), "Not allowed");
         notValid = true;

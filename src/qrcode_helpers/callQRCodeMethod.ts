@@ -1,9 +1,9 @@
-import QRCodeClaimerContractData from "@/abi/QRCodeFactory.json"
+import QRCodeClaimerContractData from "@/abi/QRCodeClaimer.json"
 import Web3 from 'web3'
 import { calcSendArgWithFee } from "@/helpers/calcSendArgWithFee"
 import { BigNumber } from 'bignumber.js'
 
-const callQRCoreMethod = (options) => {
+const callQRCodeMethod = (options) => {
   return new Promise(async (resolve, reject) => {
     const {
       activeWallet,
@@ -54,4 +54,4 @@ const callQRCoreMethod = (options) => {
 }
 
 
-export default callQRCoreMethod
+export default callQRCodeMethod

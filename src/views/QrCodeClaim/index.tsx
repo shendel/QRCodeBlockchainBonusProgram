@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi'
 import { QRCODE_ROLES, checkRole } from '@/qrcode_helpers/checkRole'
 
 import fetchQRCodeInfo from '@/qrcode_helpers/fetchQRCodeInfo'
-import callQRCoreMethod from '@/qrcode_helpers/callQRCoreMethod'
+import callQRCodeMethod from '@/qrcode_helpers/callQRCodeMethod'
 
 import { QRCODE_FACTORY, WORK_CHAIN_ID } from '@/config'
 import { useBrowserWeb3 } from '@/web3/BrowserWeb3Provider'
@@ -138,7 +138,7 @@ export default function QrCodeClaim(props) {
     setIsClaiming(true)
     setIsClaimed(false)
     console.log('>>> doClaimByWeb3')
-    callQRCoreMethod({
+    callQRCodeMethod({
       activeWallet: (useInected) ? injectedAccount.injectedAccount : browserAccount.browserAccount,
       activeWeb3: (useInected) ? injectedAccount.injectedWeb3 : browserAccount.browserWeb3,
       contractAddress: qrCodeAddress,

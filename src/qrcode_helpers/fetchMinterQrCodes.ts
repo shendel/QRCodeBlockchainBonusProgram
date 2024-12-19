@@ -10,7 +10,9 @@ const fetchMinterQrCodes = (options) => {
     minter,
     offset,
     limit,
+    qrsType,
   } = {
+    qrsType: 'all',
     ...options
   }
   return new Promise((resolve, reject) => {
@@ -21,8 +23,11 @@ const fetchMinterQrCodes = (options) => {
       target: address,
       encoder: abiI,
       calls: {
-        qrcodes: { func: 'getMinterQrCodes', args: [minter, offset, limit], asArray: true },
-        totalCount: { func: 'mintedQrCodesCount', args: [ minter ] },
+        qrcodes: {
+          func: (qrsType == 'claimed') ? 'getMinterClimedQrCodes' : 'getMinterQrCodes',
+          args: [minter, offset, limit],
+          asArray: true
+        },
       }
     }).then((answer) => {
       console.log('>> answer', answer)
