@@ -1,5 +1,7 @@
 .claimerPanel {
-  background: #feeee7;
+  display: flex;
+  height: 100vh;
+  flex-direction: column; 
   
   HEADER {
     background: #ff702a;
@@ -65,8 +67,23 @@
   .tokensPanel {
     background: #ff702a;
     padding: 1em;
-    border-radius: 0em 0em 1em 1em;
+    padding-top: 2em;
+    position: relative;
     
+    &::before {
+      content: '';
+      display: block;
+      height: 1em;
+      border-radius: 0 0 1em 1em;
+      background: #020202;
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+    }
+    //border-radius: 0em 0em 1em 1em;
+    
+    flex: 1 1;
     .balancePanels {
       display: flex;
       >DIV {

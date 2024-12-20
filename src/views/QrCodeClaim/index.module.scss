@@ -1,4 +1,7 @@
 .claimPanel {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
   HEADER {
     background: #ff702a;
     padding: 0.5em;
@@ -78,6 +81,8 @@
     padding-bottom: 2em;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
+    
+    flex: 1 1;
     
     &.withMessage {
       margin-top: -1em;

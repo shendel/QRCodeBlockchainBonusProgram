@@ -6,6 +6,8 @@ import { getTranslate } from '@/translate'
 import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 import ConnectWalletButton from '@/web3/ConnectWalletButton'
 import LoaderFullScreen from '@/components/qrcode/LoaderFullScreen'
+import SpinnerLoader from '@/components/qrcode/SpinnerLoader'
+import OkIcon from './OkIcon'
 import { toWei, fromWei } from '@/helpers/wei'
 import fetchTokenAllowance from '@/helpers/fetchTokenAllowance'
 import approveToken from '@/helpers/approveToken'
@@ -87,25 +89,30 @@ export default function ClaimerWithdrawPanel(props) {
   
   
   const BRIDGE_STEPS = {
-    PREPARE: 'PREPARE',
-    APPROVE: 'APPROVE',
-    APPROVE_TX: 'APPROVE_TX',
-    SEND_TO_BRIDGE: 'SEND_TO_BRIDGE',
-    SEND_TO_BRIDGE_TX: 'SEND_TO_BRIDGE_TX',
-    WAIT_SWAP: 'WAIT_SWAP'
+    PREPARE: 'PREPARE',                       // 1
+    APPROVE: 'APPROVE',                       // 2
+    APPROVE_TX: 'APPROVE_TX',                 // 3
+    SEND_TO_BRIDGE: 'SEND_TO_BRIDGE',         // 4
+    SEND_TO_BRIDGE_TX: 'SEND_TO_BRIDGE_TX',   // 5
+    WAIT_SWAP: 'WAIT_SWAP'                    // 6
   }
   const [ bridgeStep, setBridgeStep ] = useState(BRIDGE_STEPS.PREPARE)
+  const [ bridgeStepNumber, setBridgeStepNumber ] = useState(0)
   
   const [ isSwapping, setIsSwapping ] = useState(false)
   const [ isApproving, setIsApproving ] = useState(false)
+  const [ approveHash, setApproveHash ] = useState(``)
   const [ isSendToBridge, setIsSendToBridge ] = useState(false)
+  const [ outHash, setOutHash ] = useState(`0x...`)
   const [ swapId, setSwapId ] = useState(0)
   
   const doBridge = async () => {
     setIsSwapping(true)
     const weiAmount = balance
+    setBridgeStepNumber(1)
     if (new BigNumber(weiAmount).isGreaterThan(allowance)) {
       setBridgeStep(BRIDGE_STEPS.APPROVE)
+      setBridgeStepNumber(2)
       setIsApproving(true)
       try {
         await approveToken({
@@ -116,6 +123,8 @@ export default function ClaimerWithdrawPanel(props) {
           weiAmount: `0x` + new BigNumber(weiAmount).toString(16),
           onTrx: (hash) => {
             setBridgeStep(BRIDGE_STEPS.APPROVE_TX)
+            setApproveHash(hash)
+            setBridgeStepNumber(3)
             setIsApproving(false)
           }
         })
@@ -126,6 +135,7 @@ export default function ClaimerWithdrawPanel(props) {
       }
     }
     setBridgeStep(BRIDGE_STEPS.SEND_TO_BRIDGE)
+    setBridgeStepNumber(4)
     setIsSendToBridge(true)
     callBridgeMethod({
       activeWallet: browserAccount,
@@ -138,6 +148,8 @@ export default function ClaimerWithdrawPanel(props) {
       ],
       onTrx: (hash) => {
         setBridgeStep(BRIDGE_STEPS.SEND_TO_BRIDGE_TX)
+        setOutHash(hash)
+        setBridgeStepNumber(5)
         setIsSendToBridge(false)
       }
     }).then((answer) => {
@@ -146,6 +158,7 @@ export default function ClaimerWithdrawPanel(props) {
         console.log('>>> swapId', answer?.events?.onSwapOut?.returnValues?.swapId)
         setSwapId(answer?.events?.onSwapOut?.returnValues?.swapId)
         setBridgeStep(BRIDGE_STEPS.WAIT_SWAP)
+        setBridgeStepNumber(6)
       }
     }).catch((err) => {
       console.log(err)
@@ -154,6 +167,7 @@ export default function ClaimerWithdrawPanel(props) {
   }
 
   const [ isSwapped, setIsSwapped ] = useState(false)
+  const [ inHash, setInHash ] = useState(`0x...`)
   
   const [ tick, setTick ] = useState(0)
 
@@ -166,8 +180,10 @@ export default function ClaimerWithdrawPanel(props) {
       }).then(async ({ info }) => {
         const { swapped , inHash } = info
         if (swapped) {
+          setInHash(inHash)
           setIsSwapping(false)
           setIsSwapped(true)
+          setBridgeStepNumber(7)
         } else {
           await delay(5000)
           setTick(tick+1)
@@ -180,6 +196,9 @@ export default function ClaimerWithdrawPanel(props) {
     }
   }, [ swapId, tick ])
   
+  const makeSmallHash = (hash) => {
+    return `${hash.substring(0,10)}...${hash.substring(-10,10)}`
+  }
   return (
     <div className={styles.climerWithdrawPanel}>
       {(isBalanceFetching || isAllowanceFetching || isSendToBridge || isApproving ) && (
@@ -204,7 +223,7 @@ export default function ClaimerWithdrawPanel(props) {
           <em>{tokenSymbol}</em>
       </div>
       <div className={styles.walletInfo}>
-        <div>Destination wallet</div>
+        <div className={styles.title}>Destination wallet</div>
         {!injectedAccount ? (
           <>
             <ConnectWalletButton
@@ -222,14 +241,73 @@ export default function ClaimerWithdrawPanel(props) {
           </>
         ) : (
           <>
-            <div>{injectedAccount}</div>
-            {isSwapping && (
+            <div className={styles.walletAddress}>{injectedAccount}</div>
+            {(isSwapping || isSwapped) && (
               <>
-                <div className="greenInfoBox">
-                  {t('Swap in progress. Plase wait')}
+                <div className={styles.swapStatus}>
+                  {!isSwapped && (
+                    <span>
+                      {t('Conversion in progress. Plase wait')}
+                    </span>
+                  )}
+                  {isSwapped && (
+                    <span>
+                      {t('Conversion completed')}
+                    </span>
+                  )}
                 </div>
-                <div className="greenInfoBox smallBox">
-                  {BRIDGE_STEPS[bridgeStep]}
+                <div className={styles.swapStatusDetails}>
+                  <ul>
+                    {/* PREPARE */}
+                    {bridgeStepNumber >= 1 && (
+                      <li>
+                        {bridgeStepNumber > 1 ? (<OkIcon />) : (<em></em>)}
+                        <span>Preparing for bonus conversion</span>
+                      </li>
+                    )}
+                    {/* APPROVE */}
+                    {bridgeStepNumber >= 2 && (
+                      <li>
+                        {bridgeStepNumber > 2 ? (<OkIcon />) : (<em></em>)}
+                        <span>Approving</span>
+                      </li>
+                    )}
+                    {/* APPROVE_TX */}
+                    {bridgeStepNumber >= 3 && (
+                      <li>
+                        {bridgeStepNumber > 3 ? (<OkIcon />) : (<em></em>)}
+                        <span>Approving TX {makeSmallHash(approveHash)}</span>
+                      </li>
+                    )}
+                    {/* SEND_TO_BRIDGE */}
+                    {bridgeStepNumber >= 4 && (
+                      <li>
+                        {bridgeStepNumber > 4 ? (<OkIcon />) : (<em></em>)}
+                        <span>Sending request to bridge</span>
+                      </li>
+                    )}
+                    {/* SEND_TO_BRIDGE_TX */}
+                    {bridgeStepNumber >= 5 && (
+                      <li>
+                        {bridgeStepNumber > 5 ? (<OkIcon />) : (<em></em>)}
+                        <span>Сonversion TX {makeSmallHash(outHash)}</span>
+                      </li>
+                    )}
+                    {/* WAIT_SWAP */}
+                    {bridgeStepNumber >= 6 && (
+                      <li>
+                        {bridgeStepNumber > 6 ? (<OkIcon />) : (<em></em>)}
+                        <span>Сonversion task #{swapId}</span>
+                      </li>
+                    )}
+                    {/* READY */}
+                    {bridgeStepNumber >= 7 && (
+                      <li>
+                        <OkIcon />
+                        <span>Ready</span>
+                      </li>
+                    )}
+                  </ul>
                 </div>
               </>
             )}
@@ -238,7 +316,13 @@ export default function ClaimerWithdrawPanel(props) {
             ) : (
               <>
                 {!isSwapping && (
-                  <a onClick={doBridge} className={styles.widthdrawButton}>{t('Withdraw')}</a>
+                  <>
+                    {new BigNumber(balance).isGreaterThan(0) ? (
+                      <a onClick={doBridge} className={styles.widthdrawButton}>{t('Withdraw')}</a>
+                    ) : (
+                      <a className={`${styles.widthdrawButton} ${styles.buttonDisabled}`}>{t('You dont have points for convert')}</a>
+                    )}
+                  </>
                 )}
               </>
             )}

@@ -19,7 +19,7 @@
   
   .balanceHolder {
     position: relative;
-    background: #252525;
+    background: #020202;
     padding: 1em;
     color: #FFF;
     &::before {
@@ -33,7 +33,7 @@
     }
     &::after {
       content: '';
-      background: #252525;
+      background: #020202;
       position: absolute;
       border-radius: 0 0 1em 1em;
       left: 0px;
@@ -67,12 +67,35 @@
     background: #ff702a;
     padding: 1em;
     flex: 1 1;
+    
+    .title {
+      text-align: center;
+      font-weight: bold;
+      color: #000000;
+      font-size: 14pt;
+    }
+    .walletAddress {
+      box-sizing: border-box;
+      color: #000000;
+      background: #feeee7;
+      font-size: 14px;
+      font-weight: bold;
+      outline: none;
+      padding: 0.5em;
+      width: 100%;
+      text-align: center;
+      margin-top: 1em;
+      margin-bottom: 1em;
+      border-radius: 0.5em;
+      border: 1px solid #007bff;
+      box-shadow: 0px 0px 0.25em 0px #007bff;
+    }
     .connectWalletButton,
     .widthdrawButton {
       display: block;
+      width: 100%;
       text-align: center;
       cursor: pointer;
-      margin: 0.5em;
       background: #007bff;
       font-size: 14px;
       padding: 8px 10px;
@@ -80,6 +103,73 @@
       border-radius: 0.25rem;
       color: #FFF;
       font-weight: bold;
+      box-sizing: border-box;
+      &.buttonDisabled {
+        background: #7b7b7b;
+      }
+    }
+    
+    .swapStatus {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 1em;
+      DIV {
+        width: 14px;
+        height: 14px;
+        border-width: 4px;
+      }
+      SPAN {
+        display: block;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        font-size: 12pt;
+        font-weight: bold;
+        color: #01264e;
+      }
+    }
+    .swapStatusDetails {
+      UL {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        
+        LI {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          flex-direction: row;
+          margin-bottom: 0.5em;
+          SVG {
+            display: block;
+            width: 24px;
+            height: 24px;
+            fill: #046304;
+          }
+          EM {
+            isplay: block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 3px solid;
+            border-color: #dbdcef;
+            border-right-color: #007bff;
+            animation: Withdraw_stepAnimation__5z8lt 1s infinite linear;
+            margin-left: 2px;
+          }
+          @keyframes stepAnimation {
+             to {
+                transform: rotate(1turn);
+             }
+          }
+          SPAN {
+            display: block;
+            font-size: 12pt;
+            font-weight: bold;
+            margin-left: 0.25em;
+          }
+        }
+      }
     }
   }
 }
