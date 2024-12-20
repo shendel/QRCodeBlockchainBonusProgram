@@ -44,7 +44,7 @@ import MinterMintedCodes from '@/views/MinterPanel/MintedCodes'
 // Claimer views
 import ClaimerPanel from '@/views/ClaimerPanel/'
 import ClaimerPanelScanQRCode from '@/views/ClaimerPanel/ScanQRCode'
-
+import ClaimerWithdrawPanel from '@/views/ClaimerPanel/Withdraw'
 
 import QrCodeView from '@/views/QrCodeView'
 import QrCodeClaim from '@/views/QrCodeClaim/'
@@ -235,6 +235,7 @@ function MyApp(pageProps) {
 
     '/claimer/': ClaimerPanel,
     '/claimer/scanqrcode/': ClaimerPanelScanQRCode,
+    '/claimer/withdraw/': ClaimerWithdrawPanel,
     
     '/qrcodeview/:qrCodeAddress': QrCodeView,
     '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,
@@ -265,6 +266,7 @@ function MyApp(pageProps) {
 
       '/claimer/': ClaimerPanel,
       '/claimer/scanqrcode/': ClaimerPanelScanQRCode,
+      '/claimer/withdraw/': ClaimerWithdrawPanel,
       
       '/qrcodeview/:qrCodeAddress': QrCodeView,
       '/qrcodeclaim/:qrCodeAddress': QrCodeClaim,

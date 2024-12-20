@@ -100,7 +100,7 @@ export default function ClaimerPanel(props) {
             </div>
           </div>
         </div>
-        <a className={styles.button} onClick={() => { gotoPage('/bridge') }}>Convert points to tokens</a>
+        <a className={styles.button} onClick={() => { gotoPage('/claimer/withdraw') }}>Convert points to tokens</a>
       </div>
     </div>
   )

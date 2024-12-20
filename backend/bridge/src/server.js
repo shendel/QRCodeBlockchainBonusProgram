@@ -128,7 +128,6 @@ const mainLoop = async () => {
   
   while(true) {
     await processSwapsLoop()
-    console.log('>>> delay')
     await delay(10000)
   }
   /*
