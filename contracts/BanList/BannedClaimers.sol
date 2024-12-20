@@ -6,18 +6,13 @@ pragma solidity ^0.8.12;
 
 import "../AddressSet.sol";
 import "../IQRCodeFactory.sol";
+import "./IBannedClaimers.sol";
 
-contract BannedClaimers {
+contract BannedClaimers is IBannedClaimers {
     using AddressSet for AddressSet.Storage;
     IQRCodeFactory public factory;
     address public owner;
     // Banlist
-    struct BannedClaimer {
-        address claimer;
-        address who;
-        string why;
-        uint256 when;
-    }
     AddressSet.Storage private bannedClaimers;
     mapping (address => address) public bannedClaimersWho;
     mapping (address => string) public bannedClaimersWhy;

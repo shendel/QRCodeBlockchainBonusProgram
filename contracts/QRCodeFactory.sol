@@ -202,6 +202,15 @@ contract QRCodeFactory {
     ) public view returns (IBannedClaimers.BannedClaimer[] memory) {
         return banlist.getBannedClaimers(offset, limit);
     }
+    function getBannedClaimersWho(address claimer) public view returns (address) {
+        return banlist.bannedClaimersWho(claimer);
+    }
+    function getBannedClaimersWhy(address claimer) public view returns (string memory) {
+        return banlist.bannedClaimersWhy(claimer);
+    }
+    function getBannedClaimersWhen(address claimer) public view returns (uint256) {
+        return banlist.bannedClaimersWhen(claimer);
+    }
     /* ---- */
     function getTokenName() public view returns (string memory) {
         return IERC20(tokenAddress).name();

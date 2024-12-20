@@ -20,9 +20,9 @@ const fetchClaimerInfo = (options) => {
       encoder: abiI,
       calls: {
         claimer: { func: 'getClaimerInfo', args: [claimer] },
-        bannedWhy: { func: 'bannedClaimersWhy', args: [claimer] },
-        bannedWho: { func: 'bannedClaimersWho', args: [claimer] },
-        bannedWhen: { func: 'bannedClaimersWhen', args: [claimer] },
+        bannedWhy: { func: 'getBannedClaimersWhy', args: [claimer] },
+        bannedWho: { func: 'getBannedClaimersWho', args: [claimer] },
+        bannedWhen: { func: 'getBannedClaimersWhen', args: [claimer] },
       }
     }).then((answer) => {
       console.log('>> answer', answer)

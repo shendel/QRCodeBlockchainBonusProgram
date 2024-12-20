@@ -9,7 +9,7 @@ import fetchQRCodeInfo from '@/qrcode_helpers/fetchQRCodeInfo'
 import { QRCODE_FACTORY, WORK_CHAIN_ID } from '@/config'
 
 import { fromWei } from '@/helpers/wei'
-
+import getConfig from 'next/config'
 
 import QRCode from "react-qr-code"
 
@@ -23,6 +23,11 @@ export default function QrCodeView(props) {
     }
   } = props
   
+  const { publicRuntimeConfig } = getConfig()
+  const {
+    CLAIMER_URL,
+  } = publicRuntimeConfig
+  
   const { address: connectedWallet } = useAccount()
   const account = useAccount()
 
@@ -30,7 +35,8 @@ export default function QrCodeView(props) {
   const [ isQrCodeFetched, setIsQrCodeFetched ] = useState(false)
   const [ qrCodeInfo, setQrCodeInfo ] = useState(false)
   
-  const [ qrCodeLink, setQrCodeLink ] = useState(`http://localhost:3000/#/qrcodeclaim/${qrCodeAddress}`)
+  const claimerBackEnd = (process.env.NODE_ENV == 'production') ? `${CLAIMER_URL}` : 'http://localhost:3000'
+  const [ qrCodeLink, setQrCodeLink ] = useState(`${claimerBackEnd}/#/qrcodeclaim/${qrCodeAddress}`)
 
 
   useEffect(() => {

@@ -1,0 +1,43 @@
+.paginator {
+  background: #020202;
+  
+  .pageInfo {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12pt;
+    color: #FFF;
+    padding: 0.5em;
+  }
+  .pages {
+    display: flex;
+    padding: 0.25em;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    A {
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      margin: 0.25em;
+      background: #007bff;
+      font-size: 14px;
+      padding: 8px 10px;
+      text-decoration: none;
+      border-radius: 0.25rem;
+      color: #FFF;
+      font-weight: bold;
+      
+      &.active {
+        background: #ff702a;
+      }
+    }
+    SPAN {
+      display: block;
+      font-weight: bold;
+      color: #FFF;
+      margin: 0.25em;
+      font-size: 14px;
+    }
+  }
+ }

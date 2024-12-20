@@ -12,6 +12,7 @@ import {
   WORK_CHAIN_ID,
   MAINNET_CHAIN_ID,
   MAINNET_TOKEN,
+  PROJECT_TITLE,
 } from '@/config'
 import { fromWei } from '@/helpers/wei'
 
@@ -67,7 +68,7 @@ export default function ClaimerPanel(props) {
   
   return (
     <div className={styles.claimerPanel}>
-      <header>coffee.comunity</header>
+      <header>{PROJECT_TITLE}</header>
       <div className={styles.scanHolder}>
         <a className={styles.scanButton} onClick={() => { gotoPage('claimer/scanqrcode') }}>
           <ScanIcon />
