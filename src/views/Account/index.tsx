@@ -65,6 +65,9 @@ export default function Account(props) {
       <h1>Account page</h1>
       <div>
         <div>
+          <a href="#/">Goto main page</a>
+        </div>
+        <div>
           <label>You address:</label>
           <strong>{browserAccount}</strong>
           <a href="#/account/backup">[Backup]</a>

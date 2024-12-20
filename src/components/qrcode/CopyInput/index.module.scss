@@ -1,0 +1,75 @@
+.copyInput {
+  background: #FFF;
+  border-radius: 0.25em;
+  border: 2px solid #007bff;
+  position: relative;
+  cursor: pointer;
+  INPUT,
+  TEXTAREA {
+    box-sizing: border-box;
+    color: #000000;
+    background: none;
+    font-size: 14px;
+    font-weight: bold;
+    outline: none;
+    padding: 1em;
+    width: 100%;
+    border: 0;
+    text-align: center;
+    cursor: pointer;
+  }
+  TEXTAREA {
+    text-align: justify;
+  }
+  DIV {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    @keyframes fadeInUp {
+      from {
+        transform: translate3d(0,40px,0)
+      }
+
+      to {
+        transform: translate3d(0,0,0);
+        opacity: 1
+      }
+    }
+    @-webkit-keyframes fadeInUp {
+      from {
+        transform: translate3d(0,40px,0)
+      }
+      to {
+        transform: translate3d(0,0,0);
+        opacity: 1
+      }
+    }
+    STRONG {
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      margin: 0.5em;
+      background: #007bff;
+      font-size: 14px;
+      padding: 8px 10px;
+      text-decoration: none;
+      border-radius: 0.25rem;
+      color: #FFF;
+      font-weight: bold;
+      opacity: 0;
+      animation-name: fadeInUp;
+      -webkit-animation-name: fadeInUp;
+      animation-duration: 1s;
+      animation-fill-mode: both;
+      -webkit-animation-duration: 1s;
+      -webkit-animation-fill-mode: both
+    }
+  }
+}
+

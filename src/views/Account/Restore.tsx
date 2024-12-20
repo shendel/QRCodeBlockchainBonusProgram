@@ -117,6 +117,9 @@ export default function AccountRestore(props) {
   return (
     <>
       <h1>Account page - restore</h1>
+      <div>
+        <a href="#/">Goto main page</a>
+      </div>
       <div className="adminForm">
         <header>Restore account</header>
         {step == STEPS.INFO && (

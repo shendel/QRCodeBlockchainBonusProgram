@@ -245,7 +245,20 @@ function MyApp(pageProps) {
     
     '/bridge/': Bridge
   }
-  
+  if (isMinterBuild) {
+    viewsPaths = {
+      '/': MinterPanel,
+      '/minter/': MinterPanel,
+      '/minter/mint': MinterMint,
+      '/minter/codes/:type/:page': MinterMintedCodes,
+      
+      '/qrcodeview/:qrCodeAddress': QrCodeView,
+      
+      '/account/': Account,
+      '/account/backup/': AccountBackup,
+      '/account/restore/': AccountRestore,
+    }
+  }
   if (isClaimerBuild) {
     viewsPaths = {
       '/': ClaimerPanel,
@@ -268,7 +281,7 @@ function MyApp(pageProps) {
     <>
       <AppRoot chainId={WORK_CHAIN_ID}>
         <>
-          {!isClaimerBuild && (
+          {!isClaimerBuild && !isMinterBuild && (
             <>
               <Header />
               <h3>Index page</h3>
@@ -282,7 +295,7 @@ function MyApp(pageProps) {
           )}
           {isFactoryFetched && (
             <>
-              {!isClaimerBuild && (
+              {!isClaimerBuild && !isMinterBuild && (
                 <nav>
                   <a href="#/admin">[Admin panel]</a>
                   <a href="#/manager">[Manager panel]</a>

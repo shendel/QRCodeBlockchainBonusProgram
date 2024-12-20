@@ -12,6 +12,7 @@
     "prepare": "node prepare-static",
     "buildstatic": "next build && next export && node prepare-static",
     "buildstatic:claimer": "cross-env CLAIMER=true next build && next export && node prepare-static",
+    "buildstatic:minter": "cross-env MINTER=true next build && next export && node prepare-static",
     "start": "next start",
     "lint": "next lint"
   },

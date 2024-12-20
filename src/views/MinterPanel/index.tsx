@@ -15,6 +15,7 @@ import Avatar from '@/components/qrcode/Avatar'
 import InfoBlock from '@/components/qrcode/InfoBlock'
 import ShowIcon from './assets/ShowIcon'
 
+import MinterNewAccount from './NewAccount'
 
 import {
   PROJECT_TITLE,
@@ -38,6 +39,7 @@ export default function Minter(props) {
   const [ isMinterInfoFetching, setIsMinterInfoFetching ] = useState(true)
   const [ isMinterInfoFetched, setIsMinterInfoFetched ] = useState(false)
   const [ isMinterInfoFetchError, setIsMinterInfoFetchError ] = useState(false)
+  const [ isMinterAccount, setIsMinterAccount ] = useState(false)
   
   useEffect(() => {
     setIsMinterInfoFetched(false)
@@ -47,8 +49,9 @@ export default function Minter(props) {
       address: QRCODE_FACTORY,
       chainId: WORK_CHAIN_ID,
       minter: browserAccount,
-    }).then(({ info }) => {
-      console.log('minter info', info, factoryStatus)
+    }).then(({ info, isMinter }) => {
+      console.log('minter info', info, isMinter, factoryStatus)
+      setIsMinterAccount(isMinter)
       setMinterInfo(info)
       setIsMinterInfoFetched(true)
       setIsMinterInfoFetching(false)
@@ -59,6 +62,9 @@ export default function Minter(props) {
     })
   }, [ browserAccount ])
   
+  if (!isMinterAccount && isMinterInfoFetched) {
+    return (<MinterNewAccount {...props} />)
+  }
   return (
     <div className={styles.minterPanel}>
       <HeaderRow title={PROJECT_TITLE} />
@@ -102,40 +108,40 @@ export default function Minter(props) {
                 <InfoBlock />
               </div>
             </div>
-            <div onClick={() => { gotoPage('/minter/codes/claimed/0') }}>
-              <span>Claimed {factoryStatus.tokenName}</span>
+            <div>
+              <span onClick={() => { gotoPage('/minter/codes/claimed/0') }}>Claimed {factoryStatus.tokenName}</span>
               <div>
-                <a>
+                <a onClick={() => { gotoPage('/minter/codes/claimed/0') }}>
                   <em>{fromWei(minterInfo.claimedAmount, factoryStatus.tokenDecimals)}</em>
                   <ShowIcon />
                 </a>
                 <InfoBlock />
               </div>
             </div>
-            <div onClick={() => { gotoPage('/minter/codes/all/0') }}>
-              <span>Minted {factoryStatus.tokenName}</span>
+            <div>
+              <span onClick={() => { gotoPage('/minter/codes/all/0') }}>Minted {factoryStatus.tokenName}</span>
               <div>
-                <a>
+                <a onClick={() => { gotoPage('/minter/codes/all/0') }}>
                   <em>{fromWei(minterInfo.mintedAmount, factoryStatus.tokenDecimals)}</em>
                   <ShowIcon />
                 </a>
                 <InfoBlock />
               </div>
             </div>
-            <div onClick={() => { gotoPage('/minter/codes/claimed/0') }}>
-              <span>Claimed QRCodes</span>
+            <div>
+              <span onClick={() => { gotoPage('/minter/codes/claimed/0') }}>Claimed QRCodes</span>
               <div>
-                <a>
+                <a onClick={() => { gotoPage('/minter/codes/claimed/0') }}>
                   <em>{minterInfo.claimedQrCodesCount}</em>
                   <ShowIcon />
                 </a>
                 <InfoBlock />
               </div>
             </div>
-            <div onClick={() => { gotoPage('/minter/codes/all/0') }}>
-              <span>Minted QRCodes</span>
+            <div>
+              <span onClick={() => { gotoPage('/minter/codes/all/0') }}>Minted QRCodes</span>
               <div>
-                <a>
+                <a onClick={() => { gotoPage('/minter/codes/all/0') }}>
                   <em>{minterInfo.mintedQrCodesCount}</em>
                   <ShowIcon />
                 </a>

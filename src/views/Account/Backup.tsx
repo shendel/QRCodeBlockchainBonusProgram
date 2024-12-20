@@ -22,6 +22,9 @@ export default function AccountBackup(props) {
       <h1>Account page - backup</h1>
       <div>
         <div>
+          <a href="#/">Goto main page</a>
+        </div>
+        <div>
           <label>You address:</label>
           <strong>{browserAccount.browserAccount}</strong>
         </div>

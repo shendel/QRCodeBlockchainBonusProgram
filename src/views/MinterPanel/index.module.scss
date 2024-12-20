@@ -1,6 +1,7 @@
 .minterPanel {
-  background: yellow;
-  
+  display: flex; 
+  flex-direction: column; 
+  height: 100vh;
   .mintButtonHolder {
     background: #ff702a;
     
@@ -43,6 +44,7 @@
     background: #ff702a;
     border-radius: 1em 1em 0 0;
     margin-top: -1em;
+    flex: 1 1 auto; 
     >DIV {
       padding: 1em;
       padding-top: 0.5em;
@@ -61,6 +63,9 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
+        >SPAN {
+          cursor: pointer;
+        }
       }
       >DIV>A {
         display: flex;

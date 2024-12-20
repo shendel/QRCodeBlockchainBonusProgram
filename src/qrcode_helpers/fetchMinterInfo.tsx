@@ -20,6 +20,7 @@ const fetchMinterInfo = (options) => {
       encoder: abiI,
       calls: {
         info: { func: 'getMinterInfo', args: [minter, true] },
+        isMinter: { func: 'getIsMinter', args: [minter] },
       }
     }).then((answer) => {
       console.log('>> answer', answer)
