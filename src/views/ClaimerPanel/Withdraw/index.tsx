@@ -304,7 +304,7 @@ export default function ClaimerWithdrawPanel(props) {
                     {bridgeStepNumber >= 7 && (
                       <li>
                         <OkIcon />
-                        <span>Ready</span>
+                        <span>Ready. TX {makeSmallHash(inHash)}</span>
                       </li>
                     )}
                   </ul>

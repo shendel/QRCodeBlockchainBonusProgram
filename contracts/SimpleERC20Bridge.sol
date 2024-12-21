@@ -2,11 +2,14 @@
 pragma solidity ^0.8.12;
 
 import "./IERC20.sol";
+import "./AddressSet.sol";
 import "./BanList/IBannedClaimers.sol";
 
 contract SimpleERC20Bridge {
+    using AddressSet for AddressSet.Storage;
+
     uint256 public refundTime = 1 hours;
-    address public owner;
+    AddressSet.Storage private owners;
     address public oracle;
     address public token;
     
@@ -37,7 +40,7 @@ contract SimpleERC20Bridge {
         _;
     }
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only for owner");
+        require(owners.exists(msg.sender) == true, "Only for owner");
         _;
     }
 
@@ -56,7 +59,7 @@ contract SimpleERC20Bridge {
         address _token,
         address _blacklist
     ) {
-        owner = msg.sender;
+        owners.add(msg.sender);
         oracle = _oracle;
         token = _token;
         blacklist = IBannedClaimers(_blacklist);
@@ -198,11 +201,6 @@ contract SimpleERC20Bridge {
     function swapOutQueryDel(uint256 swapId) public onlyOwner {
         _swapsOutQueryDel(swapId);
     }
-
-    function transferOwnership(address newOwner) public onlyOwner {
-        require(newOwner != address(0), "New owner cant be zero");
-        owner = newOwner;
-    }
     function setOracle(address newOracle) public onlyOwner {
         oracle = newOracle;
     }
@@ -229,5 +227,15 @@ contract SimpleERC20Bridge {
     }
     function withdrawTokens(address to) public onlyOwner {
         IERC20(token).transfer(to, IERC20(token).balanceOf(address(this)));
+    }
+
+    function addOwner(address owner) public onlyOwner {
+        if(!owners.exists(owner)) owners.add(owner);
+    }
+    function delOwner(address owner) public onlyOwner {
+        if(owners.exists(owner)) owners.del(owner);
+    }
+    function getOwners() public view returns(address[] memory) {
+        return owners.items(0,0);
     }
 }
