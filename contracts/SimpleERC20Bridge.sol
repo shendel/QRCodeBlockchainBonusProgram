@@ -230,6 +230,7 @@ contract SimpleERC20Bridge {
     }
 
     function addOwner(address owner) public onlyOwner {
+        require(owner != address(0), "Owner address cant be zero");
         if(!owners.exists(owner)) owners.add(owner);
     }
     function delOwner(address owner) public onlyOwner {

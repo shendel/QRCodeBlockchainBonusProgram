@@ -60,32 +60,7 @@ contract QRCodeFactory {
     function setMinters(address newMinters) onlyOwner public {
         minters = IQRCodeMinters(newMinters);
     }
-/*
-    struct MinterInfo {
-        address minterAddress;
-        string name;
-        uint256 mintedAmount;
-        uint256 claimedAmount;
-        uint256[] mintedQrCodes;
-        uint256 mintedQrCodesCount;
-        uint256 balance;
-    }
-    */
-    /*
-    // Кто может генерировать коды
-    AddressSet.Storage private minters;
-    mapping (address => string) public mintersName;
-    // Общая сумма, на которую выпущены коды каждым минтером
-    mapping (address => uint256) public mintedAmount;
-    // Айди кодов, которые создал минтер
-    mapping (address => uint256[]) public mintedQrCodes;
-    // Сколько всего кодов создал минтер
-    mapping (address => uint256) public mintedQrCodesCount;
-    // Сумма обналиченных кодов, которые выпустил минтер
-    mapping (address => uint256) public claimedByMinter;
-    // Токенов на балансе минтера
-    mapping (address => uint256) minterBalance;
-*/
+
     struct ClaimerInfo {
         address claimerAddress;
         uint256 claimedAmount;
