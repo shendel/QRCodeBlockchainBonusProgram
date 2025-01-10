@@ -79,7 +79,7 @@ const NETWORKS = {
       symbol: "BNB",
       decimals: 18
     },
-    rpc: "https://bscrpc.com/",
+    rpc: "https://bsc-dataseed1.binance.org/",
     explorer: "https://bscscan.com",
     multicall: '0xa9193376D09C7f31283C54e56D013fCF370Cd9D9',
   },

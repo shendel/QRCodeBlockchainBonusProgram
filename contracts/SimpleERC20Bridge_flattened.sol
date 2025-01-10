@@ -72,6 +72,31 @@ library AddressSet {
         }
     }
 }
+// File: BanList/IBannedClaimers.sol
+
+
+pragma solidity ^0.8.12;
+
+interface IBannedClaimers {
+    struct BannedClaimer {
+        address claimer;
+        address who;
+        string why;
+        uint256 when;
+    }
+    function setOwner(address newOwner) external;
+    function setFactory(address newFactory) external;
+
+    function bannedClaimersWho(address claimer) external view returns (address);
+    function bannedClaimersWhy(address claimer) external view returns (string memory);
+    function bannedClaimersWhen(address claimer) external view returns (uint256);
+
+    function addClaimerBan(address claimer, string memory why) external;
+    function delClaimerBan(address claimer) external;
+    function isBannedClaimer(address who) external view returns (bool);
+    function getBannedClaimersCount() external view returns (uint256);
+    function getBannedClaimers(uint256 offset,uint256 limit) external view returns (BannedClaimer[] memory);
+}
 // File: SimpleERC20Bridge.sol
 
 
@@ -79,16 +104,16 @@ pragma solidity ^0.8.12;
 
 
 
+
 contract SimpleERC20Bridge {
     using AddressSet for AddressSet.Storage;
 
     uint256 public refundTime = 1 hours;
-    address public owner;
+    AddressSet.Storage private owners;
     address public oracle;
     address public token;
     
-    
-    AddressSet.Storage private blacklist;
+    IBannedClaimers public blacklist;
 
     struct SwapIn {
         uint256 swapId;
@@ -115,11 +140,13 @@ contract SimpleERC20Bridge {
         _;
     }
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only for owner");
+        require(owners.exists(msg.sender) == true, "Only for owner");
         _;
     }
 
     mapping (uint256 => SwapOut) public swapsOut;
+    mapping (address => uint256[]) public swapsOutByOwner;
+
     uint256[] public swapsOutQuery;
     mapping (uint256 => bool) public swapsOutQueryExists;
     uint256 public lastSwapOutId;
@@ -129,11 +156,13 @@ contract SimpleERC20Bridge {
 
     constructor(
         address _oracle,
-        address _token
+        address _token,
+        address _blacklist
     ) {
-        owner = msg.sender;
+        owners.add(msg.sender);
         oracle = _oracle;
         token = _token;
+        blacklist = IBannedClaimers(_blacklist);
     }
 
     function _swapsOutQueryAdd(uint256 swapId) private {
@@ -168,8 +197,6 @@ contract SimpleERC20Bridge {
         address toAddress,
         uint256 amount
     ) public onlyOracle {
-        require(blacklist.exists(fromAddress) == false, "Blacklisted");
-        require(blacklist.exists(toAddress) == false, "Blacklisted");
         require(swapsIn[swapId].swapId == 0, "Swap already in");
         require(IERC20(token).balanceOf(address(this)) >= amount, "Balance on contract not enought");
 
@@ -233,8 +260,9 @@ contract SimpleERC20Bridge {
         address toAddress,
         uint256 amount
     ) public {
-        require(blacklist.exists(msg.sender) == false, "Blacklisted");
-        require(blacklist.exists(toAddress) == false, "Blacklisted");
+        require(blacklist.isBannedClaimer(msg.sender) == false, "Blacklisted");
+        require(msg.sender == tx.origin, "Contract call not allowed");
+        require(blacklist.isBannedClaimer(toAddress) == false, "Blacklisted");
         require(IERC20(token).balanceOf(msg.sender) >= amount, "Balance not enought");
         require(IERC20(token).allowance(msg.sender, address(this)) >= amount, "Allowance not enought");
 
@@ -250,6 +278,7 @@ contract SimpleERC20Bridge {
             false,
             0x00
         );
+        swapsOutByOwner[msg.sender].push(lastSwapOutId);
         _swapsOutQueryAdd(lastSwapOutId);
 
         IERC20(token).transferFrom(msg.sender, address(this), amount);
@@ -272,29 +301,14 @@ contract SimpleERC20Bridge {
     function swapOutQueryDel(uint256 swapId) public onlyOwner {
         _swapsOutQueryDel(swapId);
     }
-
-    function blacklistItems(uint256 offset, uint256 limit) public view returns (address[] memory) {
-        return blacklist.items(offset, limit);
-    }
-    function blacklistAdd(address who) public onlyOwner {
-        blacklist.add(who);
-    }
-    function blacklistDel(address who) public onlyOwner {
-        blacklist.del(who);
-    }
-    function blacklistExists(address who) public view returns (bool) {
-        return blacklist.exists(who);
-    }
-
-    function transferOwnership(address newOwner) public onlyOwner {
-        require(newOwner != address(0), "New owner cant be zero");
-        owner = newOwner;
-    }
     function setOracle(address newOracle) public onlyOwner {
         oracle = newOracle;
     }
     function setToken(address newToken) public onlyOwner {
         token = newToken;
+    }
+    function setBlacklist(address newBlacklist) public onlyOwner {
+        blacklist = IBannedClaimers(newBlacklist);
     }
     function getTokenName() public view returns (string memory) {
         return IERC20(token).name();
@@ -313,5 +327,16 @@ contract SimpleERC20Bridge {
     }
     function withdrawTokens(address to) public onlyOwner {
         IERC20(token).transfer(to, IERC20(token).balanceOf(address(this)));
+    }
+
+    function addOwner(address owner) public onlyOwner {
+        require(owner != address(0), "Owner address cant be zero");
+        if(!owners.exists(owner)) owners.add(owner);
+    }
+    function delOwner(address owner) public onlyOwner {
+        if(owners.exists(owner)) owners.del(owner);
+    }
+    function getOwners() public view returns(address[] memory) {
+        return owners.items(0,0);
     }
 }
