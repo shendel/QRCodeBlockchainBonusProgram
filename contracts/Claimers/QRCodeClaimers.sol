@@ -6,7 +6,7 @@ import "../AddressSet.sol";
 import "../IQRCodeFactory.sol";
 import "./IQRCodeClaimers.sol";
 
-contract QRCodeClimers is IQRCodeClaimers {
+contract QRCodeClaimers is IQRCodeClaimers {
     using AddressSet for AddressSet.Storage;
     IQRCodeFactory public factory;
 
@@ -78,7 +78,7 @@ contract QRCodeClimers is IQRCodeClaimers {
     function addFaucetUsed(address claimer, uint256 amount) public onlyFactory {
         claimedFaucetUsed[claimer]+=amount;
     }
-    function onCLaim(address claimer, uint256 amount, uint256 qrCodeId) public onlyFactory {
+    function onClaim(address claimer, uint256 amount, uint256 qrCodeId) public onlyFactory {
         claimedAmount[claimer]+=amount;
         claimedQrCodes[claimer].push(qrCodeId);
         claimedQrCodesCount[claimer]++;

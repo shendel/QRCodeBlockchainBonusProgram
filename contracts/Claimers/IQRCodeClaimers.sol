@@ -16,6 +16,7 @@ interface IQRCodeClaimers {
     function getClaimersInfo(uint256 offset, uint256 limit) external view returns (ClaimerInfo[] memory);
     function getClaimerInfo(address claimer) external view returns (ClaimerInfo memory ret);
     function getClaimers(uint256 offset, uint256 limit) external view returns (address[] memory);
+    function onClaim(address claimer, uint256 amount, uint256 qrCodeId) external;
     function addFaucetUsed(address claimer, uint256 amount) external;
     function getClaimedQrCodes(address claimer, uint256 offset, uint256 limit) external view returns (IQRCodeFactory.QRCODE[] memory);
     function getClaimedQrCodesIds(address claimer, uint256 offset, uint256 limit) external view returns (uint256[] memory);

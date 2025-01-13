@@ -10,8 +10,10 @@ import "./QRCodeClaimer/IQRCodeClaimer.sol";
 import "./QRCodeClaimer/IDeployerQRCodeClaimer.sol";
 import "./BanList/IBannedClaimers.sol";
 import "./Minters/IQRCodeMinters.sol";
+import "./Claimers/IQRCodeClaimers.sol";
+import "./IQRCodeFactory.sol";
 
-contract QRCodeFactory {
+contract QRCodeFactory is IQRCodeFactory {
     event QrCodeMinted(address qrcode);
 
     using AddressSet for AddressSet.Storage;
@@ -26,27 +28,11 @@ contract QRCodeFactory {
     // Так-же в UI будет возможность запросить энергию с крана (для бриджа в другую сеть)
     uint256 public faucetAmount = 0.01 ether;   
 
-    struct QRCODE {
-        uint256 id;
-        uint256 amount;
-        address minter;
-        address claimer;
-        address claimer_call;
-        uint256 minted_at;
-        uint256 claimed_at;
-        uint256 timelife;
-        address router;
-        string  message;
-        
-        /*
-        bool isMultiUse;                    // Много-разовый
-        uint256 oneClaimerDayLimit;         // Дневной лимит на человека (ноль безлимит)
-        uint256 oneClaimerTotalLimit;       // Общий лимит на одного (ноль безлимит)
-        uint256 oneClaimerPerScanTime;      // Время между сканами на одного человека
-        */
-    }
 
-    mapping (uint256 => QRCODE) public qrCodes;
+    mapping (uint256 => QRCODE) public _qrCodes;
+    function qrCodes(uint256 id) public view returns (QRCODE memory) {
+        return _qrCodes[id];
+    }
     mapping (address => uint256) public qrCodesRouters;
     uint256 private qrCodeLastId = 0;
     uint256 public qrCodesLength = 0;
@@ -60,29 +46,12 @@ contract QRCodeFactory {
     function setMinters(address newMinters) onlyOwner public {
         minters = IQRCodeMinters(newMinters);
     }
-
-    struct ClaimerInfo {
-        address claimerAddress;
-        uint256 claimedAmount;
-        uint256[] claimedQrCodes;
-        uint256 claimedQrCodesCount;
-        uint256 faucetUsed;
-        bool isBanned;
+    IQRCodeClaimers public claimers;
+    function setClaimers(address newClaimers) onlyOwner public {
+        claimers = IQRCodeClaimers(newClaimers);
     }
-    // Сколько токенов обналичил адрес
-    AddressSet.Storage private claimers;
-    mapping (address => uint256) public claimedAmount;
-    // Айди кодов, который обналичил адрес
-    mapping (address => uint256[]) public claimedQrCodes;
-    // Сколько всего кодов обналичил адрес
-    mapping (address => uint256) public claimedQrCodesCount;
-    // Сколько энергии получил клаймер 
-    mapping (address => uint256) public claimedFaucetUsed;
     // Максимальное кол-во токенов в коде
     uint256 public maxMintAmountPerQrCodeGlobal = 0.0001 ether;
-    // Максимальное кол-во токенов в коде для отдельного минтера
-    //mapping (address => uint256) maxMintAmountPerQrCode;
-    
 
     // Banlist
     IBannedClaimers public banlist;
@@ -199,16 +168,16 @@ contract QRCodeFactory {
     function getAllQrCodes() public view returns (QRCODE[] memory) {
         QRCODE[] memory retCodes = new QRCODE[](qrCodesLength);
         for (uint256 curId = 1; curId <= qrCodeLastId; curId++) {
-            retCodes[curId-1] = qrCodes[curId];
+            retCodes[curId-1] = _qrCodes[curId];
         }
         return retCodes;
     }
     function getQrCode(uint256 index) public view returns (QRCODE memory) {
-        return qrCodes[index];
+        return _qrCodes[index];
     }
     function getQrCodeByAddress(address router) public view returns (QRCODE memory ret) {
         if (qrCodesRouters[router] != 0) {
-            return qrCodes[qrCodesRouters[router]];
+            return _qrCodes[qrCodesRouters[router]];
         }
     }
     function getIsManager(address check) public view returns (bool) {
@@ -239,7 +208,7 @@ contract QRCodeFactory {
     function getQrCodesByIds(uint256[] memory ids) public view returns(QRCODE[] memory) {
         QRCODE[] memory ret = new QRCODE[](ids.length);
         for (uint256 i = 0; i < ids.length; i++) {
-            ret[i] = qrCodes[ids[i]];
+            ret[i] = _qrCodes[ids[i]];
         }
         return ret;
     }
@@ -261,55 +230,27 @@ contract QRCodeFactory {
     }
     
     function getClaimersCount() public view returns (uint256) {
-        return claimers.length();
+        return claimers.getClaimersCount();
     }
     function getClaimersInfo(
         uint256 offset,
         uint256 limit
-    ) public view returns (ClaimerInfo[] memory) {
-        address[] memory items = claimers.items(offset, limit);
-        ClaimerInfo[] memory ret = new ClaimerInfo[](items.length);
-        for (uint256 i = 0; i < items.length; i++) {
-            ret[i] = getClaimerInfo(items[i]);
-        }
-        return ret;
+    ) public view returns (IQRCodeClaimers.ClaimerInfo[] memory) {
+        return claimers.getClaimersInfo(offset, limit);
     }
-    function getClaimerInfo(address claimer) public view returns (ClaimerInfo memory ret) {
-        if (claimers.exists(claimer)) {
-            return ClaimerInfo (
-                claimer,
-                claimedAmount[claimer],
-                claimedQrCodes[claimer],
-                claimedQrCodesCount[claimer],
-                claimedFaucetUsed[claimer],
-                banlist.isBannedClaimer(claimer)
-            );
-        }
+    function getClaimerInfo(address claimer) public view returns (IQRCodeClaimers.ClaimerInfo memory ret) {
+        return claimers.getClaimerInfo(claimer);
     }
     function getClaimers(uint256 offset, uint256 limit) public view returns (address[] memory) {
-        return claimers.items(offset, limit);
+        return claimers.getClaimers(offset, limit);
     }
     
     function getClaimedQrCodes(
         address claimer,
         uint256 offset,
         uint256 limit
-    ) public view returns (QRCODE[] memory) {
-        uint256 size = claimedQrCodes[claimer].length;
-        if (limit != 0) {
-            size = limit;
-        }
-        uint256 iEnd = offset + size;
-        if (iEnd > claimedQrCodes[claimer].length) {
-            iEnd = claimedQrCodes[claimer].length;
-        }
-        QRCODE[] memory ret = new QRCODE[](iEnd - offset);
-        for (uint256 i = 0; i < iEnd - offset ; i++) {
-            ret[i] = qrCodes[claimedQrCodes[claimer][
-                claimedQrCodes[claimer].length - i - offset - 1
-            ]];
-        }
-        return ret;
+    ) public view returns (IQRCodeFactory.QRCODE[] memory) {
+        return claimers.getClaimedQrCodes(claimer, offset, limit);
     }
     function getTokenBalance() public view returns (uint256) {
         return IERC20(tokenAddress).balanceOf(address(this));
@@ -325,7 +266,7 @@ contract QRCodeFactory {
     }
     function isQrCodeClaimed(address router) public view returns (bool) {
         if (qrCodesRouters[router] != 0) {
-            return (qrCodes[qrCodesRouters[router]].claimed_at == 0) ? false : true;
+            return (_qrCodes[qrCodesRouters[router]].claimed_at == 0) ? false : true;
         }
         return false;
     }
@@ -359,7 +300,7 @@ contract QRCodeFactory {
         );
 
         qrCodeLastId++;
-        qrCodes[qrCodeLastId] = QRCODE(
+        _qrCodes[qrCodeLastId] = QRCODE(
             qrCodeLastId,
             _amount,                 // amount
             msg.sender,             // minter
@@ -386,33 +327,33 @@ contract QRCodeFactory {
     function claim(address claimer, address claimer_call) public {
         require(qrCodesRouters[msg.sender] != 0, "Call not from router");
         uint256 qrCodeId = qrCodesRouters[msg.sender];
-        require(qrCodes[qrCodeId].minted_at != 0, "This code not minted yet");
-        require(qrCodes[qrCodeId].claimed_at == 0, "This code already claimed");
-        require(qrCodes[qrCodeId].minted_at + qrCodes[qrCodeId].timelife > block.timestamp, "QrCode is expired");
+        require(_qrCodes[qrCodeId].minted_at != 0, "This code not minted yet");
+        require(_qrCodes[qrCodeId].claimed_at == 0, "This code already claimed");
+        require(_qrCodes[qrCodeId].minted_at + _qrCodes[qrCodeId].timelife > block.timestamp, "QrCode is expired");
 
-        claimedAmount[claimer]+=qrCodes[qrCodeId].amount;
-        claimedQrCodes[claimer].push(qrCodeId);
-        claimedQrCodesCount[claimer]++;
+        claimers.onClaim(
+            claimer,
+            _qrCodes[qrCodeId].amount,
+            qrCodeId
+        );
+
         totalQrCodesClaimed++;
-        minters.onClaim(qrCodes[qrCodeId].minter, qrCodeId, qrCodes[qrCodeId].amount);
-        totalClaimedAmount+=qrCodes[qrCodeId].amount;
+        minters.onClaim(_qrCodes[qrCodeId].minter, qrCodeId, _qrCodes[qrCodeId].amount);
+        totalClaimedAmount+=_qrCodes[qrCodeId].amount;
 
-        qrCodes[qrCodeId].claimer = claimer;
-        qrCodes[qrCodeId].claimer_call = claimer_call;
-        qrCodes[qrCodeId].claimed_at = block.timestamp;
+        _qrCodes[qrCodeId].claimer = claimer;
+        _qrCodes[qrCodeId].claimer_call = claimer_call;
+        _qrCodes[qrCodeId].claimed_at = block.timestamp;
     
-        claimers.add(claimer);
         // Move token
-        IERC20(tokenAddress).transfer(claimer, qrCodes[qrCodeId].amount);
-        // Faucet test
-
+        IERC20(tokenAddress).transfer(claimer, _qrCodes[qrCodeId].amount);
+        // Faucet energy
         uint256 claimerBalance = claimer.balance;
         if (claimerBalance < faucetAmount) {
             uint256 needAmount = faucetAmount - claimer.balance;
             totalFaucetAmount+=needAmount;
-            claimedFaucetUsed[claimer]+=needAmount;
+            claimers.addFaucetUsed(claimer, needAmount);
             payable(claimer).transfer(needAmount);
-            //claimer.call{value: needAmount}("");
         }
     }
     
