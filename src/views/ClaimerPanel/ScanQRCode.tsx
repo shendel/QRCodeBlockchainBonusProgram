@@ -11,10 +11,20 @@ export default function ClaimerPanelScanQRCode(props) {
 
 
   const handleScan = (result) => {
+    console.log('>>> result', result)
     const parts = result.split('/').reverse()
+    console.log('>>> parts', parts)
     if (parts.length > 1) {
       if (isEvmAddress(parts[0]) && parts[1] == 'qrcodeclaim') {
         gotoPage(`/qrcodeclaim/${parts[0]}`)
+      }
+      if (parts[2] && parts[2] == 't.me') {
+        console.log('>>> is tg link')
+        const qrCodeParts = parts[0].split('=')
+        console.log(qrCodeParts)
+        if (qrCodeParts.length == 2 && isEvmAddress(qrCodeParts[1]) && (qrCodeParts[0] == 'getbonus?startapp')) {
+          gotoPage(`/qrcodeclaim/${qrCodeParts[1]}`)
+        }
       }
     }
   }

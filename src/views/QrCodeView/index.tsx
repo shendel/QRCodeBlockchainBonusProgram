@@ -24,9 +24,11 @@ export default function QrCodeView(props) {
     }
   } = props
   
+  const [ useTelegramLink, setUseTelegramLink ] = useState(true)
   const { publicRuntimeConfig } = getConfig()
   const {
     CLAIMER_URL,
+    TELEGRAM_APP_LINK,
   } = publicRuntimeConfig
   
   const { address: connectedWallet } = useAccount()
@@ -37,7 +39,9 @@ export default function QrCodeView(props) {
   const [ qrCodeInfo, setQrCodeInfo ] = useState(false)
   
   const claimerBackEnd = (process.env.NODE_ENV == 'production') ? `${CLAIMER_URL}` : 'http://localhost:3000'
-  const [ qrCodeLink, setQrCodeLink ] = useState(`${claimerBackEnd}/#/qrcodeclaim/${qrCodeAddress}`)
+  const webLink = `${claimerBackEnd}/#/qrcodeclaim/${qrCodeAddress}`
+  const tgLink = `${TELEGRAM_APP_LINK}?startapp=${qrCodeAddress}`
+  const [ qrCodeLink, setQrCodeLink ] = useState((useTelegramLink) ? tgLink : webLink)
 
 
   useEffect(() => {

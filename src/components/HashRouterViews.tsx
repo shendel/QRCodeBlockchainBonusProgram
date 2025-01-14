@@ -1,6 +1,7 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import React from "react"
+import { useLaunchParams } from '@telegram-apps/sdk-react';
 
 export default function HashRouterViews(props) {
   const {
@@ -11,6 +12,21 @@ export default function HashRouterViews(props) {
   const router = useRouter()
   const [hash, setHash] = useState(router.asPath.split('#')[1] || '')
 
+  let telegramLaunchParams = false
+  try {
+    telegramLaunchParams  = useLaunchParams();
+  } catch (e) {}
+  
+  if (hash.substr(0,`tgWebAppData=`.length) == `tgWebAppData=`) {
+    console.log('>> THIS IS TG APP')
+    console.log('>>> TG PARAMS', telegramLaunchParams)
+    if (telegramLaunchParams && telegramLaunchParams.startParam) {
+      setHash(`/qrcodeclaim/${telegramLaunchParams.startParam}`)
+    } else {
+      setHash('/')
+    }
+  }
+  
   const gotoPage = (url) => {
     window.location.hash = url
   }

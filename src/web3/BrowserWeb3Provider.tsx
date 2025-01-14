@@ -9,20 +9,26 @@ import {
 } from './mnemonic'
 
 import fetchBalance from '@/helpers/fetchBalance'
+import * as TgSdk from '@telegram-apps/sdk';
 
 import {
   BROWSER_SEED_LS_NAME,
   BROWSER_SEED_LS_BACKUP_READY,
 } from '@/config'
 
+const STORAGE_SEED_KEY = BROWSER_SEED_LS_NAME || `NEXTGEN_BROWSER_SEED`
+
 const authBrowserWeb3 = (chainId, ownMnemonic = false) => {
   const rpc = GET_CHAIN_RPC(chainId)
   const web3 = new Web3(rpc)
   
-  let mnemonic = localStorage.getItem(BROWSER_SEED_LS_NAME || `NEXTGEN_BROWSER_SEED`)
+  let mnemonic = localStorage.getItem(STORAGE_SEED_KEY)
   if (!mnemonic) {
+    
     mnemonic = getRandomMnemonicWords()
-    localStorage.setItem(BROWSER_SEED_LS_NAME || `NEXTGEN_BROWSER_SEED`, mnemonic)
+    
+    localStorage.setItem(STORAGE_SEED_KEY, mnemonic)
+
   }
   
   const wallet = getEthLikeWallet({ mnemonic })
@@ -63,10 +69,14 @@ export default function BrowserWeb3Provider(props) {
   const [ browserMnemonic, setBrowserMnemonic ] = useState(``)
   const [ browserBackupReady, setBrowserBackupReady ] = useState(false)
   
+  const [ tgMnemonic, setTgMnemonic ] = useState(false)
+  
   const [ balance, setBalance ] = useState(0)
   const [ isBalanceFetched, setIsBalanceFetched ] = useState(false)
   const [ isBalanceFetching, setIsBalanceFetching ] = useState(true)
 
+  
+  
   /* balance */
   useEffect(() => {
     if (browserAccount && chainId) {
@@ -96,14 +106,35 @@ export default function BrowserWeb3Provider(props) {
     setBrowserMnemonic(mnemonic)
   }, [ chainId ])
 
+  useEffect(() => {
+    if (tgMnemonic) {
+      switchAccount(tgMnemonic)
+    }
+  }, [ tgMnemonic ])
+  
+  if (TgSdk.isMiniAppSupported() && TgSdk.isCloudStorageSupported()) {
+    TgSdk.getCloudStorageItem(STORAGE_SEED_KEY).then((tgSeed) => {
+      if (tgSeed) {
+        setTgMnemonic(tgSeed)
+      } else {
+        if (browserMnemonic) {
+          TgSdk.setCloudStorageItem(STORAGE_SEED_KEY, browserMnemonic)
+        }
+      }
+    })
+  }
+  
   const switchAccount = (newMnemonic) => {
     if (mnemonicIsValid(newMnemonic)) {
       console.log('>>> do switch account', newMnemonic)
-      localStorage.setItem(BROWSER_SEED_LS_NAME || `NEXTGEN_BROWSER_SEED`, convertMnemonicToValid(newMnemonic))
+      localStorage.setItem(STORAGE_SEED_KEY, convertMnemonicToValid(newMnemonic))
       const { web3, account, mnemonic } = authBrowserWeb3(chainId)
       setBrowserWeb3(web3)
       setBrowserAccount(account)
       setBrowserMnemonic(mnemonic)
+      if (TgSdk.isMiniAppSupported() && TgSdk.isCloudStorageSupported()) {
+        TgSdk.setCloudStorageItem(STORAGE_SEED_KEY, newMnemonic)
+      }
       return true
     }
     return false

@@ -3,7 +3,7 @@
   height: 100vh;
   flex-direction: column;
   
-  background: #0a0626;
+  background: #020202;
   
   
   .spinner {
@@ -31,13 +31,14 @@
   }
   
   .amountInfo {
-    background: #0a0626;
+    background: #020202;
     color:#FFF;
     padding: 1em;
     text-align: center;
     SPAN,
     STRONG {
       display: block;
+      font-weight: bold;
     }
     STRONG {
       font-size: 20pt;
