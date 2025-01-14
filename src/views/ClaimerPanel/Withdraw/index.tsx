@@ -26,6 +26,9 @@ import {
   PROJECT_TITLE,
 } from '@/config'
 
+import * as TgSdk from '@telegram-apps/sdk';
+import { requestBiometryAccess } from '@telegram-apps/sdk';
+
 export default function ClaimerWithdrawPanel(props) {
   const t = getTranslate('MINTER_NEW_ACCOUNT_PAGE')
   const {
@@ -52,6 +55,7 @@ export default function ClaimerWithdrawPanel(props) {
   const [ isAllowanceFetching, setIsAllowanceFetching ] = useState(false)
   const [ allowance, setAllowance ] = useState(0)
 
+  const [ screenLocked, setScreenLocked ] = useState(false)
   
   useEffect(() => {
     if (browserAccount) {
@@ -201,7 +205,7 @@ export default function ClaimerWithdrawPanel(props) {
   }
   return (
     <div className={styles.climerWithdrawPanel}>
-      {(isBalanceFetching || isAllowanceFetching || isSendToBridge || isApproving ) && (
+      {(isBalanceFetching || isAllowanceFetching || isSendToBridge || isApproving || screenLocked ) && (
         <LoaderFullScreen />
       )}
       <HeaderRow 
