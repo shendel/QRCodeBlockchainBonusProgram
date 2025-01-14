@@ -93,6 +93,7 @@ export const ConnectWalletButton: React.FC = (props) => {
             if (url.startsWith("wc:")) {
               url = 'wc://' + url
             }
+            
             openNative(url)
           } catch (error) {}
           return null

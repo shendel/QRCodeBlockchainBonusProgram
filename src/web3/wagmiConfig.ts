@@ -1,4 +1,5 @@
 // @ts-ignore
+import getConfig from 'next/config'
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import {
   injectedWallet,
@@ -12,6 +13,8 @@ import { MAINNET_CHAIN_ID } from '@/config'
 
 export const getWagmiConfig = (chainIds, autoConnect) => {
   const { chains, publicClient } = getChainsConfig(chainIds)
+  const { publicRuntimeConfig } = getConfig()
+  const { NEXT_PUBLIC_PROJECT_ID } = publicRuntimeConfig
   
   const connectors = connectorsForWallets([
     {
@@ -19,14 +22,14 @@ export const getWagmiConfig = (chainIds, autoConnect) => {
       wallets: [
         injectedWallet({ chains }),
         metaMaskWallet({
-          projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "a23677c4af3139b4eccb52981f76ad94",
+          projectId: NEXT_PUBLIC_PROJECT_ID || "a23677c4af3139b4eccb52981f76ad94",
           chains,
           shimDisconnect: false,
-        }),
+        })
       ],
     }
   ]);
-  console.log('>>> connectors', connectors, MAINNET_CHAIN_ID)
+
   return {
     chains,
     wagmiConfig: createConfig({
@@ -35,12 +38,11 @@ export const getWagmiConfig = (chainIds, autoConnect) => {
         ...connectors(),
         new WalletConnectConnector({
           options: {
-            projectId: process.env.NEXT_PUBLIC_PROJECT_ID || "a23677c4af3139b4eccb52981f76ad94",
-            chains: [MAINNET_CHAIN_ID],
+            projectId: NEXT_PUBLIC_PROJECT_ID || "a23677c4af3139b4eccb52981f76ad94",
+            chains,
           }
         }),
       ],
-      
       // turn off autoConnect in development
       autoConnect,
     })

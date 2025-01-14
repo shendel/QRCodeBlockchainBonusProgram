@@ -20,6 +20,7 @@ const nextConfig = {
     CLAIMER: process.env.CLAIMER,
     MINTER: process.env.MINTER,
     TELEGRAM_APP_LINK: process.env.TELEGRAM_APP_LINK,
+    NEXT_PUBLIC_PROJECT_ID: process.env.NEXT_PUBLIC_PROJECT_ID,
   },
 }
 
