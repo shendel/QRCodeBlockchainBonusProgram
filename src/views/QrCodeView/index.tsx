@@ -1,4 +1,3 @@
-
 import { useEffect, useState, Component } from "react"
 import { getAssets } from '@/helpers/getAssets'
 import { useAccount } from 'wagmi'
@@ -12,7 +11,9 @@ import { fromWei } from '@/helpers/wei'
 import getConfig from 'next/config'
 
 import QRCode from "react-qr-code"
-
+import styles from "./index.module.scss"
+import { PROJECT_TITLE } from '@/config'
+import HeaderRow from '@/components/qrcode/HeaderRow'
 
 export default function QrCodeView(props) {
   const {
@@ -58,47 +59,51 @@ export default function QrCodeView(props) {
   }, [ qrCodeAddress ] )
 
   return (
-    <>
+    <div className={styles.viewPanel}>
+      <HeaderRow 
+        title={PROJECT_TITLE}
+        backUrl={`/`}
+        gotoPage={gotoPage}
+      />
       {isQrCodeFetching && (
-        <div>Loading...</div>
+        <div className={`${styles.spinner} ${styles.blue}`}></div>
       )}
       {!isQrCodeFetching && !isQrCodeFetched && (
         <div>Fail fetch QRCode info</div>
       )}
       {isQrCodeFetched && qrCodeInfo && (
         <>
-          <div>QRCODE: { qrCodeAddress}</div>
-          <div>
-            <strong>{qrCodeInfo.minterName}</strong>
-          </div>
-          <div>
-            <em>{qrCodeInfo.message}</em>
-          </div>
-          <div>
+          <div className={styles.amountInfo}>
             <span>
-              {`Scan code for get ${fromWei(qrCodeInfo.amount, qrCodeInfo.decimals)}`}
+              {`Scan code for get`}
             </span>
             <strong>
+              {fromWei(qrCodeInfo.amount, qrCodeInfo.decimals)}
+              {` `}
               {qrCodeInfo.symbol}
             </strong>
           </div>
-          <div style={{ height: "auto", margin: "0 auto", maxWidth: 320, width: "100%" }}>
+          <div className={styles.qrCodeHolder}>
+            <div>
               <QRCode
-              size={256}
-              style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-              value={qrCodeLink}
-              viewBox={`0 0 256 256`}
+                size={256}
+                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                value={qrCodeLink}
+                viewBox={`0 0 256 256`}
               />
+            </div>
           </div>
-          <div>
-            <strong>
-              <a href={qrCodeLink} _target="_blank" >
-                {qrCodeLink}
-              </a>
-            </strong>
-          </div>
+          {(process.env.NODE_ENV != 'production') && (
+            <div>
+              <strong>
+                <a href={qrCodeLink} _target="_blank" >
+                  {qrCodeLink}
+                </a>
+              </strong>
+            </div>
+          )}
         </>
       )}
-    </>
+    </div>
   )
 }

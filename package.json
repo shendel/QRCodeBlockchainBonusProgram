@@ -33,6 +33,7 @@
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
     "@rainbow-me/rainbowkit": "^1.0.5",
+    "@telegram-apps/sdk-react": "^2.0.25",
     "@thirdweb-dev/contracts": "^2.3.9",
     "@thirdweb-dev/react": "^2",
     "@thirdweb-dev/sdk": "^2",

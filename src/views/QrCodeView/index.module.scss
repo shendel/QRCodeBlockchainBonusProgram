@@ -1,0 +1,67 @@
+.viewPanel {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  
+  background: #0a0626;
+  
+  
+  .spinner {
+    position: fixed;
+    z-index: 99999;
+    top: 50%;
+    left: 50%;
+    margin-left: -54px;
+    margin-top: -54px;
+    width: 88px;
+    height: 88px;
+    border: 17.6px #ff702a double;
+    border-left-style: solid;
+    border-radius: 50%;
+    animation: spinner-aib1d7 0.75s infinite linear;
+    &.blue {
+      border-color: #007bff;
+    }
+  }
+
+  @keyframes spinner-aib1d7 {
+     to {
+        transform: rotate(360deg);
+     }
+  }
+  
+  .amountInfo {
+    background: #0a0626;
+    color:#FFF;
+    padding: 1em;
+    text-align: center;
+    SPAN,
+    STRONG {
+      display: block;
+    }
+    STRONG {
+      font-size: 20pt;
+      color: #ff702a;
+      padding-top: 0.25em;
+    }
+  }
+  .qrCodeHolder {
+    height: auto;
+    margin: 0 auto;
+    max-width: 640px;
+    width: 100%;
+    padding: 0.5em;
+    box-sizing: border-box;
+    DIV {
+      box-sizing: border-box;
+      border-radius: 1em;
+      background: #FFF;
+      padding: 2em;
+      SVG {
+        PATH:nth-child(2) {
+          fill: #0a0626;
+        }
+      }
+    }
+  }
+}

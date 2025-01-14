@@ -46,7 +46,7 @@ import ClaimerPanel from '@/views/ClaimerPanel/'
 import ClaimerPanelScanQRCode from '@/views/ClaimerPanel/ScanQRCode'
 import ClaimerWithdrawPanel from '@/views/ClaimerPanel/Withdraw'
 
-import QrCodeView from '@/views/QrCodeView'
+import QrCodeView from '@/views/QrCodeView/'
 import QrCodeClaim from '@/views/QrCodeClaim/'
 
 
