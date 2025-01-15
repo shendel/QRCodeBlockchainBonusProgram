@@ -121,7 +121,7 @@ export default function BrowserWeb3Provider(props) {
           TgSdk.setCloudStorageItem(STORAGE_SEED_KEY, browserMnemonic)
         }
       }
-    })
+    }).catch((err) => { /* browser dev */ })
   }
   
   const switchAccount = (newMnemonic) => {
@@ -133,7 +133,7 @@ export default function BrowserWeb3Provider(props) {
       setBrowserAccount(account)
       setBrowserMnemonic(mnemonic)
       if (TgSdk.isMiniAppSupported() && TgSdk.isCloudStorageSupported()) {
-        TgSdk.setCloudStorageItem(STORAGE_SEED_KEY, newMnemonic)
+        TgSdk.setCloudStorageItem(STORAGE_SEED_KEY, newMnemonic).catch((err) => { /* browser */ })
       }
       return true
     }

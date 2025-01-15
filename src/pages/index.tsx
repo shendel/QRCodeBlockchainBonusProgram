@@ -75,13 +75,34 @@ import {
   BRIDGE_MAINNET_CONTRACT
 } from '@/config'
 
+import { useLaunchParams } from '@telegram-apps/sdk-react';
+
+
 function MyApp(pageProps) {
   const { publicRuntimeConfig } = getConfig()
   const {
     CLAIMER: isClaimerBuild,
     MINTER: isMinterBuild,
   } = publicRuntimeConfig
-
+  
+  /* Telegram routing */
+  let telegramLaunchParams = false
+  try {
+    telegramLaunchParams  = useLaunchParams();
+  } catch (e) {}
+  
+  const processTgHash = (hash) => {
+    if (hash.startsWith(`tgWebAppData=`)) {
+      if (telegramLaunchParams && telegramLaunchParams.startParam) {
+        return `/qrcodeclaim/${telegramLaunchParams.startParam}`
+      } else {
+        return '/'
+      }
+    }
+    return hash;
+  }
+  /* --------------- */
+  
   const [ isFactoryFetching, setIsFactoryFetching ] = useState(true)
   const [ isFactoryFetched, setIsFactoryFetched ] = useState(false)
   const [ factoryStatus, setFactoryStatus ] = useState(false)
@@ -307,6 +328,7 @@ function MyApp(pageProps) {
               )}
               <HashRouterViews
                 views={viewsPaths}
+                processHash={processTgHash}
                 props={{
                   factoryStatus,
                   backendStatus,

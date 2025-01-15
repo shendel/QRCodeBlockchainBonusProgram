@@ -1,32 +1,26 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import React from "react"
-import { useLaunchParams } from '@telegram-apps/sdk-react';
 
 export default function HashRouterViews(props) {
   const {
     on404,
     views,
-    props: ownProps
-  } = props
-  const router = useRouter()
-  const [hash, setHash] = useState(router.asPath.split('#')[1] || '')
-
-  let telegramLaunchParams = false
-  try {
-    telegramLaunchParams  = useLaunchParams();
-  } catch (e) {}
-  
-  if (hash.substr(0,`tgWebAppData=`.length) == `tgWebAppData=`) {
-    console.log('>> THIS IS TG APP')
-    console.log('>>> TG PARAMS', telegramLaunchParams)
-    if (telegramLaunchParams && telegramLaunchParams.startParam) {
-      setHash(`/qrcodeclaim/${telegramLaunchParams.startParam}`)
-    } else {
-      setHash('/')
-    }
+    props: ownProps,
+    processHash,
+  } = {
+    processHash: (hash) => { return hash },
+    ...props,
   }
-  
+  const router = useRouter()
+
+  const _processHash = (inHash) => {
+    if (!inHash) return '/'
+    return processHash(inHash)
+  }
+
+  const [hash, setHash] = useState(_processHash(router.asPath.split('#')[1] || ''))
+
   const gotoPage = (url) => {
     window.location.hash = url
   }
@@ -35,7 +29,7 @@ export default function HashRouterViews(props) {
     if (!str) {
       setHash('/')
     } else {
-      setHash(str.split('#')[1])
+      setHash(_processHash(str.split('#')[1] || ''))
     }
   }
 
