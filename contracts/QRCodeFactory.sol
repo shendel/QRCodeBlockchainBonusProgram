@@ -62,6 +62,12 @@ contract QRCodeFactory is IQRCodeFactory {
     AddressSet.Storage private managers;
 
 
+    address public oracle;
+
+    modifier onlyManagerOrOracle() {
+        require((msg.sender == oracle) || managers.exists(msg.sender), "Only for oracle or manager");
+        _;
+    }
     modifier onlyOwner() {
         require(msg.sender == owner, "Only for owner");
         _;
@@ -83,6 +89,9 @@ contract QRCodeFactory is IQRCodeFactory {
         tokenAddress = _tokenAddress;
     }
     /* Setters */
+    function setOracle(address newOracle) onlyOwner public {
+        oracle = newOracle;
+    }
     function transferOwnership(address newOwner) onlyOwner public {
         require(newOwner != address(0), "Owner address cant be zero");
         owner = newOwner;
@@ -118,7 +127,7 @@ contract QRCodeFactory is IQRCodeFactory {
     function setMinterBalance(address minter, uint256 newBalance) onlyManager public {
         minters.setMinterBalance(minter, newBalance);
     }
-    function addMinterBalance(address minter, uint256 amount) onlyManager public {
+    function addMinterBalance(address minter, uint256 amount) onlyManagerOrOracle public {
         minters.addMinterBalance(minter, amount);
     }
 
