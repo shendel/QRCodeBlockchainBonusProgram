@@ -8,23 +8,10 @@ import "../AddressSet.sol";
 import "../IQRCodeFactory.sol";
 import "./IQRCodeMinters.sol";
 
-contract QRCodeMinters {
+contract QRCodeMinters is IQRCodeMinters {
     using AddressSet for AddressSet.Storage;
     IQRCodeFactory public factory;
 
-    struct MinterInfo {
-        address minterAddress;
-        uint256 energy;
-        string name;
-        uint256 mintedAmount;
-        uint256 claimedAmount;
-        uint256[] mintedQrCodes;
-        uint256[] claimedQRCodes;
-        uint256 mintedQrCodesCount;
-        uint256 claimedQrCodesCount;
-        uint256 balance;
-    }
-    
     address owner;
     modifier onlyOwner() {
         require(msg.sender == owner, "Only for owner");
@@ -60,12 +47,18 @@ contract QRCodeMinters {
     mapping (address => uint256[]) public mintedQrCodes;
     // Айжи кодов, которые обналичили
     mapping (address => uint256[]) public claimedQrCodes;
+    // Айди кодов, которые не обналичили
+    mapping (address => uint256[]) public notClaimedQrCodes;
     // Сколько всего кодов создал минтер
     mapping (address => uint256) public mintedQrCodesCount;
     // Сколько всего кодоб обналичено
     mapping (address => uint256) public claimedQrCodesCount;
+    // Сколько всего кодов не обналиченно
+    mapping (address => uint256) public notClaimedQrCodesCount;
     // Сумма обналиченных кодов, которые выпустил минтер
     mapping (address => uint256) public claimedByMinter;
+    // Сумма не обналиченных кодов, которые выпустил минтер
+    mapping (address => uint256) public notClaimedByMinter;
     // Токенов на балансе минтера
     mapping (address => uint256) minterBalance;
     // Максимальное кол-во токенов в коде для отдельного минтера
@@ -107,12 +100,19 @@ contract QRCodeMinters {
         mintedAmount[minter] += amount;
         mintedQrCodes[minter].push(qrCodeId);
         mintedQrCodesCount[minter]++;
+        notClaimedByMinter[minter] += amount;
+        notClaimedQrCodes[minter].push(qrCodeId);
+        notClaimedQrCodesCount[minter]++;
     }
 
     function onClaim(address minter, uint256 codeId, uint256 amount) onlyFactory public {
         claimedByMinter[minter] += amount;
         claimedQrCodesCount[minter]++;
         claimedQrCodes[minter].push(codeId);
+
+        notClaimedByMinter[minter] -= amount;
+        notClaimedQrCodesCount[minter]--;
+        // delete id from array
     }
 
     function getMintersCount() public view returns (uint256) {
@@ -138,8 +138,10 @@ contract QRCodeMinters {
                 mintersName[minter],                                        // string name;
                 mintedAmount[minter],                                       // uint256 mintedAmount;
                 claimedByMinter[minter],                                    // uint256 claimedAmount;
+                notClaimedByMinter[minter],                                 // uint256 notClaimedAmount;
                 (skipCodesIds) ? new uint256[](0) : mintedQrCodes[minter],  // uint256[] mintedQrCodes;
                 (skipCodesIds) ? new uint256[](0) : claimedQrCodes[minter], // uint256[] claimedQRCodes;
+                (skipCodesIds) ? new uint256[](0) : notClaimedQrCodes[minter], // uint256[] notClaimedQrCodes;
                 mintedQrCodesCount[minter],                                 // uint256 mintedQrCodesCount;
                 claimedQrCodesCount[minter],                                // uint256 claimedQrCodesCount;
                 minterBalance[minter]                                       // uint256 balance;
@@ -191,4 +193,8 @@ contract QRCodeMinters {
         return ret;
     }
 
+    // Пересчет баланса
+    function recalcBalance(address minter) public {
+        
+    }
 }

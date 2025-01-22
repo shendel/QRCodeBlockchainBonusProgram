@@ -11,8 +11,10 @@ interface IQRCodeMinters {
         string name;
         uint256 mintedAmount;
         uint256 claimedAmount;
+        uint256 notClaimedAmount;
         uint256[] mintedQrCodes;
         uint256[] claimedQRCodes;
+        uint256[] notClaimedQrCodes;
         uint256 mintedQrCodesCount;
         uint256 claimedQrCodesCount;
         uint256 balance;
