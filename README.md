@@ -1,5 +1,17 @@
 # QRCodeBlockchainBonusProgram
 
+# Telegram
+
+
+
+This service not based at @ton-blockchain
+This service can use @ton-blockchain libs
+This service can be used without @ton-blockchain
+
+
+......
+
+
 
 IMPORTANT Update to Developer Terms
 
