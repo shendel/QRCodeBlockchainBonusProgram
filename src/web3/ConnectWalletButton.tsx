@@ -83,6 +83,7 @@ export const ConnectWalletButton: React.FC = (props) => {
         window.TgOpenRedefined = true
         const openNative = window.open
         window.open = (url) => {
+          alert('Open '+url)
           try {
             if (!url) {
               return null;
