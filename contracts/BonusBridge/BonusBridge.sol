@@ -3,6 +3,7 @@ pragma solidity ^0.8.12;
 
 import "../IERC20.sol";
 import "../AddressSet.sol";
+import "../IQRCodeFactory.sol";
 
 contract BonusBridge {
     using AddressSet for AddressSet.Storage;
@@ -11,6 +12,8 @@ contract BonusBridge {
     AddressSet.Storage private owners;
     address public oracle;
     address public token;
+    address public factory;
+    address public cupTarget;
     
     struct SwapIn {
         uint256 swapId;
@@ -71,6 +74,9 @@ contract BonusBridge {
         outToInRate = _outToInRate;
     }
 
+    function setFactory(address _newFactory) public onlyOwner {
+        factory = _newFactory;
+    }
     function setOutTokenDecimals(uint8 _decimals) public onlyOwner {
         outTokenDecimals = _decimals;
     }
@@ -118,7 +124,7 @@ contract BonusBridge {
         require(swapsIn[swapId].swapId == 0, "Swap already in");
         // Calc in amount by rate and decimals
         uint256 inAmount = calcInAmount(outAmount);
-        require(IERC20(token).balanceOf(address(this)) >= inAmount, "Balance on contract not enought");
+
 
         swapsIn[swapId] = SwapIn(
             swapId,
@@ -129,7 +135,8 @@ contract BonusBridge {
             block.timestamp
         );
 
-        IERC20(token).transfer(toAddress, inAmount);
+        IQRCodeFactory(factory).addMinterBalance(toAddress, inAmount);
+
 
         emit onSwapIn(
             swapId,
@@ -156,6 +163,9 @@ contract BonusBridge {
         swapsOut[swapId].swapped = true;
         swapsOut[swapId].inHash = inHash;
         _swapsOutQueryDel(swapId);
+        if (cupTarget != address(0)) {
+            IERC20(token).transfer(cupTarget, swapsOut[swapId].outAmount);
+        }
         emit onSwapOutReady(swapId, inHash);
     }
 
@@ -217,7 +227,7 @@ contract BonusBridge {
     }
 
     
-    function getSwapsOQuery() public view returns(uint256[] memory) {
+    function getSwapsOutQuery() public view returns(uint256[] memory) {
         return swapsOutQuery;
     }
     function swapOutQueryAdd(uint256 swapId) public onlyOwner {

@@ -29,4 +29,5 @@ interface IQRCodeFactory {
     function getIsMinter(address check) external view returns (bool);
 
     function qrCodes(uint256 id) external view returns (QRCODE memory);
+    function addMinterBalance(address minter, uint256 amount) external;
 }
