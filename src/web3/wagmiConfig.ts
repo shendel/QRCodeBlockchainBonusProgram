@@ -24,7 +24,7 @@ export const getWagmiConfig = (chainIds, autoConnect) => {
         metaMaskWallet({
           projectId: NEXT_PUBLIC_PROJECT_ID || "a23677c4af3139b4eccb52981f76ad94",
           chains,
-          shimDisconnect: false,
+          shimDisconnect: true,
         })
       ],
     }

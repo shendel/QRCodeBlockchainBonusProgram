@@ -1,16 +1,20 @@
 import { useState, useEffect, createContext, useContext } from 'react'
 import Web3 from 'web3'
 import { useAccount } from 'wagmi'
+import { useNetwork, useSwitchNetwork } from 'wagmi'
 import fetchBalance from '@/helpers/fetchBalance'
 
 
 const InjectedWeb3Context = createContext({
   injectedWeb3: false,
   injectedAccount: false,
+  injectedChainId: false,
   balance: 0,
   isBalanceFetched: false,
   isBalanceFetching: true,
   isConnected: true,
+  switchNetwork: () => {},
+  isSwitchingNetwork: false,
 })
 
 export const useInjectedWeb3 = () => {
@@ -20,7 +24,8 @@ export const useInjectedWeb3 = () => {
 export default function InjectedWeb3Provider(props) {
   const {
     children,
-    chainId
+    chainId,
+    chainIds
   } = props
   
   const [ injectedWeb3, setInjectedWeb3 ] = useState(false)
@@ -34,7 +39,16 @@ export default function InjectedWeb3Provider(props) {
   
   const { address } = useAccount()
   const account = useAccount()
+  const network = useNetwork()
+  const switchN = useSwitchNetwork()
+  const { isLoading, pendingChainId, switchNetwork } = useSwitchNetwork()
+
+  const isSwitchingNetwork = (!!isLoading || !!pendingChainId)
   
+  const {
+    chain
+  } = useNetwork()
+  const activeChainId = chain?.id
   const [ activeConnector, setActiveConnector ] = useState(false)
   
   useEffect(() => {
@@ -72,6 +86,9 @@ export default function InjectedWeb3Provider(props) {
     if (account && account.connector) {
       setInjectedAccount(account.address)
       setActiveConnector(account.connector)
+    } else {
+      setInjectedAccount(false)
+      setActiveConnector(false)
     }
   }, [ chainId, account ])
 
@@ -80,10 +97,13 @@ export default function InjectedWeb3Provider(props) {
       value={{
         injectedWeb3,
         injectedAccount,
+        injectedChainId: activeChainId,
         balance,
         isBalanceFetched,
         isBalanceFetching,
-        isConnected
+        isConnected,
+        isSwitchingNetwork,
+        switchNetwork,
       }
     }>
       {children}

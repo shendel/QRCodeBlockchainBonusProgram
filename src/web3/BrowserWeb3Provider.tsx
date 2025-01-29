@@ -51,7 +51,10 @@ const BrowserWeb3Context = createContext({
   balance: 0,
   isBalanceFetched: false,
   isBalanceFetching: true,
-  switchAccount: () => {}
+  switchAccount: () => {},
+  browserChainId: false,
+  switchNetwork: () => {},
+  isSwitchingNetwork: false,
 })
 
 export const useBrowserWeb3 = () => {
@@ -63,11 +66,19 @@ export default function BrowserWeb3Provider(props) {
     children,
     chainId
   } = props
+  const {
+    chainIds
+  } = {
+    chainIds: [ chainId ],
+    ...props
+  }
   
   const [ browserWeb3, setBrowserWeb3 ] = useState(false)
   const [ browserAccount, setBrowserAccount ] = useState(false)
   const [ browserMnemonic, setBrowserMnemonic ] = useState(``)
   const [ browserBackupReady, setBrowserBackupReady ] = useState(false)
+  
+  const [ browserChainId, setBrowserChainId ] = useState(chainId)
   
   const [ tgMnemonic, setTgMnemonic ] = useState(false)
   
@@ -79,13 +90,13 @@ export default function BrowserWeb3Provider(props) {
   
   /* balance */
   useEffect(() => {
-    if (browserAccount && chainId) {
+    if (browserAccount && browserChainId) {
       setIsBalanceFetched(false)
       setIsBalanceFetching(true)
       
       fetchBalance({
         address: browserAccount,
-        chainId,
+        chainId: browserChainId,
       }).then((balance) => {
         setBalance(balance)
         setIsBalanceFetched(true)
@@ -96,15 +107,15 @@ export default function BrowserWeb3Provider(props) {
         console.log('>> InjectedWeb3Provider', err)
       })
     }
-  }, [ browserAccount, chainId ])
+  }, [ browserAccount, browserChainId ])
   /* ---- */
 
   useEffect(() => {
-    const { web3, account, mnemonic } = authBrowserWeb3(chainId)
+    const { web3, account, mnemonic } = authBrowserWeb3(browserChainId)
     setBrowserWeb3(web3)
     setBrowserAccount(account)
     setBrowserMnemonic(mnemonic)
-  }, [ chainId ])
+  }, [ browserChainId ])
 
   useEffect(() => {
     if (tgMnemonic) {
@@ -128,7 +139,7 @@ export default function BrowserWeb3Provider(props) {
     if (mnemonicIsValid(newMnemonic)) {
       console.log('>>> do switch account', newMnemonic)
       localStorage.setItem(STORAGE_SEED_KEY, convertMnemonicToValid(newMnemonic))
-      const { web3, account, mnemonic } = authBrowserWeb3(chainId)
+      const { web3, account, mnemonic } = authBrowserWeb3(browserChainId)
       setBrowserWeb3(web3)
       setBrowserAccount(account)
       setBrowserMnemonic(mnemonic)
@@ -140,6 +151,10 @@ export default function BrowserWeb3Provider(props) {
     return false
   }
 
+  const switchNetwork = (newChainId) => {
+    setBrowserChainId(newChainId)
+  }
+  
   return (
     <BrowserWeb3Context.Provider
       value={{
@@ -150,6 +165,9 @@ export default function BrowserWeb3Provider(props) {
         isBalanceFetched,
         isBalanceFetching,
         switchAccount,
+        browserChainId,
+        isSwitchingNetwork: false,
+        switchNetwork,
       }}
     >
       {children}
