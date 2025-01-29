@@ -79,6 +79,7 @@ export default function BrowserWeb3Provider(props) {
   const [ browserBackupReady, setBrowserBackupReady ] = useState(false)
   
   const [ browserChainId, setBrowserChainId ] = useState(chainId)
+  const [ activeChainId, setActiveChainId ] = useState(chainId)
   
   const [ tgMnemonic, setTgMnemonic ] = useState(false)
   
@@ -90,13 +91,13 @@ export default function BrowserWeb3Provider(props) {
   
   /* balance */
   useEffect(() => {
-    if (browserAccount && browserChainId) {
+    if (browserAccount && activeChainId) {
       setIsBalanceFetched(false)
       setIsBalanceFetching(true)
-      
+      setBrowserChainId(activeChainId)
       fetchBalance({
         address: browserAccount,
-        chainId: browserChainId,
+        chainId: activeChainId,
       }).then((balance) => {
         setBalance(balance)
         setIsBalanceFetched(true)
@@ -107,15 +108,16 @@ export default function BrowserWeb3Provider(props) {
         console.log('>> InjectedWeb3Provider', err)
       })
     }
-  }, [ browserAccount, browserChainId ])
+  }, [ browserAccount, activeChainId ])
   /* ---- */
 
   useEffect(() => {
-    const { web3, account, mnemonic } = authBrowserWeb3(browserChainId)
+    const { web3, account, mnemonic } = authBrowserWeb3(activeChainId)
     setBrowserWeb3(web3)
     setBrowserAccount(account)
     setBrowserMnemonic(mnemonic)
-  }, [ browserChainId ])
+    setBrowserChainId(activeChainId)
+  }, [ activeChainId ])
 
   useEffect(() => {
     if (tgMnemonic) {
@@ -152,7 +154,7 @@ export default function BrowserWeb3Provider(props) {
   }
 
   const switchNetwork = (newChainId) => {
-    setBrowserChainId(newChainId)
+    setActiveChainId(newChainId)
   }
   
   return (
