@@ -17,3 +17,5 @@ contracts/**/artifacts/
 nginx-config/
 walletconnect.txt
 donate-scheme.drawio
+backend/minterbridge/dev.env
+backend/minterbridge/.env.production

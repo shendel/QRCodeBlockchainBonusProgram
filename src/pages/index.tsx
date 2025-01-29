@@ -41,6 +41,7 @@ import ManagerPanel from '@/views/ManagerPanel/'
 import MinterPanel from '@/views/MinterPanel/'
 import MinterMint from '@/views/MinterPanel/Mint'
 import MinterMintedCodes from '@/views/MinterPanel/MintedCodes'
+import MinterAddBonusPointsPanel from '@/views/MinterPanel/AddBonusPoints'
 // Claimer views
 import ClaimerPanel from '@/views/ClaimerPanel/'
 import ClaimerPanelScanQRCode from '@/views/ClaimerPanel/ScanQRCode'
@@ -61,6 +62,7 @@ import AppRoot from '@/components/AppRoot'
 import fetchQRFactoryInfo from '@/qrcode_helpers/fetchQRFactoryInfo'
 import fetchBridgeInfo from '@/qrcode_helpers/fetchBridgeInfo'
 import fetchBalance from '@/helpers/fetchBalance'
+import fetchTokenInfo from '@/helpers/fetchTokenInfo'
 
 import {
   WORK_CHAIN_ID,
@@ -72,7 +74,8 @@ import {
 
   BRIDGE_ORACLE,
   BRIDGE_WORK_CONTRACT,
-  BRIDGE_MAINNET_CONTRACT
+  BRIDGE_MAINNET_CONTRACT,
+  MINTER_BRIDGE_TOKEN,
 } from '@/config'
 
 import { useLaunchParams } from '@telegram-apps/sdk-react';
@@ -117,7 +120,11 @@ function MyApp(pageProps) {
     bridge_mainnet_balance: 0,
     bridge_mainnet_tokenBalance: 0,
     bridge_mainnet_tokenDecimals: 0,
-    bridge_mainnet_tokenSymbol: ''
+    bridge_mainnet_tokenSymbol: '',
+    minter_bridge_token: {
+      symbol: '',
+      decimals: 0,
+    },
   })
   const [ needUpdateBackendStatus, setNeedUpdateBackendStatus ] = useState(false)
 
@@ -145,6 +152,9 @@ function MyApp(pageProps) {
       chainId: MAINNET_CHAIN_ID,
     }).then((balance) => {
       updateBackendStatus({bridge_mainnet_balance: balance})
+    })
+    fetchTokenInfo(MINTER_BRIDGE_TOKEN, MAINNET_CHAIN_ID).then((tokenInfo) => {
+      updateBackendStatus({ minter_bridge_token: tokenInfo })
     })
     // Fetch mainnet bridge info
     fetchBridgeInfo({
@@ -252,6 +262,7 @@ function MyApp(pageProps) {
 
     '/minter/': MinterPanel,
     '/minter/mint': MinterMint,
+    '/minter/addpoints': MinterAddBonusPointsPanel,
     '/minter/codes/:type/:page': MinterMintedCodes,
 
     '/claimer/': ClaimerPanel,
@@ -272,6 +283,7 @@ function MyApp(pageProps) {
       '/': MinterPanel,
       '/minter/': MinterPanel,
       '/minter/mint': MinterMint,
+      '/minter/addpoints': MinterAddBonusPointsPanel,
       '/minter/codes/:type/:page': MinterMintedCodes,
       
       '/qrcodeview/:qrCodeAddress': QrCodeView,
@@ -302,7 +314,7 @@ function MyApp(pageProps) {
   
   return (
     <>
-      <AppRoot chainId={WORK_CHAIN_ID}>
+      <AppRoot chainId={WORK_CHAIN_ID} chainIds={[WORK_CHAIN_ID, MAINNET_CHAIN_ID]}>
         <>
           {!isClaimerBuild && !isMinterBuild && (
             <>

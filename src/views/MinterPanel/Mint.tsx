@@ -5,6 +5,8 @@ import { useAccount } from 'wagmi'
 
 import { QRCODE_ROLES, checkRole } from '@/qrcode_helpers/checkRole'
 
+import WorkChainHolder from '@/components/qrcode/WorkChainHolder'
+
 import callQRFactoryMethod from '@/qrcode_helpers/callQRFactoryMethod'
 import {
   QRCODE_FACTORY,
@@ -36,7 +38,7 @@ export default function MinterMint(props) {
 
   const {
     browserWeb3,
-    browserAccount
+    browserAccount,
   } = useBrowserWeb3()
   
   const {
@@ -53,7 +55,7 @@ export default function MinterMint(props) {
   const [ browserEnergy, setBrowserEnergy ] = useState(0)
   const [ isBrowserEnergyFetched, setIsBrowserEnergyFetched ] = useState(false)
   const [ isBrowserEnergyFetching, setIsBrowserEnergyFetching ] = useState(true)
-  
+
   useEffect(() => {
     setIsBrowserEnergyFetched(false)
     setIsBrowserEnergyFetching(true)
@@ -114,91 +116,93 @@ export default function MinterMint(props) {
 
   console.log(factoryStatus)
   return (
-    <div className={styles.mintQrCodePanel}>
-      <h2>Minter panel</h2>
-      <nav>
-        <a href="#/minter/">[Back]</a>
-      </nav>
-      {checkRole(connectedWallet, factoryStatus, QRCODE_ROLES.MINTER) ? (
-        <div className={`adminForm ${(isMinting || isBrowserEnergyFetching) ? 'isLoading' : ''}`}>
-          <header>{t('Mint new QRCode')}</header>
-          <div className="inputHolder">
-            <label>{t('Energy')}</label>
-            <div className="infoRow">{fromWei(browserEnergy)}</div>
-          </div>
-          <div className="inputHolder">
-            <label className="required">{t('Amount ({tokenSymbol})', { tokenSymbol: factoryStatus.tokenSymbol })}</label>
-            <input
-              className={(amountError != ``) ? 'hasError' : ''}
-              type="number" 
-              value={amount}
-              onChange={(e) => { setAmount(e.target.value) }}
-            />
-            {amountError != `` && (
-              <div className="error">{amountError}</div>
-            )}
-            <style>
-            {`
-              .tokensAmountPresset {
-                padding-left: 1em;
-                padding-right: 1em;
-                padding-top: 0.25em;
-              }
-              .tokensAmountPresset SPAN {
-                font-size: 12pt;
-              }
-              .tokensAmountPresset A {
-                font-weight: bold;
-                cursor: pointer;
-                font-size: 12pt;
-              }
-              .tokensAmountPresset A::after {
-                content: "|";
-                padding-left: 0.25em;
-                padding-right: 0.25em;
-                font-size: 12pt;
-              }
-            `}
-            </style>
-            <div className="tokensAmountPresset">
-              <span>{t('predefined value:')}</span>
-              {MINT_PRESET_AMMOUNT.map((amount, index) => {
-                return (
-                  <a key={index} onClick={() => { setAmount(amount) }}>[{amount}]</a>
-                )
-              })}
+    <WorkChainHolder>
+      <div className={styles.mintQrCodePanel}>
+        <h2>Minter panel</h2>
+        <nav>
+          <a href="#/minter/">[Back]</a>
+        </nav>
+        {checkRole(connectedWallet, factoryStatus, QRCODE_ROLES.MINTER) ? (
+          <div className={`adminForm ${(isMinting || isBrowserEnergyFetching) ? 'isLoading' : ''}`}>
+            <header>{t('Mint new QRCode')}</header>
+            <div className="inputHolder">
+              <label>{t('Energy')}</label>
+              <div className="infoRow">{fromWei(browserEnergy)}</div>
             </div>
-            
+            <div className="inputHolder">
+              <label className="required">{t('Amount ({tokenSymbol})', { tokenSymbol: factoryStatus.tokenSymbol })}</label>
+              <input
+                className={(amountError != ``) ? 'hasError' : ''}
+                type="number" 
+                value={amount}
+                onChange={(e) => { setAmount(e.target.value) }}
+              />
+              {amountError != `` && (
+                <div className="error">{amountError}</div>
+              )}
+              <style>
+              {`
+                .tokensAmountPresset {
+                  padding-left: 1em;
+                  padding-right: 1em;
+                  padding-top: 0.25em;
+                }
+                .tokensAmountPresset SPAN {
+                  font-size: 12pt;
+                }
+                .tokensAmountPresset A {
+                  font-weight: bold;
+                  cursor: pointer;
+                  font-size: 12pt;
+                }
+                .tokensAmountPresset A::after {
+                  content: "|";
+                  padding-left: 0.25em;
+                  padding-right: 0.25em;
+                  font-size: 12pt;
+                }
+              `}
+              </style>
+              <div className="tokensAmountPresset">
+                <span>{t('predefined value:')}</span>
+                {MINT_PRESET_AMMOUNT.map((amount, index) => {
+                  return (
+                    <a key={index} onClick={() => { setAmount(amount) }}>[{amount}]</a>
+                  )
+                })}
+              </div>
+              
+            </div>
+            <div className="inputHolder">
+              <label>{t('Message')}</label>
+              <input type="text" value={message} onChange={(e) => { setMessage(e.target.value) }} />
+            </div>
+            {/*
+            <div className="inputHolder">
+              <label>Expire in</label>
+              <input type="number" value={timelife} onChange={(e) => { setTimelife(e.target.value) }} />
+            </div>
+            */}
+            <div className="inputHolder">
+              <label>{t('Expired in')}</label>
+              <select value={timelife} onChange={(e) => { setTimelife(e.target.value) }}>
+                <option value={0}>{t('Default ({timelife} seconds)', { timelife: factoryStatus.defaultExpireTime } )}</option>
+                {Object.keys(MINT_PRESET_EXPIRE).map((tl, index) => {
+                  return (
+                    <option key={index} value={tl}>{t(MINT_PRESET_EXPIRE[tl])}</option>
+                  )
+                })}
+              </select>
+            </div>
+            <div className="buttonsHolder">
+              <button disabled={isMinting} onClick={doMintQrCode}>Mint new QRCode</button>
+              <button disabled={isMinting} className="isCancel">{t('Cancel')}</button>
+            </div>
           </div>
-          <div className="inputHolder">
-            <label>{t('Message')}</label>
-            <input type="text" value={message} onChange={(e) => { setMessage(e.target.value) }} />
-          </div>
-          {/*
-          <div className="inputHolder">
-            <label>Expire in</label>
-            <input type="number" value={timelife} onChange={(e) => { setTimelife(e.target.value) }} />
-          </div>
-          */}
-          <div className="inputHolder">
-            <label>{t('Expired in')}</label>
-            <select value={timelife} onChange={(e) => { setTimelife(e.target.value) }}>
-              <option value={0}>{t('Default ({timelife} seconds)', { timelife: factoryStatus.defaultExpireTime } )}</option>
-              {Object.keys(MINT_PRESET_EXPIRE).map((tl, index) => {
-                return (
-                  <option key={index} value={tl}>{t(MINT_PRESET_EXPIRE[tl])}</option>
-                )
-              })}
-            </select>
-          </div>
-          <div className="buttonsHolder">
-            <button disabled={isMinting} onClick={doMintQrCode}>Mint new QRCode</button>
-            <button disabled={isMinting} className="isCancel">{t('Cancel')}</button>
-          </div>
-        </div>
-      ) : (
-        <div>Access dinied</div>
-      )}
-    </div>
+        ) : (
+          <div>Access dinied</div>
+        )}
+      </div>
+    </WorkChainHolder>
   )
 }

@@ -112,7 +112,15 @@ contract QRCodeMinters is IQRCodeMinters {
 
         notClaimedByMinter[minter] -= amount;
         notClaimedQrCodesCount[minter]--;
-        // delete id from array
+        
+        uint256[] storage notClaimedArray = notClaimedQrCodes[minter];
+        for (uint256 i = 0; i < notClaimedArray.length; i++) {
+            if (notClaimedArray[i] == codeId) {
+                notClaimedArray[i] = notClaimedArray[notClaimedArray.length - 1];
+                notClaimedArray.pop();
+                break;
+            }
+        }
     }
 
     function getMintersCount() public view returns (uint256) {

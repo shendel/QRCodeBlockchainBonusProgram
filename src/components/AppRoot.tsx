@@ -7,14 +7,20 @@ import InjectedWeb3Provider from '@/web3/InjectedWeb3Provider'
 export default function AppRoot(props) {
   const {
     children,
-    chainId
+    chainId,
   } = props
+  const {
+    chainIds,
+  } = {
+    chainIds: [ chainId ],
+    ...props
+  }
   
   return (
     <>
-      <BrowserWeb3Provider chainId={chainId}>
-        <Web3Connector chainIds={[chainId]} autoConnect={true}>
-          <InjectedWeb3Provider chainId={chainId}>
+      <BrowserWeb3Provider chainId={chainId} chainIds={chainIds}>
+        <Web3Connector chainIds={chainIds} autoConnect={true}>
+          <InjectedWeb3Provider chainId={chainId} chainIds={chainIds}>
             {children}
           </InjectedWeb3Provider>
         </Web3Connector>

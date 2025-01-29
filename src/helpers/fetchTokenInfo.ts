@@ -2,13 +2,14 @@ import TokenAbi from 'human-standard-token-abi'
 import Web3 from 'web3'
 
 import { CHAIN_INFO } from "../helpers/constants"
+import { GET_CHAIN_RPC } from '@/web3/chains'
 
 const fetchTokenInfo = (address, chainId) => {
   return new Promise((resolve, reject) => {
-    const chainInfo = CHAIN_INFO(chainId)
-    if (chainInfo) {
+    const chainRpc = GET_CHAIN_RPC(chainId)
+    if (chainRpc) {
       try {
-        const web3 = new Web3(chainInfo.rpcUrls[0])
+        const web3 = new Web3(chainRpc)
 
         const contract = new web3.eth.Contract(TokenAbi, address)
         contract.methods.decimals().call().then((decimals) => {

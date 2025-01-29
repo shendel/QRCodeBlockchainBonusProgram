@@ -17,7 +17,7 @@ import fetchBridgeSwapInfo from '@/qrcode_helpers/fetchBridgeSwapInfo'
 import delay from '@/helpers/delay'
 import { useBrowserWeb3 } from '@/web3/BrowserWeb3Provider'
 import { BigNumber } from 'bignumber.js'
-
+import WorkChainHolder from '@/components/qrcode/WorkChainHolder'
 import {
   WORK_CHAIN_ID,
   BRIDGE_WORK_CONTRACT,
@@ -204,135 +204,137 @@ export default function ClaimerWithdrawPanel(props) {
     return `${hash.substring(0,10)}...${hash.substring(-10,10)}`
   }
   return (
-    <div className={styles.climerWithdrawPanel}>
-      {(isBalanceFetching || isAllowanceFetching || isSendToBridge || isApproving || screenLocked ) && (
-        <LoaderFullScreen />
-      )}
-      <HeaderRow 
-        title={PROJECT_TITLE}
-        backUrl={`/`}
-        gotoPage={gotoPage}
-      />
-      <div className={styles.titleHolder}>
-        <div className={styles.title}>
-          {t('Convert {bonusSymbol} to {backendSymbol}', {
-            bonusSymbol: factoryStatus.tokenSymbol,
-            backendSymbol: mainnetSymbol
-          })}
+    <WorkChainHolder>
+      <div className={styles.climerWithdrawPanel}>
+        {(isBalanceFetching || isAllowanceFetching || isSendToBridge || isApproving || screenLocked ) && (
+          <LoaderFullScreen />
+        )}
+        <HeaderRow 
+          title={PROJECT_TITLE}
+          backUrl={`/`}
+          gotoPage={gotoPage}
+        />
+        <div className={styles.titleHolder}>
+          <div className={styles.title}>
+            {t('Convert {bonusSymbol} to {backendSymbol}', {
+              bonusSymbol: factoryStatus.tokenSymbol,
+              backendSymbol: mainnetSymbol
+            })}
+          </div>
+        </div>
+        <div className={styles.balanceHolder}>
+            <div>You balance</div>
+            <strong>{fromWei(balance, tokenDecimals)}</strong>
+            <em>{tokenSymbol}</em>
+        </div>
+        <div className={styles.walletInfo}>
+          <div className={styles.title}>Destination wallet</div>
+          {!injectedAccount ? (
+            <>
+              <ConnectWalletButton
+                connectView={(isConnecting, openConnectModal) => {
+                  return (
+                    <a 
+                      onClick={openConnectModal}
+                      className={`${styles.connectWalletButton} ${(isConnecting)} ? styles.isConnecting : ''}`}
+                    >
+                      {t((isConnecting) ? 'Connecting...' :'Connect wallet')}
+                    </a>
+                  )
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <div className={styles.walletAddress}>{injectedAccount}</div>
+              {(isSwapping || isSwapped) && (
+                <>
+                  <div className={styles.swapStatus}>
+                    {!isSwapped && (
+                      <span>
+                        {t('Conversion in progress. Plase wait')}
+                      </span>
+                    )}
+                    {isSwapped && (
+                      <span>
+                        {t('Conversion completed')}
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.swapStatusDetails}>
+                    <ul>
+                      {/* PREPARE */}
+                      {bridgeStepNumber >= 1 && (
+                        <li>
+                          {bridgeStepNumber > 1 ? (<OkIcon />) : (<em></em>)}
+                          <span>Preparing for bonus conversion</span>
+                        </li>
+                      )}
+                      {/* APPROVE */}
+                      {bridgeStepNumber >= 2 && (
+                        <li>
+                          {bridgeStepNumber > 2 ? (<OkIcon />) : (<em></em>)}
+                          <span>Approving</span>
+                        </li>
+                      )}
+                      {/* APPROVE_TX */}
+                      {bridgeStepNumber >= 3 && (
+                        <li>
+                          {bridgeStepNumber > 3 ? (<OkIcon />) : (<em></em>)}
+                          <span>Approving TX {makeSmallHash(approveHash)}</span>
+                        </li>
+                      )}
+                      {/* SEND_TO_BRIDGE */}
+                      {bridgeStepNumber >= 4 && (
+                        <li>
+                          {bridgeStepNumber > 4 ? (<OkIcon />) : (<em></em>)}
+                          <span>Sending request to bridge</span>
+                        </li>
+                      )}
+                      {/* SEND_TO_BRIDGE_TX */}
+                      {bridgeStepNumber >= 5 && (
+                        <li>
+                          {bridgeStepNumber > 5 ? (<OkIcon />) : (<em></em>)}
+                          <span>Сonversion TX {makeSmallHash(outHash)}</span>
+                        </li>
+                      )}
+                      {/* WAIT_SWAP */}
+                      {bridgeStepNumber >= 6 && (
+                        <li>
+                          {bridgeStepNumber > 6 ? (<OkIcon />) : (<em></em>)}
+                          <span>Сonversion task #{swapId}</span>
+                        </li>
+                      )}
+                      {/* READY */}
+                      {bridgeStepNumber >= 7 && (
+                        <li>
+                          <OkIcon />
+                          <span>Ready. TX {makeSmallHash(inHash)}</span>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </>
+              )}
+              {isSwapped ? (
+                <a onClick={() => { gotoPage('/') }} className={styles.widthdrawButton}>{t('Ready. Go to account')}</a>
+              ) : (
+                <>
+                  {!isSwapping && (
+                    <>
+                      {new BigNumber(balance).isGreaterThan(0) ? (
+                        <a onClick={doBridge} className={styles.widthdrawButton}>{t('Withdraw')}</a>
+                      ) : (
+                        <a className={`${styles.widthdrawButton} ${styles.buttonDisabled}`}>{t('You dont have points for convert')}</a>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </>
+          )}
         </div>
       </div>
-      <div className={styles.balanceHolder}>
-          <div>You balance</div>
-          <strong>{fromWei(balance, tokenDecimals)}</strong>
-          <em>{tokenSymbol}</em>
-      </div>
-      <div className={styles.walletInfo}>
-        <div className={styles.title}>Destination wallet</div>
-        {!injectedAccount ? (
-          <>
-            <ConnectWalletButton
-              connectView={(isConnecting, openConnectModal) => {
-                return (
-                  <a 
-                    onClick={openConnectModal}
-                    className={`${styles.connectWalletButton} ${(isConnecting)} ? styles.isConnecting : ''}`}
-                  >
-                    {t((isConnecting) ? 'Connecting...' :'Connect wallet')}
-                  </a>
-                )
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <div className={styles.walletAddress}>{injectedAccount}</div>
-            {(isSwapping || isSwapped) && (
-              <>
-                <div className={styles.swapStatus}>
-                  {!isSwapped && (
-                    <span>
-                      {t('Conversion in progress. Plase wait')}
-                    </span>
-                  )}
-                  {isSwapped && (
-                    <span>
-                      {t('Conversion completed')}
-                    </span>
-                  )}
-                </div>
-                <div className={styles.swapStatusDetails}>
-                  <ul>
-                    {/* PREPARE */}
-                    {bridgeStepNumber >= 1 && (
-                      <li>
-                        {bridgeStepNumber > 1 ? (<OkIcon />) : (<em></em>)}
-                        <span>Preparing for bonus conversion</span>
-                      </li>
-                    )}
-                    {/* APPROVE */}
-                    {bridgeStepNumber >= 2 && (
-                      <li>
-                        {bridgeStepNumber > 2 ? (<OkIcon />) : (<em></em>)}
-                        <span>Approving</span>
-                      </li>
-                    )}
-                    {/* APPROVE_TX */}
-                    {bridgeStepNumber >= 3 && (
-                      <li>
-                        {bridgeStepNumber > 3 ? (<OkIcon />) : (<em></em>)}
-                        <span>Approving TX {makeSmallHash(approveHash)}</span>
-                      </li>
-                    )}
-                    {/* SEND_TO_BRIDGE */}
-                    {bridgeStepNumber >= 4 && (
-                      <li>
-                        {bridgeStepNumber > 4 ? (<OkIcon />) : (<em></em>)}
-                        <span>Sending request to bridge</span>
-                      </li>
-                    )}
-                    {/* SEND_TO_BRIDGE_TX */}
-                    {bridgeStepNumber >= 5 && (
-                      <li>
-                        {bridgeStepNumber > 5 ? (<OkIcon />) : (<em></em>)}
-                        <span>Сonversion TX {makeSmallHash(outHash)}</span>
-                      </li>
-                    )}
-                    {/* WAIT_SWAP */}
-                    {bridgeStepNumber >= 6 && (
-                      <li>
-                        {bridgeStepNumber > 6 ? (<OkIcon />) : (<em></em>)}
-                        <span>Сonversion task #{swapId}</span>
-                      </li>
-                    )}
-                    {/* READY */}
-                    {bridgeStepNumber >= 7 && (
-                      <li>
-                        <OkIcon />
-                        <span>Ready. TX {makeSmallHash(inHash)}</span>
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              </>
-            )}
-            {isSwapped ? (
-              <a onClick={() => { gotoPage('/') }} className={styles.widthdrawButton}>{t('Ready. Go to account')}</a>
-            ) : (
-              <>
-                {!isSwapping && (
-                  <>
-                    {new BigNumber(balance).isGreaterThan(0) ? (
-                      <a onClick={doBridge} className={styles.widthdrawButton}>{t('Withdraw')}</a>
-                    ) : (
-                      <a className={`${styles.widthdrawButton} ${styles.buttonDisabled}`}>{t('You dont have points for convert')}</a>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+    </WorkChainHolder>
   )
 }

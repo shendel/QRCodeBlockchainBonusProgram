@@ -10,8 +10,10 @@ const approveToken = (options) => {
       activeWeb3,
       tokenAddress,
       approveFor,
-      weiAmount
+      weiAmount,
+      calcGas,
     } = options
+    console.log('>>>> approveToken', options)
 
     const onTrx = options.onTrx || (() => {})
     const onSuccess = options.onSuccess || (() => {})
@@ -26,7 +28,14 @@ const approveToken = (options) => {
       'approve',
       [ approveFor, weiAmount ]
     )
+    
     const gasPrice = await activeWeb3.eth.getGasPrice()
+    if (calcGas) {
+      resolve({
+        gas: new BigNumber(sendArgs.gas).multipliedBy(gasPrice).toFixed()
+      })
+      return
+    }
     sendArgs.gasPrice = gasPrice
 
     contract.methods['approve'](...([ approveFor, weiAmount ]))
