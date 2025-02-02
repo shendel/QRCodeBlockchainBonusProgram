@@ -91,7 +91,9 @@ export default function Minter(props) {
                 <a onClick={() => { gotoPage('/account/backup') }}>{t('Backup')}</a>
                 <a onClick={() => { gotoPage('/account/restore') }}>{t('Restore')}</a>
               </div>
-              <a onClick={() => { gotoPage('/minter/addpoints') }}>{t('Add bonus points')}</a>
+              <div className={styles.convertCupsHolder}>
+                <a className={styles.convertCupsButton} onClick={() => { gotoPage('/minter/addpoints') }}>{t('Add bonus points')}</a>
+              </div>
             </Avatar>
           </div>
           <div className={styles.summaryInfo}>
