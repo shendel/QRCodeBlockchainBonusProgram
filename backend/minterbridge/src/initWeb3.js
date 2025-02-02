@@ -2,7 +2,7 @@ const WEB3 = require('web3')
 const { getEthLikeWallet } = require('./getEthLikeWallet')
 
 const MulticallAbi = require('./abi/MulticallAbi.json')
-const BridgeContractData = require('./abi/SimpleERC20Bridge.json')
+const BridgeContractData = require('./abi/BonusBridge.json')
 
 const initWeb3 = () => {
   const {

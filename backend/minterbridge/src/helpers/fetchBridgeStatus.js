@@ -1,4 +1,4 @@
-const BridgeContractData = require('../abi/SimpleERC20Bridge.json')
+const BridgeContractData = require('../abi/BonusBridge.json')
 const { Interface: AbiInterface } = require('@ethersproject/abi')
 const { callMulticall } = require('./callMulticall')
 
@@ -20,7 +20,10 @@ const fetchBridgeStatus = (options) => {
         tokenName: { func: 'getTokenName' },
         tokenDecimals: { func: 'getTokenDecimals' },
         tokenSymbol: { func: 'getTokenSymbol' },
-        tokenBalance: { func: 'getBalance' }
+        tokenBalance: { func: 'getBalance' },
+        outToInRate: { func: 'outToInRate' },
+        outTokenDecimals: { func: 'outTokenDecimals' },
+        inTokenDecimals: { func: 'inTokenDecimals' }
       }
     }).then((answer) => {
       resolve({

@@ -32,7 +32,7 @@ const processSwap = (options) => {
               swapId,
               swapInfo.fromAddress,
               swapInfo.toAddress,
-              swapInfo.amount
+              swapInfo.outAmount
             ]
           }).then((answer) => {
             console.log('swapIn ok')
@@ -66,7 +66,8 @@ const processSwap = (options) => {
           })
         } else {
           if (swapInfo.swapped) {
-            console.log('Already swapped', swapId, swapInfo.inHash)
+            console.log('Already swapped - save hash again', swapId, swapInfo.inHash)
+            
           }
           if (swapInfo.refunded) {
             console.log('Swap is refunded')

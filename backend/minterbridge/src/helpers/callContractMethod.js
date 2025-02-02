@@ -35,9 +35,13 @@ const callContractMethod = (options) => {
           onTrx(hash)
         })
         .on('error', (error) => {
-          console.log('transaction error:', error)
-          onError(error)
-          reject(error)
+          if (!error.toString().includes('not mined within')) {
+            console.log('>>> on error', error)
+            onError(error)
+            reject(error)
+          } else {
+            console.log('>>> wail wait')
+          }
         })
         .on('receipt', (receipt) => {
           onSuccess(receipt)
@@ -46,7 +50,7 @@ const callContractMethod = (options) => {
           resolve(res)
           onFinally(res)
         }).catch((err) => {
-          if(err.message.includes('not mined within 50 blocks')) {
+          if(err.message.includes('not mined within')) {
             const handle = setInterval(() => {
               activeWeb3.eth.getTransactionReceipt(txHash).then((resp) => {
                 // @to-do - process logs

@@ -1,4 +1,4 @@
-const BridgeContractData = require('../abi/SimpleERC20Bridge.json')
+const BridgeContractData = require('../abi/BonusBridge.json')
 const { Interface: AbiInterface } = require('@ethersproject/abi')
 const { callMulticall } = require('./callMulticall')
 
@@ -16,7 +16,7 @@ const fetchSwapsOutQuery = (options) => {
       target: address,
       encoder: abiI,
       calls: {
-        swapsOutQuery: { func: 'getSwapsOQuery', asArray: true },
+        swapsOutQuery: { func: 'getSwapsOutQuery', asArray: true },
       }
     }).then((answer) => {
       resolve({

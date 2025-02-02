@@ -1,4 +1,4 @@
-const BridgeContractData = require('../abi/SimpleERC20Bridge.json')
+const BridgeContractData = require('../abi/BonusBridge.json')
 const { Interface: AbiInterface } = require('@ethersproject/abi')
 const { callMulticall } = require('./callMulticall')
 

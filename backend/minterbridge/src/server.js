@@ -17,9 +17,11 @@ const app = express()
 
 const { initWeb3 } = require("./initWeb3")
 
+const alreadyInCheckNeed = []
+
 app.use(cors())
 app.use('/status', async(req, res) => {
-  res.json({ answer: 'ok' })
+  res.json({ answer: 'ok', alreadyInCheckNeed })
 })
 
 /*
@@ -52,25 +54,38 @@ const mainLoop = async () => {
   console.log('>>>> Symbol:', fromStatus.tokenSymbol)
   console.log('>>>> Decimals:', fromStatus.tokenDecimals)
   console.log('>>>> Name:', fromStatus.tokenName)
-  console.log('>>>> Balance:', fromWei(fromStatus.tokenBalance, fromStatus.tokenDecimals))
+  console.log('>>>> fromDecimals', fromStatus.outTokenDecimals)
+  console.log('>>>> toDecimals', fromStatus.inTokenDecimals)
+  console.log('>>>> Tokens Out to In Rate', fromStatus.outToInRate)
   
   console.log('> Bridge to - fetch contract status')
   const toStatus = await fetchBridgeStatus({
     address: activeWeb3.to.bridge_address,
     multicall: activeWeb3.to.multicall,
   })
-  console.log('>> Token address:', toStatus.tokenAddress)
-  console.log('>>>> Symbol:', toStatus.tokenSymbol)
-  console.log('>>>> Decimals:', toStatus.tokenDecimals)
-  console.log('>>>> Name:', toStatus.tokenName)
-  console.log('>>>> Balance:', fromWei(toStatus.tokenBalance, toStatus.tokenDecimals))
+
+  console.log('>>>> fromDecimals', fromStatus.outTokenDecimals)
+  console.log('>>>> toDecimals', fromStatus.inTokenDecimals)
+  console.log('>>>> Tokens Out to In Rate', fromStatus.outToInRate)
   
-  if (toStatus.tokenDecimals != fromStatus.tokenDecimals) {
-    console.log('[ERROR] Decimals at from and to bridge must be equal')
+  
+
+  if ((fromStatus.outTokenDecimals != toStatus.outTokenDecimals)
+    || (fromStatus.inTokenDecimals != toStatus.inTokenDecimals)
+    || (fromStatus.outToInRate != toStatus.outToInRate)
+  ) {
+    console.log('[ ERROR ] - Fail configuration')
+    console.log('[ Option **** Out **** In]')
+    if (fromStatus.outTokenDecimals != toStatus.outTokenDecimals ) {
+      console.log(' >>> outDecimails not equal', fromStatus.outTokenDecimals, toStatus.outTokenDecimals)
+    }
+    if (fromStatus.inTokenDecimals != toStatus.inTokenDecimals) {
+      console.log(' >>> inDecimals not equal', fromStatus.inTokenDecimals, toStatus.inTokenDecimals)
+    }
+    if (fromStatus.outToInRate != toStatus.outToInRate) {
+      console.log(' >>> Out to in rate not equal', fromStatus.outToInRate, toStatus.outToInRate)
+    }
     return
-  }
-  if (new BigNumber(toStatus.tokenBalance).isLessThan(toWei(process.env.WARNING_TOKEN_BALANCE, toStatus.tokenDecimals))) {
-    console.log('[WARNING] Low balance at bridge to')
   }
   console.log('>> Fetch oracle status')
   
@@ -85,15 +100,17 @@ const mainLoop = async () => {
   })
   console.log('>>> Balance at chain to:', fromWei(balance_to))
 
-  const alreadyInCheckNeed = []
+  
   const processSwapsLoop = () => {
     return new Promise((resolve, reject) => {
       fetchSwapsOutQuery({
         address: activeWeb3.from.bridge_address,
         multicall: activeWeb3.from.multicall
       }).then(async (answer) => {
+
         if (answer.swapsOutQuery && answer.swapsOutQuery.length) {
           console.log('>> Not processed swaps', answer.swapsOutQuery)
+          
           for (let k in answer.swapsOutQuery) {
             const swapId = answer.swapsOutQuery[k]
             if (alreadyInCheckNeed.indexOf(swapId) == -1) {
@@ -125,7 +142,6 @@ const mainLoop = async () => {
       })
     })
   }
-  
   while(true) {
     await processSwapsLoop()
     await delay(10000)

@@ -15,6 +15,7 @@ import fetchTokenAllowance from '@/helpers/fetchTokenAllowance'
 import approveToken from '@/helpers/approveToken'
 import fetchWalletStatus from '@/qrcode_helpers/fetchWalletStatus'
 import callBridgeMethod from '@/qrcode_helpers/callBridgeMethod'
+import callMinterBridgeMethod from '@/qrcode_helpers/callMinterBridgeMethod'
 import fetchBridgeSwapInfo from '@/qrcode_helpers/fetchBridgeSwapInfo'
 
 import fetchMinterBridgeInfo from '@/qrcode_helpers/fetchMinterBridgeInfo'
@@ -380,43 +381,26 @@ export default function MinterAddBonusPointsPanel(props) {
   
   const doBridge = async () => {
     setIsSwapping(true)
-    const weiAmount = balance
-    setBridgeStepNumber(1)
-    if (new BigNumber(weiAmount).isGreaterThan(allowance)) {
-      setBridgeStep(BRIDGE_STEPS.APPROVE)
-      setBridgeStepNumber(2)
-      setIsApproving(true)
-      try {
-        await approveToken({
-          activeWallet: browserAccount,
-          activeWeb3: browserWeb3,
-          tokenAddress: factoryStatus.tokenAddress,
-          approveFor: BRIDGE_WORK_CONTRACT,
-          weiAmount: `0x` + new BigNumber(weiAmount).toString(16),
-          onTrx: (hash) => {
-            setBridgeStep(BRIDGE_STEPS.APPROVE_TX)
-            setApproveHash(hash)
-            setBridgeStepNumber(3)
-            setIsApproving(false)
-          }
-        })
-      } catch (err) {
-        console.log('Fail approve', err)
-        setIsLoading(false)
-        return
+    const {
+      main: {
+        outTokenDecimals,
       }
-    }
+    } = bridgeInfo
+    const amountWei = toWei(spendAmount, outTokenDecimals)
+    console.log('>>> amountWei', amountWei)
+    setBridgeStepNumber(1)
+    
     setBridgeStep(BRIDGE_STEPS.SEND_TO_BRIDGE)
     setBridgeStepNumber(4)
     setIsSendToBridge(true)
-    callBridgeMethod({
-      activeWallet: browserAccount,
-      activeWeb3: browserWeb3,
-      contractAddress: BRIDGE_WORK_CONTRACT,
+    callMinterBridgeMethod({
+      activeWallet: (injectedAccount) ? injectedAccount : browserAccount,
+      activeWeb3: (injectedAccount) ? injectedWeb3 : browserWeb3,
+      contractAddress: MINTER_BRIDGE_MAINNET_CONTRACT,
       method: 'swapOut',
       args: [
-        injectedAccount,
-        `0x` + new BigNumber(weiAmount).toString(16)
+        browserAccount,
+        `0x` + new BigNumber(amountWei).toString(16)
       ],
       onTrx: (hash) => {
         setBridgeStep(BRIDGE_STEPS.SEND_TO_BRIDGE_TX)
@@ -434,7 +418,8 @@ export default function MinterAddBonusPointsPanel(props) {
       }
     }).catch((err) => {
       console.log(err)
-      
+      setIsSwapping(false)
+      setIsSendToBridge(false)
     })
   }
 
@@ -450,6 +435,7 @@ export default function MinterAddBonusPointsPanel(props) {
         chainId: WORK_CHAIN_ID,
         swapId
       }).then(async ({ info }) => {
+        console.log('>>>> info', info)
         const { swapped , inHash } = info
         if (swapped) {
           setInHash(inHash)
@@ -469,10 +455,10 @@ export default function MinterAddBonusPointsPanel(props) {
   }, [ swapId, tick ])
 
   const makeSmallHash = (hash) => {
-    return `${hash.substring(0,10)}...${hash.substring(-10,10)}`
+    return `${hash.substr(0,10)}...${hash.substr(-10,10)}`
   }
 
-  
+  const isZeroAmount = !new BigNumber(spendAmount).isGreaterThan(0)
   return (
     <div className={styles.climerWithdrawPanel}>
       {(isBalanceFetching || isAllowanceFetching || isSendToBridge || isApproving || screenLocked ) && (
@@ -502,8 +488,8 @@ export default function MinterAddBonusPointsPanel(props) {
               connectView={(isConnecting, openConnectModal) => {
                 return (
                   <a 
-                    onClick={openConnectModal}
-                    className={`${styles.connectWalletButton} ${(isConnecting)} ? styles.isConnecting : ''}`}
+                    onClick={() => { if (!isSwapping) { openConnectModal() }}}
+                    className={`${styles.connectWalletButton} ${(isConnecting || isSwapping)} ? styles.isConnecting : ''}`}
                   >
                     {t((isConnecting) ? 'Connecting...' :'or Connect other wallet')}
                   </a>
@@ -518,8 +504,8 @@ export default function MinterAddBonusPointsPanel(props) {
               view={(handleDisconnect) => {
                 return (
                   <a 
-                    onClick={handleDisconnect}
-                    className={styles.disconnectWalletButton}
+                    onClick={() => { if (!isSwapping) { handleDisconnect() } }}
+                    className={`${styles.disconnectWalletButton} ${(isSwapping) ? styles.buttonDisabled : ''}`}
                   >
                     {t('Disconnect wallet')}
                   </a>
@@ -553,15 +539,15 @@ export default function MinterAddBonusPointsPanel(props) {
         <div className={styles.label}>
           {t('You want to spend:')}
         </div>
-        <div className={`${styles.inputRow} ${(isApproving) ? styles.disabled : ''}`}>
-          <input type="number" min={0} value={spendAmount} onChange={(e) => { handleSpendAmountChange(e.target.value) }} />
+        <div className={`${styles.inputRow} ${(isApproving || isSwapping) ? styles.disabled : ''}`}>
+          <input type="number" min={0} value={spendAmount} readOnly={isApproving || isSwapping} onChange={(e) => { handleSpendAmountChange(e.target.value) }} />
           <em></em>
           <strong>{(isTokenInfoFetched) ? tokenSymbol : `...`}</strong>
         </div>
         <div className={styles.label}>
           {t('You will receive')}
         </div>
-        <div className={`${styles.inputRow} ${styles.readOnly} ${(isApproving) ? styles.disabled : ''}`}>
+        <div className={`${styles.inputRow} ${styles.readOnly} ${(isApproving || isSwapping) ? styles.disabled : ''}`}>
           <div>{getAmount}</div>
           <em></em>
           <strong>{factoryStatus.tokenSymbol}</strong>
@@ -596,14 +582,23 @@ export default function MinterAddBonusPointsPanel(props) {
                 )}
               </>
             ) : (
-              <a className={styles.button}>Swap</a>
+              <>
+                {!isSwapping && (
+                  <a className={`${styles.button} ${(isZeroAmount) ? styles.buttonDisabled : ''}`} onClick={doBridge}>
+                    {!isSwapped
+                      ? t('Swap')
+                      : t('Swap again')
+                    }
+                  </a>
+                )}
+              </>
             )}
           </>
         )}
       </div>
       <div className={styles.walletInfo}>
         <>
-          {(isSwapping || isSwapped || true) && (
+          {(isSwapping || isSwapped) && (
             <>
               <div className={styles.swapStatus}>
                 {!isSwapped && (
@@ -624,20 +619,6 @@ export default function MinterAddBonusPointsPanel(props) {
                     <li>
                       {bridgeStepNumber > 1 ? (<OkIcon />) : (<em></em>)}
                       <span>Preparing for bonus conversion</span>
-                    </li>
-                  )}
-                  {/* APPROVE */}
-                  {bridgeStepNumber >= 2 && (
-                    <li>
-                      {bridgeStepNumber > 2 ? (<OkIcon />) : (<em></em>)}
-                      <span>Approving</span>
-                    </li>
-                  )}
-                  {/* APPROVE_TX */}
-                  {bridgeStepNumber >= 3 && (
-                    <li>
-                      {bridgeStepNumber > 3 ? (<OkIcon />) : (<em></em>)}
-                      <span>Approving TX {makeSmallHash(approveHash)}</span>
                     </li>
                   )}
                   {/* SEND_TO_BRIDGE */}
@@ -672,20 +653,8 @@ export default function MinterAddBonusPointsPanel(props) {
               </div>
             </>
           )}
-          {isSwapped ? (
+          {isSwapped && (
             <a onClick={() => { gotoPage('/') }} className={styles.widthdrawButton}>{t('Ready. Go to account')}</a>
-          ) : (
-            <>
-              {!isSwapping && (
-                <>
-                  {new BigNumber(balance).isGreaterThan(0) ? (
-                    <a onClick={doBridge} className={styles.widthdrawButton}>{t('Withdraw')}</a>
-                  ) : (
-                    <a className={`${styles.widthdrawButton} ${styles.buttonDisabled}`}>{t('You dont have points for convert')}</a>
-                  )}
-                </>
-              )}
-            </>
           )}
         </>
       </div>
