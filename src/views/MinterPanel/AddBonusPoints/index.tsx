@@ -90,6 +90,9 @@ export default function MinterAddBonusPointsPanel(props) {
 
   const [ screenLocked, setScreenLocked ] = useState(false)
   
+  const [ needUpdateInjected, setNeedUpdateInjected ] = useState(false)
+  const [ needUpdateBrowser, setNeedUpdateBrowser ] = useState(false)
+  
   useEffect(() => {
     const _setZero = () => {
       setIsBalanceInjectedFetching(false)
@@ -98,9 +101,10 @@ export default function MinterAddBonusPointsPanel(props) {
       setBalanceInjected(0)
       setEnergyInjected(0)
     }
-    if (injectedAccount) {
+    if (injectedAccount || (injectedAccount && needUpdateInjected)) {
       setIsBalanceInjectedFetching(true)
       setIsAllowanceInjectedFetching(false)
+      setNeedUpdateInjected(false)
       fetchWalletStatus({
         address: injectedAccount,
         chainId: MAINNET_CHAIN_ID,
@@ -132,7 +136,7 @@ export default function MinterAddBonusPointsPanel(props) {
     } else {
       _setZero()
     }
-  }, [ injectedAccount ])
+  }, [ injectedAccount, needUpdateInjected ])
   
   useEffect(() => {
     const _setZero = () => {
@@ -142,9 +146,10 @@ export default function MinterAddBonusPointsPanel(props) {
       setBalanceBrowser(0)
       setEnergyBrowser(0)
     }
-    if (browserAccount) {
+    if (browserAccount || (browserAccount && needUpdateBrowser)) {
       setIsBalanceBrowserFetching(true)
       setIsAllowanceBrowserFetching(false)
+      setNeedUpdateBrowser(false)
       fetchWalletStatus({
         address: browserAccount,
         chainId: MAINNET_CHAIN_ID,
@@ -179,7 +184,7 @@ export default function MinterAddBonusPointsPanel(props) {
     } else {
       _setZero()
     }
-  }, [ browserAccount])
+  }, [ browserAccount, needUpdateBrowser ] )
   
   
   const isBalanceFetching = isBalanceInjectedFetching || isBalanceBrowserFetching || !isTokenInfoFetched
@@ -441,6 +446,8 @@ export default function MinterAddBonusPointsPanel(props) {
           setInHash(inHash)
           setIsSwapping(false)
           setIsSwapped(true)
+          setNeedUpdateBrowser(true)
+          setNeedUpdateInjected(true)
           setBridgeStepNumber(7)
         } else {
           await delay(5000)
@@ -489,7 +496,7 @@ export default function MinterAddBonusPointsPanel(props) {
                 return (
                   <a 
                     onClick={() => { if (!isSwapping) { openConnectModal() }}}
-                    className={`${styles.connectWalletButton} ${(isConnecting || isSwapping)} ? styles.isConnecting : ''}`}
+                    className={`${styles.connectWalletButton} ${(isConnecting || isSwapping) ? styles.buttonDisabled : ''}`}
                   >
                     {t((isConnecting) ? 'Connecting...' :'or Connect other wallet')}
                   </a>
