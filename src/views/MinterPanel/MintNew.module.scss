@@ -1,0 +1,183 @@
+.mintQrCodePanel {
+  display: flex;
+  height: 100vh;
+  flex-direction: column; 
+  
+  
+  .formHolder {
+    background: #feeee7;
+    padding: 1em;
+    
+    .inputHolder {
+      padding-bottom: 1em;
+      LABEL {
+        display: block;
+        color: #020202;
+        font-weight: bold;
+        font-size: 14pt;
+      }
+      .infoRow {
+        display: block;
+        color: #020202;
+        font-weight: bold;
+        font-size: 14pt;
+        padding-left: 1em;
+      }
+      
+      .selectHolder {
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        
+        width: 100%;
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
+
+        position: relative;
+        
+        SELECT,
+        DIV {
+          color: #000000;
+          font-size: 16pt;
+          font-weight: bold;
+          outline: none;
+          padding: 0.75em;
+          box-sizing: border-box;
+          background: none;
+          border: 0;
+          width: 100%;
+          position: relative;
+          z-index: 10;
+        }
+        EM {
+          display: block;
+          border-radius: 0.5em;
+          border: 1px solid #007bff;
+          box-shadow: 0px 0px 0.25em 0px #007bff;
+          position: absolute;
+          background: #FFF;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 1;
+        }
+      }
+      .inputRow {
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        
+        width: 100%;
+        margin-top: 0.25em;
+        margin-bottom: 0.25em;
+
+        position: relative;
+        
+        INPUT,
+        DIV {
+          color: #000000;
+          font-size: 16pt;
+          font-weight: bold;
+          outline: none;
+          padding: 0.75em;
+          box-sizing: border-box;
+          background: none;
+          border: 0;
+          width: 100%;
+          position: relative;
+          z-index: 10;
+        }
+        EM {
+          display: block;
+          border-radius: 0.5em;
+          border: 1px solid #007bff;
+          box-shadow: 0px 0px 0.25em 0px #007bff;
+          position: absolute;
+          background: #FFF;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 1;
+        }
+        INPUT:focus+EM {
+          background: #e6f1fe;
+        }
+        INPUT:focus {
+          color: #002b59;
+        }
+        &.disabled INPUT,
+        &.disabled DIV {
+          color: #666666 !important;
+        }
+        &.disabled EM,
+        INPUT:disabled+EM {
+          border: 1px solid #4b4b4b !important;
+          box-shadow: 0px 0px 0.25em 0px #4b4b4b !important;
+          background: #e8e8e8 !important;
+        }
+        INPUT:disabled,
+        &.disabled STRONG {
+          color: #666666;
+        }
+        &.readOnly EM {
+          background: none;
+        }
+        &.readOnly INPUT {
+          color: #000000 !important;
+        }
+        STRONG { 
+          display: block;
+          font-size: 12pt;
+          font-weight: bold;
+          padding-left: 0em;
+          padding-right: 1em;
+          z-index: 10;
+        }
+      }
+    }
+  }
+  .buttonsHolder {
+    flex: 1 1;
+    position: relative;
+    background: #ff702a;
+    padding: 1em;
+    
+    &::before,
+    &::after {
+      display: block;
+      content: '';
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      height: 1em;
+      background: #feeee7;
+    }
+    &::after {
+      background: #ff702a;
+      border-radius: 1em 1em 0 0;
+    }
+    
+    A {
+      display: block;
+      width: 100%;
+      text-align: center;
+      cursor: pointer;
+      background: #007bff;
+      font-size: 12pt;
+      padding: 0.75em;
+      text-decoration: none;
+      border-radius: 0.5em;
+      color: #FFF;
+      font-weight: bold;
+      box-sizing: border-box;
+      border: none;
+      margin-bottom: 0.5em;
+      &.buttonDisabled {
+        background: #7b7b7b;
+      }
+    }
+  }
+}

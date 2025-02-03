@@ -40,6 +40,7 @@ import ManagerPanel from '@/views/ManagerPanel/'
 // Minter views
 import MinterPanel from '@/views/MinterPanel/'
 import MinterMint from '@/views/MinterPanel/Mint'
+import MinterMintNew from '@/views/MinterPanel/MintNew'
 import MinterMintedCodes from '@/views/MinterPanel/MintedCodes'
 import MinterAddBonusPointsPanel from '@/views/MinterPanel/AddBonusPoints'
 // Claimer views
@@ -80,6 +81,7 @@ import {
 
 import { useLaunchParams } from '@telegram-apps/sdk-react';
 
+import AlertModal from '@/components/qrcode/AlertModal'
 
 function MyApp(pageProps) {
   const { publicRuntimeConfig } = getConfig()
@@ -261,7 +263,7 @@ function MyApp(pageProps) {
     '/manager/': ManagerPanel,
 
     '/minter/': MinterPanel,
-    '/minter/mint': MinterMint,
+    '/minter/mint': MinterMintNew,
     '/minter/addpoints': MinterAddBonusPointsPanel,
     '/minter/codes/:type/:page': MinterMintedCodes,
 
@@ -282,7 +284,7 @@ function MyApp(pageProps) {
     viewsPaths = {
       '/': MinterPanel,
       '/minter/': MinterPanel,
-      '/minter/mint': MinterMint,
+      '/minter/mint': MinterMintNew,
       '/minter/addpoints': MinterAddBonusPointsPanel,
       '/minter/codes/:type/:page': MinterMintedCodes,
       
@@ -314,45 +316,47 @@ function MyApp(pageProps) {
   
   return (
     <>
-      <AppRoot chainId={WORK_CHAIN_ID} chainIds={[WORK_CHAIN_ID, MAINNET_CHAIN_ID]}>
-        <>
-          {!isClaimerBuild && !isMinterBuild && (
-            <>
-              <Header />
-              <h3>Index page</h3>
-              {isFactoryFetching && (
-                <div>Fetching QRCodeFactory ({QRCODE_FACTORY}) status</div>
-              )}
-              {!isFactoryFetching && !isFactoryFetched && (
-                <div>Fail fetch QRCodeFactory ({QRCODE_FACTORY}) status</div>
-              )}
-            </>
-          )}
-          {isFactoryFetched && (
-            <>
-              {!isClaimerBuild && !isMinterBuild && (
-                <nav>
-                  <a href="#/admin">[Admin panel]</a>
-                  <a href="#/manager">[Manager panel]</a>
-                  <a href="#/minter">[Minter panel]</a>
-                  <a href="#/claimer">[Claimer panel]</a>
-                </nav>
-              )}
-              <HashRouterViews
-                views={viewsPaths}
-                processHash={processTgHash}
-                props={{
-                  factoryStatus,
-                  backendStatus,
-                  UpdateFactoryStatus,
-                  UpdateBackendStatus,
-                }}
-                on404={Page404}
-              />
-            </>
-          )}
-        </>
-      </AppRoot>
+      <AlertModal>
+        <AppRoot chainId={WORK_CHAIN_ID} chainIds={[WORK_CHAIN_ID, MAINNET_CHAIN_ID]}>
+          <>
+            {!isClaimerBuild && !isMinterBuild && (
+              <>
+                <Header />
+                <h3>Index page</h3>
+                {isFactoryFetching && (
+                  <div>Fetching QRCodeFactory ({QRCODE_FACTORY}) status</div>
+                )}
+                {!isFactoryFetching && !isFactoryFetched && (
+                  <div>Fail fetch QRCodeFactory ({QRCODE_FACTORY}) status</div>
+                )}
+              </>
+            )}
+            {isFactoryFetched && (
+              <>
+                {!isClaimerBuild && !isMinterBuild && (
+                  <nav>
+                    <a href="#/admin">[Admin panel]</a>
+                    <a href="#/manager">[Manager panel]</a>
+                    <a href="#/minter">[Minter panel]</a>
+                    <a href="#/claimer">[Claimer panel]</a>
+                  </nav>
+                )}
+                <HashRouterViews
+                  views={viewsPaths}
+                  processHash={processTgHash}
+                  props={{
+                    factoryStatus,
+                    backendStatus,
+                    UpdateFactoryStatus,
+                    UpdateBackendStatus,
+                  }}
+                  on404={Page404}
+                />
+              </>
+            )}
+          </>
+        </AppRoot>
+      </AlertModal>
     </>
   )
 }
