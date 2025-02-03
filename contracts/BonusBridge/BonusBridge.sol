@@ -8,7 +8,7 @@ import "../IQRCodeFactory.sol";
 contract BonusBridge {
     using AddressSet for AddressSet.Storage;
 
-    uint256 public refundTime = 1 hours;
+    uint256 public refundTime = 1 days;
     AddressSet.Storage private owners;
     address public oracle;
     address public token;
@@ -55,6 +55,7 @@ contract BonusBridge {
     
     mapping (uint256 => SwapIn) public swapsIn;
 
+    uint256 public minOutAmount = 1 ether;
     uint8 public outTokenDecimals = 18;
     uint8 public inTokenDecimals = 18;
     uint256 public outToInRate = 1;
@@ -64,7 +65,8 @@ contract BonusBridge {
         address _token,
         uint8 _inTokenDecimals,
         uint8 _outTokenDecimals,
-        uint256 _outToInRate
+        uint256 _outToInRate,
+        uint256 _minOutAmount
     ) {
         owners.add(msg.sender);
         oracle = _oracle;
@@ -72,10 +74,14 @@ contract BonusBridge {
         outTokenDecimals = _outTokenDecimals;
         inTokenDecimals = _inTokenDecimals;
         outToInRate = _outToInRate;
+        minOutAmount = _minOutAmount;
     }
 
     function setFactory(address _newFactory) public onlyOwner {
         factory = _newFactory;
+    }
+    function setMinOutAmount(uint256 _amount) public onlyOwner {
+        minOutAmount = _amount;
     }
     function setOutTokenDecimals(uint8 _decimals) public onlyOwner {
         outTokenDecimals = _decimals;
@@ -171,6 +177,20 @@ contract BonusBridge {
 
     event onSwapOutRefund(uint256 swapId, address refunder);
 
+    function swapOutRefundOwner(
+        uint256 swapId
+    ) public onlyOwner {
+        require(swapsOut[swapId].swapped == false, "Swap already swapped");
+        require(swapsOut[swapId].refunded == false, "Swap already refunded");
+        require(IERC20(token).balanceOf(address(this)) >= swapsOut[swapId].outAmount, "Balance on Bridge not enought");
+        
+        swapsOut[swapId].refunded = true;
+        _swapsOutQueryDel(swapId);
+
+        IERC20(token).transfer(swapsOut[swapId].fromAddress, swapsOut[swapId].outAmount);
+        emit onSwapOutRefund(swapId, msg.sender);
+    }
+    
     function swapOutRefund(
         uint256 swapId
     ) public {
@@ -192,6 +212,7 @@ contract BonusBridge {
         address toAddress,
         uint256 outAmount
     ) public {
+        require(outAmount >= minOutAmount, "Min out amount");
         require(msg.sender == tx.origin, "Contract call not allowed");
         require(IERC20(token).balanceOf(msg.sender) >= outAmount, "Balance not enought");
         require(IERC20(token).allowance(msg.sender, address(this)) >= outAmount, "Allowance not enought");

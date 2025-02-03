@@ -122,102 +122,158 @@ export default function MinterMintNew(props) {
       console.log('>>>', err)
     })
   }
-  
 
-  console.log(factoryStatus)
+  const TABS = {
+    NEW_CODE: 'NEW_CODE',
+    TEMPLATES: 'TEMPLATES',
+  }
+  const [ templates, setTemplates ] = useState([])
+  
+  const [ activeTab, setActiveTab ] = useState(TABS.NEW_CODE)
+  
   return (
     <WorkChainHolder>
       <div className={styles.mintQrCodePanel}>
         <HeaderRow title={PROJECT_TITLE} backUrl={`/minter`} gotoPage={gotoPage} />
         {(isMinting) && (<LoaderFullScreen />)}
-        <Title title={t('Mint new QRCode')} />
-
-        <div className={styles.formHolder}>
-          <div className={styles.inputHolder}>
-            <label>{t('Energy')}</label>
-            <div className={styles.infoRow}>{fromWei(browserEnergy)}</div>
-          </div>
-          <div className={styles.inputHolder}>
-            <label className={styles.required}>
-              {t('Amount')}
-            </label>
-            <div className={styles.inputRow}>
-              <input
-                type="number"
-                min={0}
-                value={amount}
-                onChange={(e) => { setAmount(e.target.value) }}
-              />
-              <em></em>
-              <strong>{factoryStatus.tokenSymbol}</strong>
-            </div>
-            {amountError != `` && (
-              <div className={styles.error}>{amountError}</div>
-            )}
-            <style>
-            {`
-              .tokensAmountPresset {
-                padding-left: 1em;
-                padding-right: 1em;
-                padding-top: 0.25em;
-              }
-              .tokensAmountPresset SPAN {
-                font-size: 12pt;
-              }
-              .tokensAmountPresset A {
-                font-weight: bold;
-                cursor: pointer;
-                font-size: 12pt;
-              }
-              .tokensAmountPresset A::after {
-                content: "|";
-                padding-left: 0.25em;
-                padding-right: 0.25em;
-                font-size: 12pt;
-              }
-            `}
-            </style>
-            <div className="tokensAmountPresset">
-              <span>{t('predefined value:')}</span>
-              {MINT_PRESET_AMMOUNT.map((amount, index) => {
-                return (
-                  <a key={index} onClick={() => { setAmount(amount) }}>[{amount}]</a>
-                )
-              })}
-            </div>
-            
-          </div>
-          <div className={styles.inputHolder}>
-            <label>{t('Message')}</label>
-            <div className={styles.inputRow}>
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => { setMessage(e.target.value) }}
-              />
-              <em></em>
-            </div>
-          </div>
-          <div className={styles.inputHolder}>
-            <label>{t('Expired in')}</label>
-            <div className={styles.selectHolder}>
-              <select value={timelife} onChange={(e) => { setTimelife(e.target.value) }}>
-                <option value={0}>{t('Default ({timelife} seconds)', { timelife: factoryStatus.defaultExpireTime } )}</option>
-                {Object.keys(MINT_PRESET_EXPIRE).map((tl, index) => {
-                  return (
-                    <option key={index} value={tl}>{t(MINT_PRESET_EXPIRE[tl])}</option>
-                  )
-                })}
-              </select>
-              <em></em>
-            </div>
-          </div>
+        <Title title={t('Minting QRCode')} />
+        <div className={styles.templateSource}>
+          <a className={(activeTab == TABS.NEW_CODE) ? styles.active : ''} onClick={() => { setActiveTab(TABS.NEW_CODE) }}>
+            {t('New QRCode')}
+          </a>
+          <a className={(activeTab == TABS.TEMPLATES) ? styles.active : ''} onClick={() => { setActiveTab(TABS.TEMPLATES) }}>
+            {t('From Template')}
+          </a>
         </div>
-        <div className={styles.buttonsHolder}>
-          <a onClick={doMintQrCode}>{t('Mint new QRCode')}</a>
-          <a>{t('Create new template and mint QRCode')}</a>
-          <a>{t('Cancel')}</a>
-        </div>
+        {activeTab == TABS.TEMPLATES && (
+          <>
+            <div className={styles.templatesHolder}>
+              <strong className={styles.emptyList}>
+                {t('You do not have any templates. Create a new one.')}
+              </strong>
+              <a className={styles.createNew} onClick={() => { setActiveTab(TABS.NEW_CODE) }}>
+                {t('Create a New Template for Minting QR Codes')}
+              </a>
+              <div className={styles.templates}>
+                <div>
+                  <div>
+                    <label>Amount: 1 BonusPoint</label>
+                    <span>Valid during 5 minutes</span>
+                    <div>Without message</div>
+                  </div>
+                  <div>
+                    <a>Use</a>
+                    <a>Change</a>
+                    <a>Remove</a>
+                  </div>
+                </div>
+                <div>
+                  <div>
+                    <label>Amount: 1 BonusPoint</label>
+                    <span>Valid during 5 minutes</span>
+                    <div>Without message</div>
+                  </div>
+                  <div>
+                    <a>Use</a>
+                    <a>Change</a>
+                    <a>Remove</a>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </>
+        )}
+        {activeTab == TABS.NEW_CODE && (
+          <>
+            <div className={styles.formHolder}>
+              <div className={styles.inputHolder}>
+                <label>{t('Energy')}</label>
+                <div className={styles.infoRow}>{fromWei(browserEnergy)}</div>
+              </div>
+              <div className={styles.inputHolder}>
+                <label className={styles.required}>
+                  {t('Amount')}
+                </label>
+                <div className={styles.inputRow}>
+                  <input
+                    type="number"
+                    min={0}
+                    value={amount}
+                    onChange={(e) => { setAmount(e.target.value) }}
+                  />
+                  <em></em>
+                  <strong>{factoryStatus.tokenSymbol}</strong>
+                </div>
+                {amountError != `` && (
+                  <div className={styles.error}>{amountError}</div>
+                )}
+                <style>
+                {`
+                  .tokensAmountPresset {
+                    padding-left: 1em;
+                    padding-right: 1em;
+                    padding-top: 0.25em;
+                  }
+                  .tokensAmountPresset SPAN {
+                    font-size: 12pt;
+                  }
+                  .tokensAmountPresset A {
+                    font-weight: bold;
+                    cursor: pointer;
+                    font-size: 12pt;
+                  }
+                  .tokensAmountPresset A::after {
+                    content: "|";
+                    padding-left: 0.25em;
+                    padding-right: 0.25em;
+                    font-size: 12pt;
+                  }
+                `}
+                </style>
+                <div className="tokensAmountPresset">
+                  <span>{t('Predefined Values:')}</span>
+                  {MINT_PRESET_AMMOUNT.map((amount, index) => {
+                    return (
+                      <a key={index} onClick={() => { setAmount(amount) }}>[{amount}]</a>
+                    )
+                  })}
+                </div>
+                
+              </div>
+              <div className={styles.inputHolder}>
+                <label>{t('Message')}</label>
+                <div className={styles.inputRow}>
+                  <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => { setMessage(e.target.value) }}
+                  />
+                  <em></em>
+                </div>
+              </div>
+              <div className={styles.inputHolder}>
+                <label>{t('Expired in')}</label>
+                <div className={styles.selectHolder}>
+                  <select value={timelife} onChange={(e) => { setTimelife(e.target.value) }}>
+                    <option value={0}>{t('Default ({timelife} seconds)', { timelife: factoryStatus.defaultExpireTime } )}</option>
+                    {Object.keys(MINT_PRESET_EXPIRE).map((tl, index) => {
+                      return (
+                        <option key={index} value={tl}>{t(MINT_PRESET_EXPIRE[tl])}</option>
+                      )
+                    })}
+                  </select>
+                  <em></em>
+                </div>
+              </div>
+            </div>
+            <div className={styles.buttonsHolder}>
+              <a onClick={doMintQrCode}>{t('Mint new QRCode')}</a>
+              <a>{t('Create New Template and Mint QRCode')}</a>
+              <a>{t('Cancel')}</a>
+            </div>
+          </>
+        )}
       </div>
     </WorkChainHolder>
   )

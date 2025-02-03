@@ -21,8 +21,12 @@ contract QRCodeMinters is IQRCodeMinters {
         require(factory.getIsManager(tx.origin) == true, "Only for managers");
         _;
     }
-    modifier onlyFactory() {
+    modifier onlyFactoryCall() {
         require(address(factory) == msg.sender, "Only for factory");
+        _;
+    }
+    modifier onlyManagerOrOracle() {
+        require(tx.origin == factory.oracle() || factory.getIsManager(tx.origin) == true, "Only for oracle or manager");
         _;
     }
     constructor() {
@@ -68,27 +72,27 @@ contract QRCodeMinters is IQRCodeMinters {
         return minters.exists(who);
     }
 
-    function setIsMinter(address who, bool _isMinter) onlyManager onlyFactory public {
+    function setIsMinter(address who, bool _isMinter) onlyManager onlyFactoryCall public {
         if (_isMinter) {
             minters.add(who);
         } else {
             minters.del(who);
         }
     }
-    function setMinterName(address minter, string memory name) onlyManager onlyFactory public {
+    function setMinterName(address minter, string memory name) onlyManager onlyFactoryCall public {
         mintersName[minter] = name;
     }
     function addMinter(address minter, string memory name) onlyManager public {
         minters.add(minter);
         mintersName[minter] = name;
     }
-    function setMaxMintAmountPerQrCode(address minter, uint256 newLimit) onlyManager onlyFactory public {
+    function setMaxMintAmountPerQrCode(address minter, uint256 newLimit) onlyManager onlyFactoryCall public {
         maxMintAmountPerQrCode[minter] = newLimit;
     }
-    function setMinterBalance(address minter, uint256 newBalance) onlyManager onlyFactory public {
+    function setMinterBalance(address minter, uint256 newBalance) onlyManagerOrOracle onlyFactoryCall public {
         minterBalance[minter] = newBalance;
     }
-    function addMinterBalance(address minter, uint256 amount) onlyManager onlyFactory public {
+    function addMinterBalance(address minter, uint256 amount) onlyManager onlyFactoryCall public {
         minterBalance[minter] = minterBalance[minter] + amount;
     }
 
@@ -96,7 +100,7 @@ contract QRCodeMinters is IQRCodeMinters {
         return mintersName[minter];
     }
 
-    function addQrCode(address minter, uint256 amount, uint256 qrCodeId) onlyFactory public {
+    function addQrCode(address minter, uint256 amount, uint256 qrCodeId) onlyFactoryCall public {
         mintedAmount[minter] += amount;
         mintedQrCodes[minter].push(qrCodeId);
         mintedQrCodesCount[minter]++;
@@ -105,7 +109,7 @@ contract QRCodeMinters is IQRCodeMinters {
         notClaimedQrCodesCount[minter]++;
     }
 
-    function onClaim(address minter, uint256 codeId, uint256 amount) onlyFactory public {
+    function onClaim(address minter, uint256 codeId, uint256 amount) onlyFactoryCall public {
         claimedByMinter[minter] += amount;
         claimedQrCodesCount[minter]++;
         claimedQrCodes[minter].push(codeId);

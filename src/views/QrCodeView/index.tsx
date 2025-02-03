@@ -24,7 +24,7 @@ export default function QrCodeView(props) {
     }
   } = props
   
-  const [ useTelegramLink, setUseTelegramLink ] = useState(true)
+  const [ useTelegramLink, setUseTelegramLink ] = useState(false)
   const { publicRuntimeConfig } = getConfig()
   const {
     CLAIMER_URL,

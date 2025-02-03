@@ -53,15 +53,18 @@ contract SimpleERC20Bridge {
     
     mapping (uint256 => SwapIn) public swapsIn;
 
+    uint256 public minOutAmount = 1 ether;
 
     constructor(
         address _oracle,
         address _token,
-        address _blacklist
+        address _blacklist,
+        uint256 _minOutAmount
     ) {
         owners.add(msg.sender);
         oracle = _oracle;
         token = _token;
+        minOutAmount = _minOutAmount;
         blacklist = IBannedClaimers(_blacklist);
     }
 
@@ -90,6 +93,10 @@ contract SimpleERC20Bridge {
     }
 
     event onSwapIn(uint256 swapId, address from, address to, uint256 amount);
+
+    function setMinOutAmount(uint256 amount) public onlyOwner {
+        minOutAmount = amount;
+    }
 
     function swapIn(
         uint256 swapId,
@@ -160,6 +167,7 @@ contract SimpleERC20Bridge {
         address toAddress,
         uint256 amount
     ) public {
+        require(amount >= minOutAmount, "Min out amount");
         require(blacklist.isBannedClaimer(msg.sender) == false, "Blacklisted");
         require(msg.sender == tx.origin, "Contract call not allowed");
         require(blacklist.isBannedClaimer(toAddress) == false, "Blacklisted");

@@ -3,7 +3,68 @@
   height: 100vh;
   flex-direction: column; 
   
+  .templateSource {
+    background: #feeee7;
+    display: flex;
+    box-sizing: border-box;
+    A {
+      display: block;
+      box-sizing: border-box;
+      width: 50%;
+      text-align: center;
+      font-size: 12pt;
+      font-weight: bold;
+      text-decoration: none;
+      color: #FFF;
+      background: #007bff;
+      padding: 1em;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      border-left: 2px solid #020202;
+      border-right: 2px solid #020202;
+      border-bottom: 2px solid #020202;
+      cursor: pointer;
+      &.active {
+        background: #f1ac8d;
+        color: #020202;
+      }
+      &:first-child {
+        border-radius: 0 0 0 1em;
+      }
+      &:last-child {
+        border-radius: 0 0 1em 0;
+      }
+    }
+  }
   
+  .templatesHolder {
+    background: #feeee7;
+    flex: 1 1;
+    padding: 1em;
+    
+    .emptyList {
+      display: block;
+      padding: 2em;
+      font-size: 16pt;
+      text-align: center;
+    }
+    .createNew {
+      display: block;
+      width: 100%;
+      text-align: center;
+      cursor: pointer;
+      background: #007bff;
+      font-size: 12pt;
+      padding: 0.75em;
+      text-decoration: none;
+      border-radius: 0.5em;
+      color: #FFF;
+      font-weight: bold;
+      box-sizing: border-box;
+      border: none;
+      margin-bottom: 0.5em;
+    }
+  }
   .formHolder {
     background: #feeee7;
     padding: 1em;
@@ -138,6 +199,7 @@
       }
     }
   }
+
   .buttonsHolder {
     flex: 1 1;
     position: relative;

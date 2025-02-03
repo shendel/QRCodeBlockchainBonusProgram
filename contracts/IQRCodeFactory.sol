@@ -22,6 +22,7 @@ interface IQRCodeFactory {
         */
     }
 
+    function oracle() external view returns (address);
     function isQrCodeClaimed(address codeAddress) external view returns (bool);
     function claim(address claimer, address claimer_call) external;
     function isBannedClaimer(address who) external view returns (bool);
