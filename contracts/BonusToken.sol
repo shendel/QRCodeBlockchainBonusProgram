@@ -1,52 +1,37 @@
-pragma solidity ^0.5.4;
-
-// ----------------------------------------------------------------------------
-// Safe maths
-// ----------------------------------------------------------------------------
-library SafeMath {
-    function add(uint a, uint b) internal pure returns (uint c) {
-        c = a + b;
-        require(c >= a);
-    }
-    function sub(uint a, uint b) internal pure returns (uint c) {
-        require(b <= a);
-        c = a - b;
-    }
-    function mul(uint a, uint b) internal pure returns (uint c) {
-        c = a * b;
-        require(a == 0 || c / a == b);
-    }
-    function div(uint a, uint b) internal pure returns (uint c) {
-        require(b > 0);
-        c = a / b;
-    }
-}
-
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.12;
 
 // ----------------------------------------------------------------------------
 // ERC Token Standard #20 Interface
 // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
 // ----------------------------------------------------------------------------
-contract ERC20Interface {
-    function totalSupply() public view returns (uint);
-    function balanceOf(address tokenOwner) public view returns (uint balance);
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining);
-    function transfer(address to, uint tokens) public returns (bool success);
-    function approve(address spender, uint tokens) public returns (bool success);
-    function transferFrom(address from, address to, uint tokens) public returns (bool success);
+interface IERC20 {
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
 
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 }
-
 
 // ----------------------------------------------------------------------------
 // Contract function to receive approval and execute function in one call
 // ----------------------------------------------------------------------------
-contract ApproveAndCallFallBack {
-    function receiveApproval(address from, uint256 tokens, address token, bytes memory data) public;
+interface IApproveAndCallFallBack {
+    function receiveApproval(
+        address from,
+        uint256 tokens,
+        address token,
+        bytes memory data
+    ) external;
 }
-
 
 // ----------------------------------------------------------------------------
 // Owned contract
@@ -57,102 +42,120 @@ contract Owned {
 
     event OwnershipTransferred(address indexed _from, address indexed _to);
 
-    constructor() public {
+    constructor() {
         owner = msg.sender;
     }
 
     modifier onlyOwner {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "Only owner can call this function");
         _;
     }
 
     function transferOwnership(address _newOwner) public onlyOwner {
         newOwner = _newOwner;
     }
+
     function acceptOwnership() public {
-        require(msg.sender == newOwner);
+        require(msg.sender == newOwner, "Only the new owner can accept ownership");
         emit OwnershipTransferred(owner, newOwner);
         owner = newOwner;
         newOwner = address(0);
     }
 }
 
-
 // ----------------------------------------------------------------------------
 // ERC20 Token, with the addition of symbol, name and decimals and a
 // fixed supply
 // ----------------------------------------------------------------------------
-contract BonusPointToken is ERC20Interface, Owned {
-    using SafeMath for uint;
-
+contract BonusPointToken is IERC20, Owned {
     string public symbol;
-    string public  name;
+    string public name;
     uint8 public decimals;
-    uint _totalSupply;
-    uint _drop;
+    uint256 private _totalSupply;
+    uint256 private _drop;
 
-    mapping(address => uint) balances;
-    mapping(address => mapping(address => uint)) allowed;
+    mapping(address => uint256) private balances;
+    mapping(address => mapping(address => uint256)) private allowed;
 
-    constructor() public {
+    constructor() {
         symbol = "BonusPoint";
         name = "BonusPoint";
-        decimals = 18;
-        _totalSupply = 1000000 * 10**uint(decimals);
-        _drop = 1000 * 10**uint(decimals);
+        decimals = 0;
+        _totalSupply = 1_000_000 * 10**uint256(decimals);
+        _drop = 1_000 * 10**uint256(decimals);
         balances[owner] = _totalSupply;
         emit Transfer(address(0), owner, _totalSupply);
     }
-    function totalSupply() public view returns (uint) {
-        return _totalSupply.sub(balances[address(0)]);
+
+    function totalSupply() public view override returns (uint256) {
+        return _totalSupply - balances[address(0)];
     }
-    function balanceOf(address tokenOwner) public view returns (uint balance) {
+
+    function balanceOf(address tokenOwner) public view override returns (uint256) {
         return balances[tokenOwner];
     }
-    function transfer(address to, uint tokens) public returns (bool success) {
-        balances[msg.sender] = balances[msg.sender].sub(tokens);
-        balances[to] = balances[to].add(tokens);
+
+    function transfer(address to, uint256 tokens) public override returns (bool) {
+        balances[msg.sender] -= tokens;
+        balances[to] += tokens;
         emit Transfer(msg.sender, to, tokens);
         return true;
     }
-    function approve(address spender, uint tokens) public returns (bool success) {
+
+    function approve(address spender, uint256 tokens) public override returns (bool) {
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
         return true;
     }
-    function transferFrom(address from, address to, uint tokens) public returns (bool success) {
-        balances[from] = balances[from].sub(tokens);
-        allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);
-        balances[to] = balances[to].add(tokens);
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokens
+    ) public override returns (bool) {
+        balances[from] -= tokens;
+        allowed[from][msg.sender] -= tokens;
+        balances[to] += tokens;
         emit Transfer(from, to, tokens);
         return true;
     }
-    function allowance(address tokenOwner, address spender) public view returns (uint remaining) {
+
+    function allowance(address tokenOwner, address spender) public view override returns (uint256) {
         return allowed[tokenOwner][spender];
     }
-    function approveAndCall(address spender, uint tokens, bytes memory data) public returns (bool success) {
+
+    function approveAndCall(
+        address spender,
+        uint256 tokens,
+        bytes memory data
+    ) public returns (bool) {
         allowed[msg.sender][spender] = tokens;
         emit Approval(msg.sender, spender, tokens);
-        ApproveAndCallFallBack(spender).receiveApproval(msg.sender, tokens, address(this), data);
+        IApproveAndCallFallBack(spender).receiveApproval(msg.sender, tokens, address(this), data);
         return true;
     }
-    function mint(address tokenOwner, uint tokens) internal returns (bool success) {
-        balances[tokenOwner] = balances[tokenOwner].add(tokens);
-        _totalSupply = _totalSupply.add(tokens);
+
+    function mint(address tokenOwner, uint256 tokens) internal returns (bool) {
+        unchecked {
+            balances[tokenOwner] += tokens;
+            _totalSupply += tokens;
+        }
         emit Transfer(address(0), tokenOwner, tokens);
         return true;
     }
+
     function drip() public onlyOwner {
         mint(msg.sender, _drop);
     }
 
-    function () external payable {
-        mint(msg.sender, _drop);
+    receive() external payable {
         if (msg.value > 0) {
-            msg.sender.transfer(msg.value);
+            payable(msg.sender).transfer(msg.value);
         }
+        mint(msg.sender, _drop);
     }
-    function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
-        return ERC20Interface(tokenAddress).transfer(owner, tokens);
+
+    function transferAnyERC20Token(address tokenAddress, uint256 tokens) public onlyOwner returns (bool) {
+        return IERC20(tokenAddress).transfer(owner, tokens);
     }
 }
