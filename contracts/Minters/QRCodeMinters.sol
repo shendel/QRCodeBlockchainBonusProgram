@@ -54,6 +54,8 @@ contract QRCodeMinters is IQRCodeMinters {
     mapping (address => uint256[]) public claimedQrCodes;
     // Айди кодов, которые не обналичили
     mapping (address => uint256[]) public notClaimedQrCodes;
+    // Добавляем маппинг для хранения индексов элементов в массиве notClaimedQrCodes
+    mapping(address => mapping(uint256 => uint256)) private notClaimedQrCodesIndexes;
     // Сколько всего кодов создал минтер
     mapping (address => uint256) public mintedQrCodesCount;
     // Сколько всего кодоб обналичено
@@ -108,6 +110,7 @@ contract QRCodeMinters is IQRCodeMinters {
         notClaimedByMinter[minter] += amount;
         notClaimedQrCodes[minter].push(qrCodeId);
         notClaimedQrCodesCount[minter]++;
+        notClaimedQrCodesIndexes[minter][qrCodeId] = notClaimedQrCodes[minter].length;
     }
 
     function onClaim(address minter, uint256 codeId, uint256 amount) onlyFactoryCall public {
@@ -118,13 +121,17 @@ contract QRCodeMinters is IQRCodeMinters {
         notClaimedByMinter[minter] -= amount;
         notClaimedQrCodesCount[minter]--;
         
-        uint256[] storage notClaimedArray = notClaimedQrCodes[minter];
-        for (uint256 i = 0; i < notClaimedArray.length; i++) {
-            if (notClaimedArray[i] == codeId) {
-                notClaimedArray[i] = notClaimedArray[notClaimedArray.length - 1];
-                notClaimedArray.pop();
-                break;
+        uint256 index = notClaimedQrCodesIndexes[minter][codeId];
+        if (index != 0) {
+            uint256 lastIndex = notClaimedQrCodes[minter].length - 1;
+            if (index <= lastIndex) {
+                uint256 lastCodeId = notClaimedQrCodes[minter][lastIndex];
+                notClaimedQrCodes[minter][index - 1] = lastCodeId;
+                notClaimedQrCodesIndexes[minter][lastCodeId] = index;
             }
+            notClaimedQrCodes[minter].pop();
+
+            delete notClaimedQrCodesIndexes[minter][codeId];
         }
     }
 
@@ -209,24 +216,40 @@ contract QRCodeMinters is IQRCodeMinters {
     // Пересчет баланса
     function recalcBalance(address minter) public {
         require(minters.exists(minter), "Minter does not exist");
-        uint256 newBalance = minterBalance[minter];
+        uint256 newBalance = 0;
         uint256[] storage notClaimedCodes = notClaimedQrCodes[minter];
-        uint256 i = 0;
 
-        while (i < notClaimedCodes.length) {
+        for (uint256 i = 0; i < notClaimedCodes.length; ) {
             uint256 codeId = notClaimedCodes[i];
             IQRCodeClaimer qrCodeContract = IQRCodeClaimer(factory.qrCodesRoutersById(codeId));
 
             if (!qrCodeContract.isValid() && !factory.isQrCodeClaimed(address(qrCodeContract))) {
+                // Если код недействителен и не обналичен, удаляем его
+                uint256 lastIndex = notClaimedCodes.length - 1;
+
+                // Заменяем текущий элемент последним элементом массива
+                if (i != lastIndex) {
+                    uint256 lastCodeId = notClaimedCodes[lastIndex];
+                    notClaimedCodes[i] = lastCodeId;
+                    notClaimedQrCodesIndexes[minter][lastCodeId] = i + 1; // Обновляем индекс замещенного элемента
+                }
+
+                // Удаляем последний элемент массива
+                notClaimedCodes.pop();
+
+                // Удаляем индекс удаленного элемента
+                delete notClaimedQrCodesIndexes[minter][codeId];
+
+                // Обновляем счетчики баланса
                 newBalance += qrCodeContract.amount();
                 notClaimedByMinter[minter] -= qrCodeContract.amount();
-                notClaimedCodes[i] = notClaimedCodes[notClaimedCodes.length - 1];
-                notClaimedCodes.pop();
                 notClaimedQrCodesCount[minter]--;
             } else {
-                i++;
+                i++; // Переходим к следующему элементу только если текущий оставлен
             }
         }
+
+        // Обновляем баланс минтера
         minterBalance[minter] = newBalance;
     }
 }
