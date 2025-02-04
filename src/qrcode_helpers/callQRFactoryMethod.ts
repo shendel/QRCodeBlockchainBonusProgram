@@ -21,7 +21,7 @@ const callQRFactoryMethod = (options) => {
 
 
     const contract = new activeWeb3.eth.Contract(QRFactoryContractData.abi, contractAddress)
-
+    console.log('>>> args', args, activeWallet)
     const sendArgs = await calcSendArgWithFee(
       activeWallet,
       contract,
@@ -29,6 +29,7 @@ const callQRFactoryMethod = (options) => {
       args || [],
       weiAmount
     )
+    console.log('>>> sendArgs', sendArgs)
     const gasPrice = await activeWeb3.eth.getGasPrice()
     sendArgs.gasPrice = gasPrice
 

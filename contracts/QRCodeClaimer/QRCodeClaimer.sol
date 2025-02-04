@@ -21,7 +21,7 @@ contract QRCodeClaimer is IQRCodeClaimer {
     uint256 public created_at;
     uint256 public timelife;
 
-    bool notValid = false;
+    bool public _isValid = true;
 
     constructor (
         address _factory,
@@ -66,13 +66,16 @@ contract QRCodeClaimer is IQRCodeClaimer {
 
     function setNotValid() public {
         require(msg.sender == address(factory), "Not allowed");
-        notValid = true;
+        _isValid = false;
     }
     function isValid() public view returns (bool) {
-        if (!notValid) return false;
+        if (!_isValid) return false;
         return (created_at + timelife) > block.timestamp;
     }
-
+    function isExpired() public view returns (bool) {
+        return (created_at + timelife) > block.timestamp;
+    }
+    
     function isClaimed() public view returns (bool) {
         return factory.isQrCodeClaimed(address(this));
     }

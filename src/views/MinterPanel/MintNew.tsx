@@ -82,6 +82,7 @@ export default function MinterMintNew(props) {
 
   useEffect(() => {
     setAmountError(``)
+    console.log(toWei(amount, factoryStatus.tokenDecimals))
   }, [ amount ])
 
   const [ isMinting, setIsMinting ] = useState(false)
@@ -130,7 +131,7 @@ export default function MinterMintNew(props) {
   const [ templates, setTemplates ] = useState([])
   
   const [ activeTab, setActiveTab ] = useState(TABS.NEW_CODE)
-  
+  console.log('>>> FACTORY', factoryStatus, (new BigNumber(browserEnergy).isGreaterThanOrEqualTo(toWei(MINT_MIN_BROWSER_ENERGY))) ? true : false)
   return (
     <WorkChainHolder>
       <div className={styles.mintQrCodePanel}>
