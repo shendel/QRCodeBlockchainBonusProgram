@@ -34,6 +34,7 @@ contract QRCodeFactory is IQRCodeFactory {
         return _qrCodes[id];
     }
     mapping (address => uint256) public qrCodesRouters;
+    mapping (uint256 => address) public qrCodesRoutersById;
     uint256 private qrCodeLastId = 0;
     uint256 public qrCodesLength = 0;
 
@@ -323,6 +324,7 @@ contract QRCodeFactory is IQRCodeFactory {
         );
 
         qrCodesRouters[router] = qrCodeLastId;
+        qrCodesRoutersById[qrCodeLastId] = router;
         totalMintedAmount+=_amount;
 
         minters.addQrCode(msg.sender, _amount, qrCodeLastId);

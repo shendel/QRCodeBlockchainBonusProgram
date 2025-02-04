@@ -7,6 +7,7 @@ pragma solidity ^0.8.12;
 import "../AddressSet.sol";
 import "../IQRCodeFactory.sol";
 import "./IQRCodeMinters.sol";
+import "../QRCodeClaimer/IQRCodeClaimer.sol";
 
 contract QRCodeMinters is IQRCodeMinters {
     using AddressSet for AddressSet.Storage;
@@ -207,6 +208,25 @@ contract QRCodeMinters is IQRCodeMinters {
 
     // Пересчет баланса
     function recalcBalance(address minter) public {
-        
+        require(minters.exists(minter), "Minter does not exist");
+        uint256 newBalance = minterBalance[minter];
+        uint256[] storage notClaimedCodes = notClaimedQrCodes[minter];
+        uint256 i = 0;
+
+        while (i < notClaimedCodes.length) {
+            uint256 codeId = notClaimedCodes[i];
+            IQRCodeClaimer qrCodeContract = IQRCodeClaimer(factory.qrCodesRoutersById(codeId));
+
+            if (!qrCodeContract.isValid() && !factory.isQrCodeClaimed(address(qrCodeContract))) {
+                newBalance += qrCodeContract.amount();
+                notClaimedByMinter[minter] -= qrCodeContract.amount();
+                notClaimedCodes[i] = notClaimedCodes[notClaimedCodes.length - 1];
+                notClaimedCodes.pop();
+                notClaimedQrCodesCount[minter]--;
+            } else {
+                i++;
+            }
+        }
+        minterBalance[minter] = newBalance;
     }
 }
