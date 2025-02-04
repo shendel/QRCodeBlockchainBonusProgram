@@ -70,7 +70,7 @@ contract QRCodeClaimer is IQRCodeClaimer {
     }
     function isValid() public view returns (bool) {
         if (!notValid) return false;
-        return ((created_at + timelife) < block.timestamp) ? true : false;
+        return (created_at + timelife) > block.timestamp;
     }
 
     function isClaimed() public view returns (bool) {
@@ -78,14 +78,15 @@ contract QRCodeClaimer is IQRCodeClaimer {
     }
 
     function claim(address claimer) public {
-        require(notValid == false, "QRCode not valid");
-        // Dev - not check timelife
-        // require(isValid() == false, "QRCode not valid"); 
-        require(factory.isBannedClaimer(msg.sender) == false, "Banned");
+        require(!isClaimed(), "QRCode already claimed");
+        require(isValid(), "QRCode not valid");
+        require(tx.origin == msg.sender, "Contract call not allowed");
 
-        if (claimer == address(0)) {
+        require(factory.isBannedClaimer(msg.sender) == false, "Banned");
+        if (claimer != address(0)) {
             require(factory.isBannedClaimer(claimer) == false, "Banned");
         }
+
         factory.claim((claimer == address(0)) ? msg.sender : claimer, msg.sender);
     }
 }
