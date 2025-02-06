@@ -275,10 +275,8 @@ contract QRCodeFactory is IQRCodeFactory {
         return _address.balance;
     }
     function isQrCodeClaimed(address router) public view returns (bool) {
-        if (qrCodesRouters[router] != 0) {
-            return (_qrCodes[qrCodesRouters[router]].claimed_at == 0) ? false : true;
-        }
-        return false;
+        uint256 qrCodeId = qrCodesRouters[router];
+        return qrCodeId != 0 && _qrCodes[qrCodeId].claimed_at != 0;
     }
     /* ---- */
     
@@ -287,80 +285,75 @@ contract QRCodeFactory is IQRCodeFactory {
         uint256 _timelife,
         string memory _message
     ) onlyMinter public returns (address) {
-        require(_amount > 0, "Amount must be greater zero");
-        // Check limits
-        /*
-        if (maxMintAmountPerQrCode[msg.sender] > 0) {
-            require(amount <= maxMintAmountPerQrCode[msg.sender], "Amount great than you limit");
-        } else {
-            require(amount <= maxMintAmountPerQrCodeGlobal, "Amount great than limit 'maxMintAmountPerQrCodeGlobal'");
-        }
-        */
-        // require() - check balance
         uint256 qrTL = (_timelife == 0) ? codeTL : _timelife;
-        
-        address router = deployerQRCodeClaimer.deploy(
-            tokenAddress,
-            msg.sender,
-            _amount,
-            block.timestamp,
-            qrTL,
-            minters.getMinterName(msg.sender),
-            _message
-        );
 
         qrCodeLastId++;
-        _qrCodes[qrCodeLastId] = QRCODE(
-            qrCodeLastId,
-            _amount,                 // amount
-            msg.sender,             // minter
-            address(0),             // claimer
-            address(0),             // claimer_call
-            block.timestamp,        // minted_at
-            0,                      // claimed_at
-            qrTL,
-            router,                 // router
-            _message                // message
-        );
-
-        qrCodesRouters[router] = qrCodeLastId;
-        qrCodesRoutersById[qrCodeLastId] = router;
-        totalMintedAmount+=_amount;
-
+        
         minters.addQrCode(msg.sender, _amount, qrCodeLastId);
+
+        _qrCodes[qrCodeLastId] = QRCODE({
+            id: qrCodeLastId,
+            amount: _amount,
+            minter: msg.sender,
+            claimer: address(0),
+            claimer_call: address(0),
+            minted_at: block.timestamp,
+            claimed_at: 0,
+            timelife: qrTL,
+            router: deployerQRCodeClaimer.deploy(
+                tokenAddress,
+                msg.sender,
+                _amount,
+                block.timestamp,
+                qrTL,
+                minters.getMinterName(msg.sender),
+                _message
+            ),
+            message: _message
+        });
+
+        qrCodesRouters[_qrCodes[qrCodeLastId].router] = qrCodeLastId;
+        qrCodesRoutersById[qrCodeLastId] = _qrCodes[qrCodeLastId].router;
+        totalMintedAmount+=_amount;
 
         qrCodesLength++;
 
-        emit QrCodeMinted(router);
-        return (router);
+        emit QrCodeMinted(_qrCodes[qrCodeLastId].router);
+        return (_qrCodes[qrCodeLastId].router);
     }
 
     function claim(address claimer, address claimer_call) public {
         require(qrCodesRouters[msg.sender] != 0, "Call not from router");
         uint256 qrCodeId = qrCodesRouters[msg.sender];
-        require(_qrCodes[qrCodeId].minted_at != 0, "This code not minted yet");
-        require(_qrCodes[qrCodeId].claimed_at == 0, "This code already claimed");
-        require(_qrCodes[qrCodeId].minted_at + _qrCodes[qrCodeId].timelife > block.timestamp, "QrCode is expired");
+        QRCODE storage qrCode = _qrCodes[qrCodeId];
+        require(IERC20(tokenAddress).balanceOf(address(this)) >= qrCode.amount, "Low token balance at Factory, contact tech support");
 
         claimers.onClaim(
             claimer,
-            _qrCodes[qrCodeId].amount,
+            qrCode.amount,
             qrCodeId
         );
 
-        totalQrCodesClaimed++;
-        minters.onClaim(_qrCodes[qrCodeId].minter, qrCodeId, _qrCodes[qrCodeId].amount);
-        totalClaimedAmount+=_qrCodes[qrCodeId].amount;
+        unchecked {
+            totalQrCodesClaimed++;
+            totalClaimedAmount+=qrCode.amount;
+        }
+        
+        minters.onClaim(
+            qrCode.minter,
+            qrCodeId,
+            qrCode.amount
+        );
 
-        _qrCodes[qrCodeId].claimer = claimer;
-        _qrCodes[qrCodeId].claimer_call = claimer_call;
-        _qrCodes[qrCodeId].claimed_at = block.timestamp;
+        qrCode.claimer = claimer;
+        qrCode.claimer_call = claimer_call;
+        qrCode.claimed_at = block.timestamp;
     
         // Move token
-        IERC20(tokenAddress).transfer(claimer, _qrCodes[qrCodeId].amount);
+        IERC20(tokenAddress).transfer(claimer, qrCode.amount);
         // Faucet energy
         uint256 claimerBalance = claimer.balance;
-        if (claimerBalance < faucetAmount) {
+        if (claimerBalance < faucetAmount && address(this).balance >= faucetAmount) {
             uint256 needAmount = faucetAmount - claimer.balance;
             totalFaucetAmount+=needAmount;
             claimers.addFaucetUsed(claimer, needAmount);

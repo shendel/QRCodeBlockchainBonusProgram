@@ -466,6 +466,9 @@ export default function MinterAddBonusPointsPanel(props) {
   }
 
   const isZeroAmount = !new BigNumber(spendAmount).isGreaterThan(0)
+  
+  const canDoSwap = !isZeroAmount
+  
   return (
     <div className={styles.climerWithdrawPanel}>
       {(isBalanceFetching || isAllowanceFetching || isSendToBridge || isApproving || screenLocked ) && (
@@ -591,7 +594,9 @@ export default function MinterAddBonusPointsPanel(props) {
             ) : (
               <>
                 {!isSwapping && (
-                  <a className={`${styles.button} ${(isZeroAmount) ? styles.buttonDisabled : ''}`} onClick={doBridge}>
+                  <a
+                    className={`${styles.button} ${(!canDoSwap) ? styles.buttonDisabled : ''}`}
+                    onClick={() => { if (canDoSwap) { doBridge() } }}>
                     {!isSwapped
                       ? t('Swap')
                       : t('Swap again')

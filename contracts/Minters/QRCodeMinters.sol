@@ -104,13 +104,20 @@ contract QRCodeMinters is IQRCodeMinters {
     }
 
     function addQrCode(address minter, uint256 amount, uint256 qrCodeId) onlyFactoryCall public {
+        recalcBalance(minter);
+        require(minterBalance[minter] >= amount, "Low balance");
+        require(amount > 0, "Amount is zero");
+        if (maxMintAmountPerQrCode[minter] > 0) {
+            require(amount <= maxMintAmountPerQrCode[minter], "Amount greater than allowed per QRCode");
+        }
+        minterBalance[minter] -= amount;
         mintedAmount[minter] += amount;
         mintedQrCodes[minter].push(qrCodeId);
         mintedQrCodesCount[minter]++;
         notClaimedByMinter[minter] += amount;
         notClaimedQrCodes[minter].push(qrCodeId);
         notClaimedQrCodesCount[minter]++;
-        notClaimedQrCodesIndexes[minter][qrCodeId] = notClaimedQrCodes[minter].length;
+        notClaimedQrCodesIndexes[minter][qrCodeId] = notClaimedQrCodes[minter].length;        
     }
 
     function onClaim(address minter, uint256 codeId, uint256 amount) onlyFactoryCall public {
@@ -133,6 +140,7 @@ contract QRCodeMinters is IQRCodeMinters {
 
             delete notClaimedQrCodesIndexes[minter][codeId];
         }
+        recalcBalance(minter);
     }
 
     function getMintersCount() public view returns (uint256) {
@@ -164,7 +172,8 @@ contract QRCodeMinters is IQRCodeMinters {
                 (skipCodesIds) ? new uint256[](0) : notClaimedQrCodes[minter], // uint256[] notClaimedQrCodes;
                 mintedQrCodesCount[minter],                                 // uint256 mintedQrCodesCount;
                 claimedQrCodesCount[minter],                                // uint256 claimedQrCodesCount;
-                minterBalance[minter]                                       // uint256 balance;
+                minterBalance[minter],                                      // uint256 balance;
+                maxMintAmountPerQrCode[minter]                              // uint256 maxMintAmountPerQrCode;
             );
         }
     }
@@ -216,7 +225,7 @@ contract QRCodeMinters is IQRCodeMinters {
     // Пересчет баланса
     function recalcBalance(address minter) public {
         require(minters.exists(minter), "Minter does not exist");
-        uint256 newBalance = 0;
+        uint256 newBalance = minterBalance[minter];
         uint256[] storage notClaimedCodes = notClaimedQrCodes[minter];
 
         for (uint256 i = 0; i < notClaimedCodes.length; ) {

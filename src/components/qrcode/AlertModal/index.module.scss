@@ -1,6 +1,8 @@
 .alertModal {
   .popupHolder {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: fixed;
     left: 0;
     top: 0;
@@ -14,10 +16,8 @@
   
   .popupWindow {
     display: block;
-    position: fixed;
-    left: 1em;
-    top: 5em;
-    right: 1em;
+    position: relative;
+    width: 100%;
     background: #FFF;
     border: 1px solid #4a4a4a;
     border-radius: 0.5em;

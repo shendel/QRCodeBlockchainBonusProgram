@@ -18,6 +18,7 @@ interface IQRCodeMinters {
         uint256 mintedQrCodesCount;
         uint256 claimedQrCodesCount;
         uint256 balance;
+        uint256 maxMintAmountPerQrCode;
     }
     
     function getIsMinter(address who) external view returns (bool);

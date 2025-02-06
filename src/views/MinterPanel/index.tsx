@@ -101,14 +101,18 @@ export default function Minter(props) {
               <span>Your energy</span>
               <div>
                 {fromWei(minterInfo.energy)}
-                <InfoBlock />
+                <InfoBlock
+                  message={t('This shows your current "energy" level in the system, which is necessary for creating QR codes with bonus points. If your energy drops to zero, contact technical support to restore your energy balance.')}
+                />
               </div>
             </div>
             <div>
               <span>Balance of {factoryStatus.tokenName}</span>
               <div>
                 {fromWei(minterInfo.balance, factoryStatus.tokenDecimals)}
-                <InfoBlock />
+                <InfoBlock
+                  message={t('The total amount of bonus points that you can distribute across new QR codes.')}
+                />
               </div>
             </div>
             <div>
@@ -118,7 +122,9 @@ export default function Minter(props) {
                   <em>{fromWei(minterInfo.claimedAmount, factoryStatus.tokenDecimals)}</em>
                   <ShowIcon />
                 </a>
-                <InfoBlock />
+                <InfoBlock
+                  message={t('The amount of bonus points that have already been successfully claimed by participants through activating QR codes.')}
+                />
               </div>
             </div>
             <div>
@@ -128,7 +134,9 @@ export default function Minter(props) {
                   <em>{fromWei(minterInfo.mintedAmount, factoryStatus.tokenDecimals)}</em>
                   <ShowIcon />
                 </a>
-                <InfoBlock />
+                <InfoBlock
+                  message={t('The total amount of bonus points that have been created over the entire period of system operation. This value is dynamically updated: bonus points from expired QR codes that were not claimed in time are removed from it.')}
+                />
               </div>
             </div>
             <div>
@@ -138,9 +146,15 @@ export default function Minter(props) {
                   <em>{minterInfo.claimedQrCodesCount}</em>
                   <ShowIcon />
                 </a>
-                <InfoBlock />
+                <InfoBlock
+                  message={t('The number of QR codes that have already been successfully activated by participants. Each of these codes had its own balance of bonus points, which was transferred to the user.')}
+                />
               </div>
             </div>
+            {/*
+              Not claimed
+              The amount of bonus points assigned to active QR codes but not yet claimed by participants. These points are in an active state and can be used until the expiration date of the corresponding QR codes. After the code's expiration date, its balance is removed from Minted .
+            */}
             <div>
               <span onClick={() => { gotoPage('/minter/codes/all/0') }}>Minted QRCodes</span>
               <div>
@@ -148,9 +162,15 @@ export default function Minter(props) {
                   <em>{minterInfo.mintedQrCodesCount}</em>
                   <ShowIcon />
                 </a>
-                <InfoBlock />
+                <InfoBlock
+                  message={t('The total number of QR codes that have been created over the entire period of system operation. This value is also dynamically updated: QR codes whose expiration date has passed without activation are excluded from it.')}
+                />
               </div>
             </div>
+            {/*
+              Not claimed qr codes
+              The number of QR codes that have been created, have a valid expiration date, and have not yet been activated by participants. Each of these codes contains bonus points awaiting use. If the code’s expiration date passes, it is automatically removed from the system, and its bonus points are no longer counted in Minted 
+            */}
           </div>
         </>
       )}
